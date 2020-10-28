@@ -1,17 +1,27 @@
 
+- [x] parse todo.md format
+- [ ] kb: x to mark as done
+- [ ] kb: dd to delete
+- [ ] kb: d3d to delete multiple
+- [ ] kb: n to make new
+- [ ] kb: p to paste below
+- [ ] kb: P to paste above
+- [ ] kb: e to edit line
+- [ ] kb: hjkl for movement
+- [ ] kb: strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
+- [ ] kb: strg+Up/k swap up
+- [ ] kb: strg+down/j swap down
 - [ ] overlong content in window
     - [ ] scroll
     - [ ] splitted window
 - [ ] multiple windows arrangement
 - [ ] windows from groups
 - [ ] project delimiters in window
-- [ ] parse todo.md format
 - [ ] nicer line view
-- [ ] write new line
-- [ ] edit line
 - [ ] sidebar
     - [ ] choose projects / contexts
     - [ ] auto-filter
     - [ ] presets
     - [ ] and/or filters
 - [ ] settings window
+- task warrior bindings

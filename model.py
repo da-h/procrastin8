@@ -120,11 +120,19 @@ class Model():
 
                 text.append(word)
 
+            if m[1] == "x":
+                completion_date = m[3]
+                creation_date = m[4]
+            else:
+                completion_date = None
+                creation_date = m[3]
+                # TODO error when both are specified
+
             self.todo.append(Task({
                 "complete": m[1] == "x",
                 "priority": m[2][1:-1] if m[2] else "M_",
-                "completion-date": date.fromisoformat(m[3]) if m[3] else None,
-                "creation-date": date.fromisoformat(m[4]) if m[4] else None,
+                "completion-date": date.fromisoformat(completion_date) if completion_date else None,
+                "creation-date": date.fromisoformat(creation_date) if creation_date else None,
                 "raw_text": t,
                 "text": text,
                 "tags": tags,
