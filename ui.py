@@ -5,8 +5,6 @@ from textwrap import TextWrapper
 
 from settings import COLUMN_WIDTH, WINDOW_PADDING
 
-term = Terminal()
-
 class Cursor:
 
     def __init__(self):
@@ -19,43 +17,24 @@ class Cursor:
     def draw(self):
         print(term.move_xy(self.pos)+"_")
 
-cursor = Cursor()
+
+class WorkitTerminal(Terminal):
+
+    def __init__(self):
+        super().__init__()
+        self.cursor = Cursor()
+
+    def move_xy(self, x, y=None):
+        if type(x) is np.ndarray:
+            return super().move_xy(x[0],x[1])
+        return super().move_xy(x,y)
 
 
-todo = """
-2019-01-27 Review @iflow +planing rec:3m due:2019-04-27 t:2019-04-27
-(C) 2018-11-02 Universal Correspondence Network +iFlow @papers
-(D) 2017-07-21 Universal Programming +iFlow @papers
-(D) 2018-11-02 Joshua Tennbaum A Rational Analysis of Rule-based Concept Learning +iFlow @papers
-2019-08-19 kanban note Weight gradients by histogram @iflow +infn
-2020-10-03 Tidy up kanban +planing @iflow
-2020-10-03 Move entval todos to kanban +planing @iflow
-2020-10-03 move notes from scribble to kanban +planing @iflow
-2020-10-08 Check fanstanstic 3 channel for related work and todos +entval @iflow
-2020-07-12 kanban note Relaxation for big Vektors. Instead of having 1000000 weights, use 100 times 20 weights (to have a distribution over combinations) +planing @iflow
-2020-10-08 Check information flow channel for related work +entval @iflow
-2020-10-06 Go through informationflow channel for relatedwork +entval @iflow
-x (A) 2020-10-12 2020-10-08 One +Paper read @iflow rec:1b t:2020-10-09
-2020-10-03 Clear iflow code from Saturn +oldcode @iflow
-2020-10-03 Clear iflow code from sirius +oldcode @iflow
-""".strip()
+term = WorkitTerminal()
 
 
 
 
-
-# ====== #
-# helper #
-# ====== #
-
-term_move_xy = term.move_xy
-def move_xy(x,y=None):
-    if type(x) is np.ndarray:
-        return term_move_xy(x[0],x[1])
-    return term_move_xy(x,y)
-term.move_xy = move_xy
-
-wrapper = TextWrapper(width=COLUMN_WIDTH,initial_indent="",subsequent_indent="   ")
 
 
 # ======== #
@@ -94,9 +73,9 @@ class UIElement:
             self._ctrl_pos = pos
 
         seq = Sequence(*args,term)
-        if pos[1] == cursor.pos[1] and pos[0] <= cursor.pos[0] and cursor.pos[0] <= pos[0] + len(seq):
-            cursor.on_element = self
-            cursor.pos = self._ctrl_pos
+        if pos[1] == term.cursor.pos[1] and pos[0] <= term.cursor.pos[0] and term.cursor.pos[0] <= pos[0] + len(seq):
+            term.cursor.on_element = self
+            term.cursor.pos = self._ctrl_pos
         print(term.move_xy(pos)+seq)
 
     # pass event to parent if nothing happens
@@ -115,14 +94,14 @@ class Line(UIElement):
         super().draw()
 
         # ensure lines have correct width
-        text = wrapper.wrap(self.text)
+        text = str(self.text)
+        text = wrapper.wrap(text)
         self.height = len(text)
 
         # check what highlight it is
         highlight = lambda x: term.ljust(x,width=wrapper.width)
-        if pos[1] <= cursor.pos[1] and cursor.pos[1] < pos[1]+len(text):
+        if pos[1] <= term.cursor.pos[1] and term.cursor.pos[1] < pos[1]+len(text):
             highlight = lambda x: term.black_on_darkkhaki(term.ljust(x, width=wrapper.width))
-            # cursor.active_line = self
 
         # print lines
         for i, t in enumerate(text):
@@ -136,7 +115,7 @@ class Window(UIElement):
         self.pos = np.array(pos)
         self.width = width
         self.title = title
-        self.lines = [Line(l,parent=self) for l in todo.split("\n")]
+        self.lines = []
         self.wrapper = TextWrapper(width=width-2-WINDOW_PADDING*2, initial_indent="",subsequent_indent=" "*indent)
 
     def draw(self):
@@ -153,12 +132,12 @@ class Window(UIElement):
         draw_window(self.pos, (self.width, content_height), self.title)
 
     def cursorAction(self, val):
-        element = cursor.on_element
+        element = term.cursor.on_element
 
         if val.code == term.KEY_UP and element != self.lines[0]:
-            cursor.pos += (0, -1)
+            term.cursor.pos += (0, -1)
         elif val.code == term.KEY_DOWN and element != self.lines[-1]:
-            cursor.pos += (0,  element.height)
+            term.cursor.pos += (0,  element.height)
         else:
             return super().cursorAction(val)
 
