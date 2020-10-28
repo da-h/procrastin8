@@ -11,7 +11,6 @@ class Cursor:
         self.pos = np.array((3,2))
         self.on_element = None
         self.last_position = (-1,-1)
-        self.new_position = True
 
     def moveTo(self, on_element):
         self.on_element = on_element
@@ -20,10 +19,20 @@ class Cursor:
     def clear(self):
         self.on_element = None
 
-    def changed(self):
-        changed = all(self.last_position != self.pos)
-        self.last_position = self.pos
+    def finalize(self):
+        changed = any(self.last_position != self.pos)
+        self.last_position = np.copy(self.pos)
+        if changed:
+            self.on_element = self.on_element_current
+            self.on_element.onHoverEvent()
+            self.moveTo(self.on_element)
+            term.redraw = True
         return changed
+            # if term.cursor.changedPosition() and term.cursor.on_element != self:
+            #     term.cursor.on_element = self
+            #     self.onHoverEvent()
+            #     term.cursor.pos = self.pos
+
 
 class WorkitTerminal(Terminal):
 
@@ -78,14 +87,15 @@ class UIElement:
     def draw(self):
         pass
 
+    def close(self):
+        for key, val in self.last_print.items():
+            print(term.move_xy(key)+" "*len(Sequence(val)))
+
     def printAt(self, rel_pos, *args):
         seq = Sequence(*args,term)
         pos = self.pos + rel_pos
         if pos[1] == term.cursor.pos[1] and pos[0] <= term.cursor.pos[0] and term.cursor.pos[0] < pos[0] + len(seq):
-            if term.cursor.on_element != self:
-                term.cursor.on_element = self
-                self.onHoverEvent()
-            term.cursor.pos = self.pos
+            term.cursor.on_element_current = self
 
         new_print = term.move_xy(pos)+seq
         if rel_pos not in self.last_print or self.last_print[rel_pos] != new_print:
@@ -156,6 +166,15 @@ class PlainWindow(UIElement):
             self.last_height = self.height
             self.last_title = self.title
 
+    def close(self):
+        clean  = term.move_xy(self.pos) + " " + " " * (self.width-2) + " "
+        for i in range(self.height-2):
+            clean += term.move_xy(self.pos+(0,i+1)) + " "*self.width
+        clean += term.move_xy(self.pos+(0,self.height-1)) + " " + " " * (self.width-2) + " "
+        print(clean)
+        term.redraw = True
+
+
 
 class TextWindow(PlainWindow):
 
@@ -216,21 +235,19 @@ class SettingsWindow(TextWindow):
         pos = ((term.width - width)//2,10)
         super().__init__(pos, width=width, title="Settings", parent=parent)
 
-        self.add_line("blub")
-        self.add_line("blub")
-        self.add_line("blub")
-        self.add_line("blub")
-        self.add_line("blub")
+        self.add_line("Add")
+        self.add_line("Remove")
+        self.add_line("Tag")
+        self.add_line("Lorem")
+        self.add_line("Ipsum")
 
-    # def cursorAction(self, val):
-    #     element = term.cursor.on_element
-    #
-    #     if val.code == term.KEY_UP and element != self.lines[0]:
-    #         term.cursor.pos += (0, -1)
-    #     elif val.code == term.KEY_DOWN and element != self.lines[-1]:
-    #         term.cursor.pos += (0,  element.height)
-    #     else:
-    #         return super().cursorAction(val)
+    def cursorAction(self, val):
+
+        if val == "s":
+            self.close()
+            return
+
+        return super().cursorAction(val)
 
 
 
