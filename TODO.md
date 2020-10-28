@@ -1,0 +1,17 @@
+
+- [ ] overlong content in window
+    - [ ] scroll
+    - [ ] splitted window
+- [ ] multiple windows arrangement
+- [ ] windows from groups
+- [ ] project delimiters in window
+- [ ] parse todo.md format
+- [ ] nicer line view
+- [ ] write new line
+- [ ] edit line
+- [ ] sidebar
+    - [ ] choose projects / contexts
+    - [ ] auto-filter
+    - [ ] presets
+    - [ ] and/or filters
+- [ ] settings window
