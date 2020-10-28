@@ -9,24 +9,28 @@ class Cursor:
 
     def __init__(self):
         self.pos = np.array((3,2))
+        self.on_element = None
+        self.last_position = (-1,-1)
+        self.new_position = True
 
     def moveTo(self, on_element):
         self.on_element = on_element
-        self.pos = self.on_element._ctrl_pos
+        self.pos = self.on_element.pos
 
     def clear(self):
         self.on_element = None
 
-    def draw(self):
-        pass
-        # print(term.move_xy(self.pos)+"_")
-
+    def changed(self):
+        changed = all(self.last_position != self.pos)
+        self.last_position = self.pos
+        return changed
 
 class WorkitTerminal(Terminal):
 
     def __init__(self):
         super().__init__()
         self.cursor = Cursor()
+        self.redraw = True
 
     def move_xy(self, x, y=None):
         if type(x) is np.ndarray:
@@ -45,7 +49,7 @@ term = WorkitTerminal()
 # basic ui #
 # ======== #
 
-def draw_window(pos, dim, title=None):
+def draw_border(pos, dim, title=None):
     pos = np.array(pos)
     dim = np.array(dim)
     width, height = dim
@@ -64,63 +68,99 @@ def draw_window(pos, dim, title=None):
 
 
 class UIElement:
-    def __init__(self, parent=None):
-        self.active = False
+    def __init__(self, pos=None, parent=None):
+        if not pos and not parent:
+            raise ValueError("Either position or parent have to be specified")
         self.parent = parent
-        self.pos = None
-        self._ctrl_pos = None
+        self.pos = pos
+        self.last_print = {}
 
     def draw(self):
-        self.active = False
-        self._ctrl_pos = None
+        pass
 
-    def printAt(self,pos,*args):
-        if self._ctrl_pos is None:
-            self._ctrl_pos = pos
-
+    def printAt(self, rel_pos, *args):
         seq = Sequence(*args,term)
-        if pos[1] == term.cursor.pos[1] and pos[0] <= term.cursor.pos[0] and term.cursor.pos[0] <= pos[0] + len(seq):
-            term.cursor.on_element = self
-            term.cursor.pos = self._ctrl_pos
-        print(term.move_xy(pos)+seq)
+        pos = self.pos + rel_pos
+        if pos[1] == term.cursor.pos[1] and pos[0] <= term.cursor.pos[0] and term.cursor.pos[0] < pos[0] + len(seq):
+            if term.cursor.on_element != self:
+                term.cursor.on_element = self
+                self.onHoverEvent()
+            term.cursor.pos = self.pos
+
+        new_print = term.move_xy(pos)+seq
+        if rel_pos not in self.last_print or self.last_print[rel_pos] != new_print:
+            print(new_print)
+            self.last_print[rel_pos] = new_print
 
     # pass event to parent if nothing happens
     def cursorAction(self, val):
         if self.parent is not None:
             self.parent.cursorAction(val)
 
+    def onHoverEvent(self):
+        pass
+
 
 class Line(UIElement):
 
-    def __init__(self, text, parent=None):
-        super().__init__(parent)
+    def __init__(self, text, pos=None, wrapper=None, parent=None):
+        super().__init__(pos, parent)
         self.text = text
         self.height = 1
+        self.wrapper = wrapper
+        self._typeset_text = None
 
     def formatText(self):
         return str(self.text)
 
-    def draw(self, pos, wrapper):
+    # ensure lines have correct width
+    def typeset(self):
+        if self.wrapper is None:
+            self._typeset_text = self.text
+            self.height = 1
+        else:
+            self._typeset_text = self.wrapper.wrap(self.formatText())
+            self.height = len(self._typeset_text)
+
+    def draw(self):
         super().draw()
 
-        # ensure lines have correct width
-        text = wrapper.wrap(self.formatText())
-        self.height = len(text)
-
         # check what highlight it is
-        highlight = lambda x: term.ljust(x,width=wrapper.width)
-        if pos[1] <= term.cursor.pos[1] and term.cursor.pos[1] < pos[1]+len(text):
-            highlight = lambda x: term.bold_white(term.ljust(x, width=wrapper.width))
+        highlight = lambda x: term.ljust(x,width=self.wrapper.width)
+        # if self.pos[1] <= term.cursor.pos[1] and term.cursor.pos[1] < self.pos[1]+self.height:
+        if term.cursor.on_element == self:
+            highlight = lambda x: term.bold_white(term.ljust(x, width=self.wrapper.width))
 
         # print lines
-        for i, t in enumerate(text):
-            self.printAt(pos+(0,i),highlight(t))
+        for i, t in enumerate(self._typeset_text):
+            self.printAt((0,i),highlight(t))
+
+    def onHoverEvent(self):
+        term.redraw = True
+
+class PlainWindow(UIElement):
+
+    def __init__(self, pos, width=1, height=1, title="", parent=None):
+        super().__init__(pos, parent)
+        self.width = width
+        self.height = height
+        self.title = title
+        self.last_width = None
+        self.last_height = None
+        self.last_title = None
+
+    def draw(self):
+        if self.last_width != self.width or self.height != self.height or self.title != self.title:
+            draw_border(self.pos, (self.width, self.height), self.title)
+            self.last_width = self.width
+            self.last_height = self.height
+            self.last_title = self.title
 
 
-class TextWindow(UIElement):
+class TextWindow(PlainWindow):
 
     def __init__(self, pos, width, title, indent=2, parent=None):
-        super().__init__(parent)
+        super().__init__(pos, parent)
         self.pos = np.array(pos)
         self.width = width
         self.title = title
@@ -129,28 +169,45 @@ class TextWindow(UIElement):
         self.height = 1
 
     def draw(self):
-        super().draw()
 
-        # first draw text
+        # calculate dynamic height
+        # & position lines
         content_height = 1
         for line in self.lines:
-            line.draw(self.pos+(1+WINDOW_PADDING,content_height), self.wrapper)
+            line.pos = self.pos+(1+WINDOW_PADDING,content_height)
+            line.typeset()
             content_height += line.height
         content_height += 1
-        self.height = content_height
 
-        # now draw border
-        draw_window(self.pos, (self.width, content_height), self.title)
+        # draw window
+        self.height = content_height
+        super().draw()
+
+        # draw text
+        for line in self.lines:
+            line.draw()
+
 
     def cursorAction(self, val):
         element = term.cursor.on_element
 
         if val.code == term.KEY_UP and element != self.lines[0]:
             term.cursor.pos += (0, -1)
+            term.redraw = True
         elif val.code == term.KEY_DOWN and element != self.lines[-1]:
             term.cursor.pos += (0,  element.height)
+            term.redraw = True
         else:
             return super().cursorAction(val)
+
+    def add_line(self, text):
+        self.lines.append( Line(text, wrapper=self.wrapper, parent=self) )
+
+
+class TaskWindow(TextWindow):
+
+    def add_line(self, text):
+        self.lines.append( TaskLine(text, wrapper=self.wrapper, parent=self) )
 
 
 class SettingsWindow(TextWindow):
@@ -158,6 +215,12 @@ class SettingsWindow(TextWindow):
     def __init__(self, width, parent=None):
         pos = ((term.width - width)//2,10)
         super().__init__(pos, width=width, title="Settings", parent=parent)
+
+        self.add_line("blub")
+        self.add_line("blub")
+        self.add_line("blub")
+        self.add_line("blub")
+        self.add_line("blub")
 
     # def cursorAction(self, val):
     #     element = term.cursor.on_element
