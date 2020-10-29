@@ -2,10 +2,12 @@ import re
 import os
 from datetime import date
 
+
 rdate = "\d{4}-\d{2}-\d{2}"
 completion = "x"
 priority = "\([A-Z]\)"
 ws = "\s*"
+
 
 re_todo     = re.compile(f"{ws}({completion})?{ws}({priority})?{ws}({rdate})?{ws}({rdate})?{ws}(.*)")
 re_modifier_with_date = re.compile(f"(\w+):({rdate})")
@@ -14,11 +16,13 @@ re_tag = re.compile("\+(\w+)")
 re_subtag = re.compile("\+\+(\w+)")
 re_list = re.compile("@(\w+)")
 
+
 class Tag(str):
     def __str__(self):
         return "+"+super().__str__()
     def __repr__(self):
         return "+"+super().__str__()
+
 
 class Subtag(str):
     def __str__(self):
@@ -26,11 +30,13 @@ class Subtag(str):
     def __repr__(self):
         return "++"+super().__str__()
 
+
 class List(str):
     def __str__(self):
         return "@"+super().__str__()
     def __repr__(self):
         return "@"+super().__str__()
+
 
 class Modifier(tuple):
     def __str__(self):
@@ -38,17 +44,21 @@ class Modifier(tuple):
     def __repr__(self):
         return self[0]+":"+self[1]
 
+
 class ModifierDate(tuple):
     def __str__(self):
         return self[0]+":"+str(self[1])
     def __repr__(self):
         return self[0]+":"+str(self[1])
 
+
 class CompletionDate(date):
     pass
 
+
 class CreationDateCompletionDate(date):
     pass
+
 
 class Task(dict):
     def __init__(self, model, d):
@@ -70,6 +80,7 @@ class Task(dict):
 
     def save(self):
         self.model.save()
+
 
 class Model():
     def __init__(self, filename):
