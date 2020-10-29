@@ -33,3 +33,4 @@ x +kb x to mark as done
 +kb strg+down/j swap down
 +kb u undo
 basic bindings +taskwarrior
+sort order +window
