@@ -1,5 +1,27 @@
 
 - [x] parse todo.md format
+- [x] nicer line view
+- [ ] dashboard-widget (shows everything)
+    - [ ] manage multiple windows
+    - [ ] redraw on close
+    - [ ] has collapsible sidebar
+    - [ ] tabs
+    - [ ] automatic arrangement of multiple windows
+    - [ ] allow resize
+    - [ ] windows from model/groups
+- windows
+    - [ ] overlong content in window
+        - [ ] scroll
+        - [ ] splitted window
+    - [ ] (sub)project delimiters in window
+- sidebar
+    - [ ] filter-sidebar
+        - [ ] choose projects / contexts
+        - [ ] auto-filter
+        - [ ] presets
+        - [ ] and/or filters
+    - [ ] settings window
+        - show/hide options
 - [ ] kb: x to mark as done
 - [ ] kb: dd to delete
 - [ ] kb: d3d to delete multiple
@@ -11,17 +33,4 @@
 - [ ] kb: strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
 - [ ] kb: strg+Up/k swap up
 - [ ] kb: strg+down/j swap down
-- [ ] overlong content in window
-    - [ ] scroll
-    - [ ] splitted window
-- [ ] multiple windows arrangement
-- [ ] windows from groups
-- [ ] project delimiters in window
-- [ ] nicer line view
-- [ ] sidebar
-    - [ ] choose projects / contexts
-    - [ ] auto-filter
-    - [ ] presets
-    - [ ] and/or filters
-- [ ] settings window
 - task warrior bindings
