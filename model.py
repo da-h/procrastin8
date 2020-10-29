@@ -29,6 +29,7 @@ re_todo     = re.compile(f"{ws}({completion})?{ws}({priority})?{ws}({rdate})?{ws
 re_modifier_with_date = re.compile(f"(\w+):({rdate})")
 re_modifier = re.compile("(\w+):(\w+)")
 re_tag = re.compile("\+(\w+)")
+re_subtag = re.compile("\+\+(\w+)")
 re_list = re.compile("@(\w+)")
 
 class Tag(str):
@@ -36,6 +37,12 @@ class Tag(str):
         return "+"+super().__str__()
     def __repr__(self):
         return "+"+super().__str__()
+
+class Subtag(str):
+    def __str__(self):
+        return "++"+super().__str__()
+    def __repr__(self):
+        return "++"+super().__str__()
 
 class List(str):
     def __str__(self):
@@ -87,6 +94,7 @@ class Model():
 
                 modifiers = {}
                 tags = []
+                subtags = []
                 lists = []
 
                 # match agains todo.txt
@@ -117,6 +125,12 @@ class Model():
                         text.append(Tag(m2[1]))
                         continue
 
+                    m2 = re_subtag.match(word)
+                    if m2:
+                        subtags.append(m2[1])
+                        text.append(Subtag(m2[1]))
+                        continue
+
                     m2 = re_list.match(word)
                     if m2:
                         lists.append(m2[1])
@@ -141,6 +155,7 @@ class Model():
                     "raw_text": t,
                     "text": text,
                     "tags": tags,
+                    "subtags": subtags,
                     "lists": lists,
                     "modifier": modifiers
                 }))

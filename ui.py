@@ -3,7 +3,7 @@ from blessed.sequences import Sequence, SequenceTextWrapper as TextWrapper
 import numpy as np
 
 from settings import COLUMN_WIDTH, WINDOW_PADDING
-from model import Tag, List, Modifier, ModifierDate
+from model import Tag, Subtag, List, Modifier, ModifierDate
 
 class Cursor:
 
@@ -367,6 +367,8 @@ class TaskLine(Line):
         for t in self.text["text"]:
             if isinstance(t, Tag):
                 S.append(term.red(str(t)))
+            if isinstance(t, Subtag):
+                S.append(term.red(term.dim+str(t)))
             elif isinstance(t, List):
                 S.append(term.bold(term.blue(str(t))))
             elif isinstance(t, Modifier):
