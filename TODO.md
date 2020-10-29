@@ -32,4 +32,5 @@ x +kb x to mark as done
 +kb strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
 +kb strg+Up/k swap up
 +kb strg+down/j swap down
++kb u undo
 basic bindings +taskwarrior
