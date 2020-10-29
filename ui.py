@@ -13,12 +13,25 @@ class Cursor:
         self.last_position = (-1,-1)
 
     def moveTo(self, on_element):
+        if self.on_element != on_element:
+            old_elem = self.on_element
         self.on_element = self.on_element_current = on_element
         self.pos = self.on_element.pos
         self.on_element.onHoverEvent()
+        return old_elem
 
     def clear(self):
         self.on_element = None
+
+    def isOnElement(self, elem):
+        onelem = self.on_element
+        if onelem == elem:
+            return True
+        while onelem.parent:
+            onelem = onelem.parent
+            if onelem == elem:
+                return True
+        return False
 
     def finalize(self):
         pass
@@ -77,15 +90,22 @@ class UIElement:
         if not pos and not parent:
             raise ValueError("Either position or parent have to be specified")
         self.parent = parent
+        self.elements = []
         self.pos = pos
         self.last_print = {}
 
-    def draw(self):
-        pass
+    def manage(self, elem):
+        self.elements.append(elem)
+
+    def draw(self, clean=False):
+        if clean:
+            self.last_print = {}
 
     def close(self):
         for key, val in self.last_print.items():
             print(term.move_xy(key)+" "*len(Sequence(val)))
+        if self.parent:
+            self.parent.onElementClosed(self)
 
     def printAt(self, rel_pos, *args):
         seq = Sequence(*args,term)
@@ -105,12 +125,14 @@ class UIElement:
 
     def onHoverEvent(self):
         pass
+    def onElementClosed(self, elem):
+        pass
 
 
 class Line(UIElement):
 
     def __init__(self, text, pos=None, wrapper=None, parent=None):
-        super().__init__(pos, parent)
+        super().__init__(pos=pos, parent=parent)
         self.text = text
         self.height = 1
         self.wrapper = wrapper
@@ -128,8 +150,8 @@ class Line(UIElement):
             self._typeset_text = self.wrapper.wrap(self.formatText())
             self.height = len(self._typeset_text)
 
-    def draw(self):
-        super().draw()
+    def draw(self, clean=False):
+        super().draw(clean)
 
         # check what highlight it is
         highlight = lambda x: term.ljust(x,width=self.wrapper.width)
@@ -145,7 +167,7 @@ class Line(UIElement):
 class PlainWindow(UIElement):
 
     def __init__(self, pos, width=1, height=1, title="", parent=None):
-        super().__init__(pos, parent)
+        super().__init__(pos=pos, parent=parent)
         self.width = width
         self.height = height
         self.title = title
@@ -153,8 +175,9 @@ class PlainWindow(UIElement):
         self.last_height = None
         self.last_title = None
 
-    def draw(self):
-        if self.last_width != self.width or self.height != self.height or self.title != self.title:
+    def draw(self, clean=False):
+        super().draw(clean)
+        if clean or self.last_width != self.width or self.height != self.height or self.title != self.title:
             draw_border(self.pos, (self.width, self.height), self.title)
             self.last_width = self.width
             self.last_height = self.height
@@ -165,12 +188,13 @@ class PlainWindow(UIElement):
         for i in range(self.height):
             clean += term.move_xy(self.pos+(0,i)) + " "*self.width
         print(clean)
+        super().close()
 
 
 class TextWindow(PlainWindow):
 
     def __init__(self, pos, width, title, indent=2, parent=None):
-        super().__init__(pos, parent)
+        super().__init__(pos=pos, parent=parent)
         self.pos = np.array(pos)
         self.width = width
         self.title = title
@@ -178,7 +202,7 @@ class TextWindow(PlainWindow):
         self.wrapper = TextWrapper(width=width-2-WINDOW_PADDING*2, initial_indent="",subsequent_indent=" "*indent, term=term)
         self.height = 1
 
-    def draw(self):
+    def draw(self, clean=False):
 
         # calculate dynamic height
         # & position lines
@@ -191,11 +215,11 @@ class TextWindow(PlainWindow):
 
         # draw window
         self.height = content_height
-        super().draw()
+        super().draw(clean)
 
         # draw text
         for line in self.lines:
-            line.draw()
+            line.draw(clean)
 
 
     def cursorAction(self, val):
@@ -209,7 +233,9 @@ class TextWindow(PlainWindow):
             return super().cursorAction(val)
 
     def add_line(self, text):
-        self.lines.append( Line(text, wrapper=self.wrapper, parent=self) )
+        elem = Line(text, wrapper=self.wrapper, parent=self)
+        self.lines.append(elem)
+        self.manage(elem)
 
     def onHoverEvent(self):
         if len(self.lines):
@@ -218,7 +244,9 @@ class TextWindow(PlainWindow):
 class TaskWindow(TextWindow):
 
     def add_line(self, text):
-        self.lines.append( TaskLine(text, wrapper=self.wrapper, parent=self) )
+        elem = TaskLine(text, wrapper=self.wrapper, parent=self)
+        self.lines.append(elem)
+        self.manage(elem)
 
 
 class SettingsWindow(TextWindow):
@@ -293,15 +321,11 @@ class Dashboard(UIElement):
     def __init__(self, model):
         super().__init__((0,0))
         self.model = model
-        self.elements = []
         self.overlay = None
 
-    def manage(self, elem):
-        self.elements.append(elem)
-
-    def draw(self):
+    def draw(self, clean=False):
         for elem in self.elements:
-            elem.draw()
+            elem.draw(clean)
         term.cursor.finalize()
         redraw()
 
@@ -310,9 +334,10 @@ class Dashboard(UIElement):
         while val.lower() != 'q':
             val = term.inkey()
             if val == "s" and self.overlay is None:
-                self.overlay = SettingsWindow(COLUMN_WIDTH)
+                self.overlay = SettingsWindow(COLUMN_WIDTH, parent=self)
                 self.overlay.draw()
-                term.cursor.moveTo(self.overlay.lines[0])
+                self.manage(self.overlay)
+                old_elem = term.cursor.moveTo(self.overlay.lines[0])
                 redraw()
             elif val and term.cursor.on_element:
                 term.cursor.on_element.cursorAction(val)
@@ -321,5 +346,13 @@ class Dashboard(UIElement):
 
     def onHoverEvent(self):
         if len(self.elements):
+            term.cursor.moveTo(self.elements[0])
+
+    def onElementClosed(self, elem):
+        self.elements.remove(elem)
+        if elem == self.overlay:
+            self.overlay = None
+        self.draw(True)
+        if term.cursor.isOnElement(elem):
             term.cursor.moveTo(self.elements[0])
 
