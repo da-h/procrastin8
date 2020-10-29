@@ -1,6 +1,10 @@
 
 - [x] parse todo.md format
 - [x] nicer line view
+- [ ] model
+    - read from file
+    - write (change) to file
+    - rewrite this todo to todo.txt
 - [ ] dashboard-widget (shows everything)
     - [x] redraw on close
     - [ ] manage multiple windows
@@ -22,7 +26,7 @@
         - [ ] and/or filters
     - [ ] settings window
         - show/hide options
-- [ ] kb: x to mark as done
+- [x] kb: x to mark as done
 - [ ] kb: dd to delete
 - [ ] kb: d3d to delete multiple
 - [ ] kb: n to make new
