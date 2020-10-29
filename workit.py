@@ -6,7 +6,7 @@ def main():
     draw_calls = 0
 
     # init
-    model = Model()
+    model = Model("TODO.md")
     dash = Dashboard(model)
 
     win = TaskWindow((1,1),COLUMN_WIDTH, "Title")
