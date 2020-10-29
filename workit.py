@@ -12,8 +12,8 @@ def main():
     win = TaskWindow((1,1),COLUMN_WIDTH, "Title")
     for l in model.todo:
         win.add_line(l)
-
     dash.manage(win)
+
     with term.fullscreen(), term.cbreak(), term.hidden_cursor():
         dash.draw()
         term.cursor.moveTo(dash)

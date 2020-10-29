@@ -303,6 +303,12 @@ class TaskLine(Line):
                 S.append(t)
         return " ".join([str(s) for s in S])+term.no_dim
 
+    def cursorAction(self, val):
+        if val == "x":
+            self.text["complete"] = not self.text["complete"]
+        super().cursorAction(val)
+
+
 
 # ========= #
 # Dashboard #
