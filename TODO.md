@@ -20,6 +20,7 @@ presets +sidebar ++filter
 and/or filters +sidebar ++filter
 settings window with show/hide options +sidebar
 x +kb x to mark as done
++kb X to Archive done to done.txt
 +kb dd to delete
 +kb d3d to delete multiple
 +kb n to make new
@@ -34,3 +35,4 @@ x +kb x to mark as done
 basic bindings +taskwarrior
 x sort order +window
 task sort order should follow file not alphabet +window
+skip empty lines when pressing up/down +window

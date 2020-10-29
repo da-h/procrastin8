@@ -15,6 +15,8 @@ class Cursor:
     def moveTo(self, on_element):
         if self.on_element != on_element:
             old_elem = self.on_element
+        else:
+            old_elem = None
         self.on_element = self.on_element_current = on_element
         self.pos = self.on_element.pos
         self.on_element.onHoverEvent()
@@ -299,11 +301,16 @@ class TextWindow(PlainWindow):
 
     def cursorAction(self, val):
         element = term.cursor.on_element
+        non_empty_lines = list(filter(lambda l: l.text, self.lines))
 
-        if val.code == term.KEY_UP and element != self.lines[0]:
-            term.cursor.moveTo(self.lines[self.lines.index(element)-1])
-        elif val.code == term.KEY_DOWN and element != self.lines[-1]:
-            term.cursor.moveTo(self.lines[self.lines.index(element)+1])
+        if val.code == term.KEY_UP:
+            index = non_empty_lines.index(element)
+            if index > 0:
+                term.cursor.moveTo(non_empty_lines[index-1])
+        elif val.code == term.KEY_DOWN:
+            index = non_empty_lines.index(element)
+            if index < len(non_empty_lines)-1:
+                term.cursor.moveTo(non_empty_lines[index+1])
         else:
             return super().cursorAction(val)
 
@@ -320,6 +327,9 @@ class TextWindow(PlainWindow):
         elem = HLine(text, wrapper=self.wrapper, parent=self)
         self.lines.append(elem)
         self.manage(elem)
+
+    def add_emptyline(self):
+        self.add_line("")
 
     def onHoverEvent(self):
         if len(self.lines):
