@@ -16,9 +16,10 @@ def main():
 
         # tag-line
         if l["tags"] and tag not in l["tags"]:
-            tag = l["tags"][0]
             # win.add_hline(term.white(tag))
-            win.add_line("")
+            if tag:
+                win.add_line("")
+            tag = l["tags"][0]
             win.add_line(term.cyan(tag))
 
         # subtag-line
