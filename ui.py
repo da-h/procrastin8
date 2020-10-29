@@ -325,7 +325,10 @@ class Dashboard(UIElement):
 
     def draw(self, clean=False):
         for elem in self.elements:
-            elem.draw(clean)
+            if elem != self.overlay:
+                elem.draw(clean)
+        if self.overlay:
+            self.overlay.draw(True)
         term.cursor.finalize()
         redraw()
 
