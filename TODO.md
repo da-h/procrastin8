@@ -2,8 +2,8 @@
 - [x] parse todo.md format
 - [x] nicer line view
 - [ ] dashboard-widget (shows everything)
+    - [x] redraw on close
     - [ ] manage multiple windows
-    - [ ] redraw on close
     - [ ] has collapsible sidebar
     - [ ] tabs
     - [ ] automatic arrangement of multiple windows

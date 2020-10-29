@@ -1,4 +1,4 @@
-from ui import term, TaskWindow, TaskLine, COLUMN_WIDTH, SettingsWindow, Line, Cursor, Dashboard
+from ui import term, TaskWindow, COLUMN_WIDTH, Dashboard
 from model import Model
 
 

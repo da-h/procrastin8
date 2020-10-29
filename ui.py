@@ -249,7 +249,7 @@ class TaskWindow(TextWindow):
         self.manage(elem)
 
 
-class SettingsWindow(TextWindow):
+class CenteredWindow(TextWindow):
 
     def __init__(self, width, parent=None):
         pos = ((term.width - width)//2,10)
@@ -268,6 +268,28 @@ class SettingsWindow(TextWindow):
             return
 
         return super().cursorAction(val)
+
+
+class Sidebar(TextWindow):
+
+    def __init__(self, width, parent=None):
+        pos = (0,0)
+        super().__init__(pos, width=width, title="Settings", parent=parent)
+
+        self.add_line("Add")
+        self.add_line("Remove")
+        self.add_line("Tag")
+        self.add_line("Lorem")
+        self.add_line("Ipsum")
+
+    def cursorAction(self, val):
+
+        if val == "s":
+            self.close()
+            return
+
+        return super().cursorAction(val)
+
 
 
 
@@ -343,7 +365,8 @@ class Dashboard(UIElement):
         while val.lower() != 'q':
             val = term.inkey()
             if val == "s" and self.overlay is None:
-                self.overlay = SettingsWindow(COLUMN_WIDTH, parent=self)
+                # self.overlay = CenteredWindow(COLUMN_WIDTH, parent=self)
+                self.overlay = Sidebar(COLUMN_WIDTH, parent=self)
                 self.overlay.draw()
                 self.manage(self.overlay)
                 old_elem = term.cursor.moveTo(self.overlay.lines[0])
