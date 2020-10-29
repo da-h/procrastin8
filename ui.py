@@ -51,7 +51,7 @@ class WorkitTerminal(Terminal):
         self.cursor = Cursor()
 
     def move_xy(self, x, y=None):
-        if type(x) is np.ndarray:
+        if type(x) is np.ndarray or isinstance(x, tuple):
             return super().move_xy(x[0],x[1])
         return super().move_xy(x,y)
 
@@ -84,26 +84,69 @@ def draw_border(pos, dim, title=None):
     if title is not None:
         print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)))
 
+def draw_border2(pos, dim, title=None):
+    pos = np.array(pos)
+    dim = np.array(dim)
+    width, height = dim
+
+    # draw border
+    border  = term.move_xy(pos) + " " + " " * (width-2) + "│"
+    for i in range(height-2):
+        border += term.move_xy(pos+(0,i+1)) + "  "
+        border += term.move_xy(pos+(width-2,i+1)) + " │"
+    border += term.move_xy(pos+(0,height-1)) + " " + " " * (width-2) + "│"
+    print(border)
+
+    # set title
+    if title is not None:
+        print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)))
+
+
 
 class UIElement:
-    def __init__(self, pos=None, parent=None):
-        if not pos and not parent:
+    def __init__(self, rel_pos=None, parent=None):
+        if not rel_pos and not parent:
             raise ValueError("Either position or parent have to be specified")
         self.parent = parent
         self.elements = []
-        self.pos = pos
+        self._rel_pos = np.array(rel_pos)
+        self._last_rel_pos = np.copy(rel_pos)
         self.last_print = {}
+
+    @property
+    def rel_pos(self):
+        return self._rel_pos
+    @rel_pos.setter
+    def rel_pos(self,a):
+        if any(a != self._last_rel_pos):
+            self._rel_pos = self._last_rel_pos
+            self.clear()
+        self._rel_pos = np.copy(a)
+        self._last_rel_pos = np.copy(a)
+
+    @property
+    def pos(self):
+        if self.parent:
+            return self.parent.pos + self.rel_pos
+        return self.rel_pos
 
     def manage(self, elem):
         self.elements.append(elem)
+        elem.parent = self
 
     def draw(self, clean=False):
         if clean:
-            self.last_print = {}
+            self.clear()
+
+    def clear(self):
+        for key, val in self.last_print.items():
+            print(term.move_xy(key)+" "*len(Sequence(val, term)))
+        self.last_print = {}
+        for e in self.elements:
+            e.clear()
 
     def close(self):
-        for key, val in self.last_print.items():
-            print(term.move_xy(key)+" "*len(Sequence(val)))
+        self.clear()
         if self.parent:
             self.parent.onElementClosed(self)
 
@@ -131,8 +174,8 @@ class UIElement:
 
 class Line(UIElement):
 
-    def __init__(self, text, pos=None, wrapper=None, parent=None):
-        super().__init__(pos=pos, parent=parent)
+    def __init__(self, text, rel_pos=None, wrapper=None, parent=None):
+        super().__init__(rel_pos=rel_pos, parent=parent)
         self.text = text
         self.height = 1
         self.wrapper = wrapper
@@ -155,7 +198,6 @@ class Line(UIElement):
 
         # check what highlight it is
         highlight = lambda x: term.ljust(x,width=self.wrapper.width)
-        # if self.pos[1] <= term.cursor.pos[1] and term.cursor.pos[1] < self.pos[1]+self.height:
         if term.cursor.on_element == self:
             highlight = lambda x: term.bold_white(term.ljust(x, width=self.wrapper.width))
 
@@ -166,36 +208,44 @@ class Line(UIElement):
 
 class PlainWindow(UIElement):
 
-    def __init__(self, pos, width=1, height=1, title="", parent=None):
-        super().__init__(pos=pos, parent=parent)
+    def __init__(self, rel_pos, width=1, height=1, title="", parent=None):
+        super().__init__(rel_pos=rel_pos, parent=parent)
         self.width = width
         self.height = height
         self.title = title
         self.last_width = None
         self.last_height = None
         self.last_title = None
+        self.draw_style = "basic"
 
     def draw(self, clean=False):
         super().draw(clean)
-        if clean or self.last_width != self.width or self.height != self.height or self.title != self.title:
-            draw_border(self.pos, (self.width, self.height), self.title)
+        if clean or self.last_width != self.width or self.last_height != self.height or self.last_title != self.title or any(self.last_pos != self.pos):
+            if self.draw_style == "basic":
+                draw_border(self.pos, (self.width, self.height), self.title)
+            elif self.draw_style == "basic-left-edge":
+                draw_border2(self.pos, (self.width, self.height), self.title)
             self.last_width = self.width
             self.last_height = self.height
             self.last_title = self.title
+            self.last_pos = self.pos
 
-    def close(self):
+    def clear(self):
         clean = ""
         for i in range(self.height):
             clean += term.move_xy(self.pos+(0,i)) + " "*self.width
         print(clean)
+        super().clear()
+
+    def close(self):
+        self.clear()
         super().close()
 
 
 class TextWindow(PlainWindow):
 
-    def __init__(self, pos, width, title, indent=2, parent=None):
-        super().__init__(pos=pos, parent=parent)
-        self.pos = np.array(pos)
+    def __init__(self, rel_pos, width, title, indent=2, parent=None):
+        super().__init__(rel_pos=rel_pos, parent=parent)
         self.width = width
         self.title = title
         self.lines = []
@@ -208,7 +258,7 @@ class TextWindow(PlainWindow):
         # & position lines
         content_height = 1
         for line in self.lines:
-            line.pos = self.pos+(1+WINDOW_PADDING,content_height)
+            line.rel_pos = (1+WINDOW_PADDING,content_height)
             line.typeset()
             content_height += line.height
         content_height += 1
@@ -252,8 +302,8 @@ class TaskWindow(TextWindow):
 class CenteredWindow(TextWindow):
 
     def __init__(self, width, parent=None):
-        pos = ((term.width - width)//2,10)
-        super().__init__(pos, width=width, title="Settings", parent=parent)
+        rel_pos = ((term.width - width)//2,10)
+        super().__init__(rel_pos, width=width, title="Settings", parent=parent)
 
         self.add_line("Add")
         self.add_line("Remove")
@@ -273,8 +323,9 @@ class CenteredWindow(TextWindow):
 class Sidebar(TextWindow):
 
     def __init__(self, width, parent=None):
-        pos = (0,0)
-        super().__init__(pos, width=width, title="Settings", parent=parent)
+        rel_pos = (0,0)
+        super().__init__(rel_pos, width=width, title="Settings", parent=parent)
+        self.draw_style = "basic-left-edge"
 
         self.add_line("Add")
         self.add_line("Remove")
@@ -285,6 +336,7 @@ class Sidebar(TextWindow):
     def cursorAction(self, val):
 
         if val == "s":
+            self.parent.rel_pos = (0,0)
             self.close()
             return
 
@@ -364,16 +416,25 @@ class Dashboard(UIElement):
         val = ''
         while val.lower() != 'q':
             val = term.inkey()
-            if val == "s" and self.overlay is None:
+            if val == "+":
+                self.rel_pos += (4,3)
+            elif val == "-":
+                self.rel_pos += (-4,-3)
+            elif val == "s" and self.overlay is None:
                 # self.overlay = CenteredWindow(COLUMN_WIDTH, parent=self)
                 self.overlay = Sidebar(COLUMN_WIDTH, parent=self)
                 self.overlay.draw()
+                self.rel_pos = (COLUMN_WIDTH,0)
+                self.overlay.rel_pos = (-COLUMN_WIDTH,0)
+                # self.clear()
+                # self.overlay.clear()
                 self.manage(self.overlay)
                 old_elem = term.cursor.moveTo(self.overlay.lines[0])
                 redraw()
             elif val and term.cursor.on_element:
                 term.cursor.on_element.cursorAction(val)
 
+            # self.clear()
             self.draw()
 
     def onHoverEvent(self):
