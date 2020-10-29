@@ -1,7 +1,7 @@
 x parse todo.md format +model
 x nicer line view +window
-read from file +model
-write (change) to file +model
+x read from file +model
+x write (change) to file +model
 x rewrite this todo to todo.txt +model
 x redraw on close +dashboard
 manage multiple windows +dashboard

@@ -104,7 +104,7 @@ def draw_border2(pos, dim, title=None):
 
 
 class UIElement:
-    def __init__(self, rel_pos=None, parent=None):
+    def __init__(self, rel_pos=None, parent=None, root=None):
         if not rel_pos and not parent:
             raise ValueError("Either position or parent have to be specified")
         self.parent = parent
@@ -382,6 +382,7 @@ class TaskLine(Line):
     def cursorAction(self, val):
         if val == "x":
             self.text["complete"] = not self.text["complete"]
+            self.text.save()
         super().cursorAction(val)
 
 
@@ -428,8 +429,6 @@ class Dashboard(UIElement):
                 self.overlay.draw()
                 self.rel_pos = (COLUMN_WIDTH,0)
                 self.overlay.rel_pos = (-COLUMN_WIDTH,0)
-                # self.clear()
-                # self.overlay.clear()
                 self.manage(self.overlay)
                 old_elem = term.cursor.moveTo(self.overlay.lines[0])
                 redraw()

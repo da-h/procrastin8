@@ -1,24 +1,6 @@
 import re
+import os
 from datetime import date
-
-todo = """
-2019-01-27 Review @iflow +planing rec:3m due:2019-04-27 t:2019-04-27
-(C) 2018-11-02 Universal Correspondence Network +iFlow @papers
-(D) 2017-07-21 Universal Programming +iFlow @papers
-(D) 2018-11-02 Joshua Tennbaum A Rational Analysis of Rule-based Concept Learning +iFlow @papers
-2019-08-19 kanban note Weight gradients by histogram @iflow +infn
-2020-10-03 Tidy up kanban +planing @iflow
-2020-10-03 Move entval todos to kanban +planing @iflow
-2020-10-03 move notes from scribble to kanban +planing @iflow
-2020-10-08 Check fanstanstic 3 channel for related work and todos +entval @iflow
-2020-07-12 kanban note Relaxation for big Vektors. Instead of having 1000000 weights, use 100 times 20 weights (to have a distribution over combinations) +planing @iflow
-2020-10-08 Check information flow channel for related work +entval @iflow
-2020-10-06 Go through informationflow channel for relatedwork +entval @iflow
-x (A) 2020-10-12 2020-10-08 One +Paper read @iflow rec:1b t:2020-10-09
-2020-10-03 Clear iflow code from Saturn +oldcode @iflow
-2020-10-03 Clear iflow code from sirius +oldcode @iflow
-""".strip()
-
 
 rdate = "\d{4}-\d{2}-\d{2}"
 completion = "x"
@@ -69,6 +51,10 @@ class CreationDateCompletionDate(date):
     pass
 
 class Task(dict):
+    def __init__(self, model, d):
+        super().__init__(d)
+        self.model = model
+
     def __str__(self):
         S = []
         if self["complete"]:
@@ -82,13 +68,16 @@ class Task(dict):
         S += self["text"]
         return " ".join(str(s) for s in S)
 
+    def save(self):
+        self.model.save()
+
 class Model():
     def __init__(self, filename):
         self.filename = filename
 
         self.todo = []
         with open(self.filename,"r") as file:
-            for t in file:
+            for line_no, t in enumerate(file):
                 if not t.strip():
                     continue
 
@@ -147,7 +136,7 @@ class Model():
                     creation_date = m[3]
                     # TODO error when both are specified
 
-                self.todo.append(Task({
+                self.todo.append(Task(self, {
                     "complete": m[1] == "x",
                     "priority": m[2][1:-1] if m[2] else "M_",
                     "completion-date": date.fromisoformat(completion_date) if completion_date else None,
@@ -157,5 +146,17 @@ class Model():
                     "tags": tags,
                     "subtags": subtags,
                     "lists": lists,
-                    "modifier": modifiers
+                    "modifier": modifiers,
+                    "#": line_no
                 }))
+
+    def save(self):
+        try:
+            os.rename(self.filename, self.filename+"~")
+            with open(self.filename, "w") as f:
+                for t in self.todo:
+                    f.writelines(str(t)+"\n")
+            os.remove(self.filename+"~")
+        except Exception as  e:
+            print("An exception occured. The original file has been moved before modification to '%s'." % self.filename+"~")
+            print(str(e))
