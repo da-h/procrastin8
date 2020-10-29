@@ -387,9 +387,9 @@ class TaskLine(Line):
     def formatText(self):
         S = []
         if self.text["complete"]:
-            S.append("✗")
+            S.append(term.green("✗"))
         else:
-            S.append("·")
+            S.append(term.blue("·"))
         if self.text["priority"] != "M_":
             S.append("(%s)" % self.text["priority"])
         if self.text["completion-date"]:
