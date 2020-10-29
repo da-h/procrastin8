@@ -2,7 +2,7 @@ from blessed import Terminal
 from blessed.sequences import Sequence, SequenceTextWrapper as TextWrapper
 import numpy as np
 
-from settings import COLUMN_WIDTH, WINDOW_PADDING
+from settings import COLUMN_WIDTH, WINDOW_PADDING, TAG_HIDDEN, SUBTAG_HIDDEN
 from model import Tag, Subtag, List, Modifier, ModifierDate
 
 class Cursor:
@@ -104,7 +104,7 @@ def draw_border2(pos, dim, title=None):
 
 
 class UIElement:
-    def __init__(self, rel_pos=None, parent=None, root=None):
+    def __init__(self, rel_pos=None, parent=None):
         if not rel_pos and not parent:
             raise ValueError("Either position or parent have to be specified")
         self.parent = parent
@@ -174,11 +174,12 @@ class UIElement:
 
 class Line(UIElement):
 
-    def __init__(self, text, rel_pos=None, wrapper=None, parent=None):
+    def __init__(self, text="", rel_pos=None, prepend="", wrapper=None, parent=None):
         super().__init__(rel_pos=rel_pos, parent=parent)
         self.text = text
         self.height = 1
         self.wrapper = wrapper
+        self.prepend = prepend
         self._typeset_text = None
 
     def formatText(self):
@@ -191,7 +192,7 @@ class Line(UIElement):
             self.height = 1
         else:
             self._typeset_text = self.wrapper.wrap(self.formatText())
-            self.height = len(self._typeset_text)
+            self.height = max(len(self._typeset_text),1)
 
     def draw(self, clean=False):
         super().draw(clean)
@@ -203,7 +204,30 @@ class Line(UIElement):
 
         # print lines
         for i, t in enumerate(self._typeset_text):
-            self.printAt((0,i),highlight(t))
+            self.printAt((0,i),self.prepend+highlight(t))
+
+
+class HLine(UIElement):
+    def __init__(self, text, wrapper, center=False, parent=None):
+        super().__init__(parent=parent)
+        self.wrapper = wrapper
+        self.height = 2
+        self.text = text
+        self.center = center
+
+    def typeset(self):
+        pass
+
+    def draw(self, clean=False):
+        super().draw(clean)
+        self.printAt((0,0),          " "*self.wrapper.width)
+        self.printAt((0,1), term.dim+"─"*self.wrapper.width+term.normal)
+        if self.text:
+            if self.center:
+                self.printAt((0,1), term.center(self.text, width=self.wrapper.width))
+            else:
+                self.printAt((0,1), self.text+" ")
+
 
 
 class PlainWindow(UIElement):
@@ -247,6 +271,7 @@ class TextWindow(PlainWindow):
     def __init__(self, rel_pos, width, title, indent=2, parent=None):
         super().__init__(rel_pos=rel_pos, parent=parent)
         self.width = width
+        self.indent = indent
         self.title = title
         self.lines = []
         self.wrapper = TextWrapper(width=width-2-WINDOW_PADDING*2, initial_indent="",subsequent_indent=" "*indent, term=term)
@@ -282,8 +307,13 @@ class TextWindow(PlainWindow):
         else:
             return super().cursorAction(val)
 
-    def add_line(self, text):
-        elem = Line(text, wrapper=self.wrapper, parent=self)
+    def add_line(self, text, prepend=""):
+        elem = Line(text, prepend=prepend, wrapper=self.wrapper, parent=self)
+        self.lines.append(elem)
+        self.manage(elem)
+
+    def add_hline(self, text=""):
+        elem = HLine(text, wrapper=self.wrapper, parent=self)
         self.lines.append(elem)
         self.manage(elem)
 
@@ -293,8 +323,10 @@ class TextWindow(PlainWindow):
 
 class TaskWindow(TextWindow):
 
-    def add_line(self, text):
-        elem = TaskLine(text, wrapper=self.wrapper, parent=self)
+    def add_task(self, text, prepend=""):
+        if prepend != "":
+            wrapper = TextWrapper(width=self.width-2-WINDOW_PADDING*2, initial_indent="",subsequent_indent=" "*self.indent, term=term)
+        elem = TaskLine(text, prepend=prepend, wrapper=self.wrapper, parent=self)
         self.lines.append(elem)
         self.manage(elem)
 
@@ -366,9 +398,11 @@ class TaskLine(Line):
             S.append(term.dim+(str(self.text["creation-date"]))+term.normal)
         for t in self.text["text"]:
             if isinstance(t, Tag):
-                S.append(term.red(str(t)))
+                if not TAG_HIDDEN:
+                    S.append(term.red(str(t)))
             elif isinstance(t, Subtag):
-                S.append(term.red(term.dim+str(t)))
+                if not SUBTAG_HIDDEN:
+                    S.append(term.red(term.dim+str(t)))
             elif isinstance(t, List):
                 S.append(term.bold(term.blue(str(t))))
             elif isinstance(t, Modifier):

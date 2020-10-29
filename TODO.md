@@ -10,10 +10,9 @@ tabs +dashboard
 automatic arrangement of multiple windows +dashboard
 allow resize +dashboard
 windows from model/groups +dashboard
-overlong content in window +window
 scroll ++overlong +window
 splitted window ++overlong +window
-(sub)project delimiters in window +window
+x (sub)project delimiters in window +window
 filter-sidebar +sidebar
 choose projects / contexts +sidebar ++filter
 auto-filter +sidebar ++filter
@@ -33,4 +32,5 @@ x +kb x to mark as done
 +kb strg+down/j swap down
 +kb u undo
 basic bindings +taskwarrior
-sort order +window
+x sort order +window
+task sort order should follow file not alphabet +window

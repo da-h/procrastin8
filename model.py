@@ -171,3 +171,10 @@ class Model():
         except Exception as  e:
             print("An exception occured. The original file has been moved before modification to '%s'." % self.filename+"~")
             print(str(e))
+
+
+    def sortBy(self, order_list=[]):
+        if len(order_list) == 0:
+            return self.todo
+        return sorted(self.todo, key=lambda t: ["|".join(",".join(t[o]) for o in order_list)])
+
