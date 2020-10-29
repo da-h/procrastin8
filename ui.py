@@ -66,8 +66,8 @@ def draw_border(pos, dim, title=None):
     # draw border
     border  = term.move_xy(pos) + "┌" + "─" * (width-2) + "┐"
     for i in range(height-2):
-        border += term.move_xy(pos+(0,i+1)) + "│"
-        border += term.move_xy(pos+(width-1,i+1)) + "│"
+        border += term.move_xy(pos+(0,i+1)) + "│ "
+        border += term.move_xy(pos+(width-2,i+1)) + " │"
     border += term.move_xy(pos+(0,height-1)) + "└" + "─" * (width-2) + "┘"
     print(border)
 
@@ -167,10 +167,9 @@ class PlainWindow(UIElement):
             self.last_title = self.title
 
     def close(self):
-        clean  = term.move_xy(self.pos) + " " + " " * (self.width-2) + " "
-        for i in range(self.height-2):
-            clean += term.move_xy(self.pos+(0,i+1)) + " "*self.width
-        clean += term.move_xy(self.pos+(0,self.height-1)) + " " + " " * (self.width-2) + " "
+        clean = ""
+        for i in range(self.height):
+            clean += term.move_xy(self.pos+(0,i)) + " "*self.width
         print(clean)
         term.redraw = True
 
