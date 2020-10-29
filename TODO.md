@@ -1,40 +1,35 @@
 
-- [x] parse todo.md format
-- [x] nicer line view
-- [ ] model
-    - read from file
-    - write (change) to file
-    - rewrite this todo to todo.txt
-- [ ] dashboard-widget (shows everything)
-    - [x] redraw on close
-    - [ ] manage multiple windows
-    - [ ] has collapsible sidebar
-    - [ ] tabs
-    - [ ] automatic arrangement of multiple windows
-    - [ ] allow resize
-    - [ ] windows from model/groups
-- windows
-    - [ ] overlong content in window
-        - [ ] scroll
-        - [ ] splitted window
-    - [ ] (sub)project delimiters in window
-- sidebar
-    - [ ] filter-sidebar
-        - [ ] choose projects / contexts
-        - [ ] auto-filter
-        - [ ] presets
-        - [ ] and/or filters
-    - [ ] settings window
-        - show/hide options
-- [x] kb: x to mark as done
-- [ ] kb: dd to delete
-- [ ] kb: d3d to delete multiple
-- [ ] kb: n to make new
-- [ ] kb: p to paste below
-- [ ] kb: P to paste above
-- [ ] kb: e to edit line
-- [ ] kb: hjkl for movement
-- [ ] kb: strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
-- [ ] kb: strg+Up/k swap up
-- [ ] kb: strg+down/j swap down
-- task warrior bindings
+x parse todo.md format +model
+x nicer line view +window
+read from file +model
+write (change) to file +model
+rewrite this todo to todo.txt +model
+x redraw on close +dashboard
+manage multiple windows +dashboard
+has collapsible sidebar +dashboard
+tabs +dashboard
+automatic arrangement of multiple windows +dashboard
+allow resize +dashboard
+windows from model/groups +dashboard
+overlong content in window +window
+scroll ++overlong +window
+splitted window ++overlong +window
+(sub)project delimiters in window +window
+filter-sidebar +sidebar
+choose projects / contexts +sidebar ++filter
+auto-filter +sidebar ++filter
+presets +sidebar ++filter
+and/or filters +sidebar ++filter
+settings window with show/hide options +sidebar
+x +kb x to mark as done
++kb dd to delete
++kb d3d to delete multiple
++kb n to make new
++kb p to paste below
++kb P to paste above
++kb e to edit line
++kb hjkl for movement
++kb strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
++kb strg+Up/k swap up
++kb strg+down/j swap down
+basic bindings +taskwarrior
