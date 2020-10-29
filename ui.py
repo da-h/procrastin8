@@ -13,20 +13,22 @@ class Cursor:
         self.last_position = (-1,-1)
 
     def moveTo(self, on_element):
-        self.on_element = on_element
+        self.on_element = self.on_element_current = on_element
         self.pos = self.on_element.pos
+        self.on_element.onHoverEvent()
 
     def clear(self):
         self.on_element = None
 
     def finalize(self):
-        changed = any(self.last_position != self.pos)
-        self.last_position = np.copy(self.pos)
-        if changed:
-            self.on_element = self.on_element_current
-            self.on_element.onHoverEvent()
-            self.moveTo(self.on_element)
-        return changed
+        pass
+        # changed = any(self.last_position != self.pos)
+        # self.last_position = np.copy(self.pos)
+        # if changed:
+        #     self.on_element = self.on_element_current
+        #     self.moveTo(self.on_element)
+        #     self.on_element.onHoverEvent()
+        # return changed
 
 
 class WorkitTerminal(Terminal):
@@ -209,6 +211,9 @@ class TextWindow(PlainWindow):
     def add_line(self, text):
         self.lines.append( Line(text, wrapper=self.wrapper, parent=self) )
 
+    def onHoverEvent(self):
+        if len(self.lines):
+            term.cursor.moveTo(self.lines[0])
 
 class TaskWindow(TextWindow):
 
@@ -271,4 +276,50 @@ class TaskLine(Line):
         return " ".join([str(s) for s in S])+term.no_dim
 
 
+# ========= #
+# Dashboard #
+# ========= #
+
+draw_calls = 0
+def redraw():
+    global draw_calls
+    print(term.move_y(term.height - 4) + term.center('draw() calls: %i' % draw_calls).rstrip())
+    print(term.move_y(term.height - 3) + term.center('cursor: '+str(term.cursor.pos)).rstrip())
+    print(term.move_y(term.height - 2) + term.center('element: '+str(term.cursor.on_element) if term.cursor.on_element else "").rstrip())
+    draw_calls += 1
+
+class Dashboard(UIElement):
+
+    def __init__(self, model):
+        super().__init__((0,0))
+        self.model = model
+        self.elements = []
+        self.overlay = None
+
+    def manage(self, elem):
+        self.elements.append(elem)
+
+    def draw(self):
+        for elem in self.elements:
+            elem.draw()
+        term.cursor.finalize()
+        redraw()
+
+    def loop(self):
+        val = ''
+        while val.lower() != 'q':
+            val = term.inkey()
+            if val == "s" and self.overlay is None:
+                self.overlay = SettingsWindow(COLUMN_WIDTH)
+                self.overlay.draw()
+                term.cursor.moveTo(self.overlay.lines[0])
+                redraw()
+            elif val and term.cursor.on_element:
+                term.cursor.on_element.cursorAction(val)
+
+            self.draw()
+
+    def onHoverEvent(self):
+        if len(self.elements):
+            term.cursor.moveTo(self.elements[0])
 
