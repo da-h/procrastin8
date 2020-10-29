@@ -26,12 +26,7 @@ class Cursor:
             self.on_element = self.on_element_current
             self.on_element.onHoverEvent()
             self.moveTo(self.on_element)
-            term.redraw = True
         return changed
-            # if term.cursor.changedPosition() and term.cursor.on_element != self:
-            #     term.cursor.on_element = self
-            #     self.onHoverEvent()
-            #     term.cursor.pos = self.pos
 
 
 class WorkitTerminal(Terminal):
@@ -39,7 +34,6 @@ class WorkitTerminal(Terminal):
     def __init__(self):
         super().__init__()
         self.cursor = Cursor()
-        self.redraw = True
 
     def move_xy(self, x, y=None):
         if type(x) is np.ndarray:
@@ -145,8 +139,6 @@ class Line(UIElement):
         for i, t in enumerate(self._typeset_text):
             self.printAt((0,i),highlight(t))
 
-    def onHoverEvent(self):
-        term.redraw = True
 
 class PlainWindow(UIElement):
 
@@ -171,8 +163,6 @@ class PlainWindow(UIElement):
         for i in range(self.height):
             clean += term.move_xy(self.pos+(0,i)) + " "*self.width
         print(clean)
-        term.redraw = True
-
 
 
 class TextWindow(PlainWindow):
@@ -210,11 +200,9 @@ class TextWindow(PlainWindow):
         element = term.cursor.on_element
 
         if val.code == term.KEY_UP and element != self.lines[0]:
-            term.cursor.pos += (0, -1)
-            term.redraw = True
+            term.cursor.moveTo(self.lines[self.lines.index(element)-1])
         elif val.code == term.KEY_DOWN and element != self.lines[-1]:
-            term.cursor.pos += (0,  element.height)
-            term.redraw = True
+            term.cursor.moveTo(self.lines[self.lines.index(element)+1])
         else:
             return super().cursorAction(val)
 
