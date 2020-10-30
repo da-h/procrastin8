@@ -20,7 +20,10 @@ presets +sidebar ++filter
 and/or filters +sidebar ++filter
 settings window with show/hide options +sidebar
 x +kb x to mark as done
-+kb X to Archive done to done.txt
++kb X to ++Archive done to done.txt
++kb ++Archive opens small prompt
++kb ++Archive all windows
++kb ++Archive only current windows
 +kb dd to delete
 +kb d3d to delete multiple
 +kb n to make new

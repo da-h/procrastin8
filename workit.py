@@ -25,7 +25,7 @@ def main():
         # subtag-line
         if l["subtags"] and subtag not in l["subtags"]:
             subtag = l["subtags"][0] if l["subtags"] else None
-            win.add_line(term.cyan(term.dim+subtag), prepend="  ")
+            win.add_line(term.cyan(term.dim+subtag), prepend=term.blue("· "))
 
         # actual task
         win.add_task(l, prepend="   " if l["subtags"] else "")
