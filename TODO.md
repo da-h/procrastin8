@@ -5,7 +5,7 @@ x write (change) to file +model
 x rewrite this todo to todo.txt +model
 x redraw on close +dashboard
 manage multiple windows +dashboard
-has collapsible sidebar +dashboard
+x has collapsible sidebar +dashboard
 tabs +dashboard
 automatic arrangement of multiple windows +dashboard
 allow resize +dashboard
@@ -17,8 +17,11 @@ filter-sidebar +sidebar
 choose projects / contexts +sidebar ++filter
 auto-filter +sidebar ++filter
 presets +sidebar ++filter
+nicer overall layout +sidebar
 and/or filters +sidebar ++filter
-settings window with show/hide options +sidebar
+x ++settings window with show/hide options +sidebar
+++settings connect settings to ui/model +sidebar
+++settings save/load settings to file +sidebar
 x +kb x to mark as done
 +kb X to ++Archive done to done.txt
 +kb ++Archive opens small prompt
@@ -38,4 +41,4 @@ x +kb x to mark as done
 basic bindings +taskwarrior
 x sort order +window
 task sort order should follow file not alphabet +window
-skip empty lines when pressing up/down +window
+x skip empty lines when pressing up/down +window

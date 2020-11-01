@@ -2,7 +2,7 @@ from blessed import Terminal
 from blessed.sequences import Sequence, SequenceTextWrapper as TextWrapper
 import numpy as np
 
-from settings import COLUMN_WIDTH, WINDOW_PADDING, TAG_HIDDEN, SUBTAG_HIDDEN
+from settings import COLUMN_WIDTH, WINDOW_PADDING, TAG_HIDDEN, SUBTAG_HIDDEN, DIM_COMPLETE
 from model import Tag, Subtag, List, Modifier, ModifierDate
 
 class Cursor:
@@ -446,7 +446,7 @@ class TaskLine(Line):
     def formatText(self):
         S = []
         if self.text["complete"]:
-            S.append(term.green("✗"))
+            S.append(term.green("✗")+(term.dim if DIM_COMPLETE else ""))
         else:
             S.append(term.blue("·"))
         if self.text["priority"] != "M_":
@@ -470,7 +470,7 @@ class TaskLine(Line):
                 S.append(term.green(str(t)))
             else:
                 S.append(t)
-        return " ".join([str(s) for s in S])+term.no_dim
+        return " ".join([str(s) for s in S])+term.normal
 
     def cursorAction(self, val):
         if val == "x":
