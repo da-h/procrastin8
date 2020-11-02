@@ -208,6 +208,12 @@ class Line(UIElement):
         for i, t in enumerate(self._typeset_text):
             self.printAt((0,i),self.prepend+highlight(t))
 
+    def cursorAction(self, val):
+        if not val.is_sequence:
+            self.text["text"][-1] = self.text["text"][-1] + val
+            return
+        return super().cursorAction(val)
+
 
 class HLine(UIElement):
     def __init__(self, text, wrapper, center=False, parent=None):
@@ -512,20 +518,7 @@ class Dashboard(UIElement):
         val = ''
         while val.lower() != 'q':
             val = term.inkey()
-            if val == "+":
-                self.rel_pos += (4,3)
-            elif val == "-":
-                self.rel_pos += (-4,-3)
-            elif val == "s" and self.overlay is None:
-                # self.overlay = Prompt(COLUMN_WIDTH, parent=self)
-                self.overlay = Sidebar(COLUMN_WIDTH, parent=self)
-                self.overlay.draw()
-                self.rel_pos = (COLUMN_WIDTH,0)
-                self.overlay.rel_pos = (-COLUMN_WIDTH,0)
-                self.manage(self.overlay)
-                old_elem = term.cursor.moveTo(self.overlay.lines[0])
-                redraw()
-            elif val and term.cursor.on_element:
+            if val and term.cursor.on_element:
                 term.cursor.on_element.cursorAction(val)
 
             # self.clear()
@@ -543,3 +536,21 @@ class Dashboard(UIElement):
         if term.cursor.isOnElement(elem):
             term.cursor.moveTo(self.elements[0])
 
+    def cursorAction(self, val):
+        if val == "+":
+            self.rel_pos += (4,3)
+            return
+        elif val == "-":
+            self.rel_pos += (-4,-3)
+            return
+        elif val == "s" and self.overlay is None:
+            # self.overlay = Prompt(COLUMN_WIDTH, parent=self)
+            self.overlay = Sidebar(COLUMN_WIDTH, parent=self)
+            self.overlay.draw()
+            self.rel_pos = (COLUMN_WIDTH,0)
+            self.overlay.rel_pos = (-COLUMN_WIDTH,0)
+            self.manage(self.overlay)
+            old_elem = term.cursor.moveTo(self.overlay.lines[0])
+            redraw()
+            return
+        return super().cursorAction(val)
