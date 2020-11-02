@@ -4,7 +4,7 @@ x read from file +model
 x write (change) to file +model
 x rewrite this todo to todo.txt +model
 x redraw on close +dashboard
-qmanage multiple windows +dashboard
+manage multiple windows +dashboard
 x has collapsible sidebar +dashboard
 tabs +dashboard
 automatic arrangement of multiple windows +dashboard
