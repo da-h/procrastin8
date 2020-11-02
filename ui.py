@@ -19,7 +19,7 @@ class Cursor:
             old_elem = None
         self.on_element = self.on_element_current = on_element
         self.pos = self.on_element.pos
-        self.on_element.onHoverEvent()
+        self.on_element.onHover()
         return old_elem
 
     def clear(self):
@@ -42,7 +42,7 @@ class Cursor:
         # if changed:
         #     self.on_element = self.on_element_current
         #     self.moveTo(self.on_element)
-        #     self.on_element.onHoverEvent()
+        #     self.on_element.onHover()
         # return changed
 
 
@@ -164,11 +164,11 @@ class UIElement:
             self.last_print[rel_pos] = new_print
 
     # pass event to parent if nothing happens
-    def cursorAction(self, val):
+    def onKeyPress(self, val):
         if self.parent is not None:
-            self.parent.cursorAction(val)
+            self.parent.onKeyPress(val)
 
-    def onHoverEvent(self):
+    def onHover(self):
         pass
     def onElementClosed(self, elem):
         pass
@@ -208,11 +208,11 @@ class Line(UIElement):
         for i, t in enumerate(self._typeset_text):
             self.printAt((0,i),self.prepend+highlight(t))
 
-    def cursorAction(self, val):
-        if not val.is_sequence:
-            self.text["text"][-1] = self.text["text"][-1] + val
-            return
-        return super().cursorAction(val)
+    def onKeyPress(self, val):
+        # if not val.is_sequence:
+        #     self.text["text"][-1] = self.text["text"][-1] + val
+        #     return
+        return super().onKeyPress(val)
 
 
 class HLine(UIElement):
@@ -268,14 +268,14 @@ class RadioLine(UIElement):
             choice_text += " "
         self.printAt((3,1), choice_text)
 
-    def cursorAction(self, val):
+    def onKeyPress(self, val):
         if val.code == term.KEY_LEFT:
             self.active = (self.active - 1) % len(self.choices)
             return
         elif val.code == term.KEY_RIGHT:
             self.active = (self.active + 1) % len(self.choices)
             return
-        return super().cursorAction(val)
+        return super().onKeyPress(val)
 
 
 
@@ -347,7 +347,7 @@ class TextWindow(PlainWindow):
             line.draw(clean)
 
 
-    def cursorAction(self, val):
+    def onKeyPress(self, val):
         element = term.cursor.on_element
         non_empty_lines = list(filter(lambda l: l.text, self.lines))
 
@@ -360,7 +360,7 @@ class TextWindow(PlainWindow):
             if index < len(non_empty_lines)-1:
                 term.cursor.moveTo(non_empty_lines[index+1])
         else:
-            return super().cursorAction(val)
+            return super().onKeyPress(val)
 
     def add_line(self, text, prepend=""):
         if prepend != "":
@@ -379,7 +379,7 @@ class TextWindow(PlainWindow):
     def add_emptyline(self):
         self.add_line("")
 
-    def onHoverEvent(self):
+    def onHover(self):
         if len(self.lines):
             term.cursor.moveTo(self.lines[0])
 
@@ -407,13 +407,13 @@ class Prompt(TextWindow):
         self.add_line("Lorem")
         self.add_line("Ipsum")
 
-    def cursorAction(self, val):
+    def onKeyPress(self, val):
 
         if val == "s":
             self.close()
             return
 
-        return super().cursorAction(val)
+        return super().onKeyPress(val)
 
 
 class Sidebar(TextWindow):
@@ -430,14 +430,14 @@ class Sidebar(TextWindow):
         self.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.wrapper, parent=self))
         self.manage(self.lines[-1])
 
-    def cursorAction(self, val):
+    def onKeyPress(self, val):
 
         if val == "s":
             self.parent.rel_pos = (0,0)
             self.close()
             return
 
-        return super().cursorAction(val)
+        return super().onKeyPress(val)
 
 
 
@@ -478,11 +478,11 @@ class TaskLine(Line):
                 S.append(t)
         return " ".join([str(s) for s in S])+term.normal
 
-    def cursorAction(self, val):
+    def onKeyPress(self, val):
         if val == "x":
             self.text["complete"] = not self.text["complete"]
             self.text.save()
-        super().cursorAction(val)
+        super().onKeyPress(val)
 
 
 
@@ -519,12 +519,12 @@ class Dashboard(UIElement):
         while val.lower() != 'q':
             val = term.inkey()
             if val and term.cursor.on_element:
-                term.cursor.on_element.cursorAction(val)
+                term.cursor.on_element.onKeyPress(val)
 
             # self.clear()
             self.draw()
 
-    def onHoverEvent(self):
+    def onHover(self):
         if len(self.elements):
             term.cursor.moveTo(self.elements[0])
 
@@ -536,7 +536,7 @@ class Dashboard(UIElement):
         if term.cursor.isOnElement(elem):
             term.cursor.moveTo(self.elements[0])
 
-    def cursorAction(self, val):
+    def onKeyPress(self, val):
         if val == "+":
             self.rel_pos += (4,3)
             return
@@ -553,4 +553,4 @@ class Dashboard(UIElement):
             old_elem = term.cursor.moveTo(self.overlay.lines[0])
             redraw()
             return
-        return super().cursorAction(val)
+        return super().onKeyPress(val)
