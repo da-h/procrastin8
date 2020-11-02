@@ -7,6 +7,13 @@ class Cursor:
         self.pos = np.array((3,2))
         self.on_element = None
         self.last_position = (-1,-1)
+        self.visible = False
+
+    def show(self):
+        self.visible = True
+
+    def hide(self):
+        self.visible = False
 
     def moveTo(self, on_element):
 
@@ -45,8 +52,12 @@ class Cursor:
 
         return self.pos - self.on_element.pos
 
-    def finalize(self):
-        pass
+    def finalize(self, term):
+        if self.visible:
+            print(term.move_xy(*self.pos)+term.normal_cursor, end='', flush=True)
+        else:
+            print(term.move_xy(*self.pos)+term.hide_cursor, end='', flush=True)
+        # print(term.hide_cursor, end='')
         # changed = any(self.last_position != self.pos)
         # self.last_position = np.copy(self.pos)
         # if changed:

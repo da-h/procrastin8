@@ -31,7 +31,7 @@ def main():
         win.add_task(l, prepend="   " if l["subtags"] else "")
     dash.manage(win)
 
-    with term.fullscreen(), term.cbreak(), term.hidden_cursor():
+    with term.fullscreen(), term.cbreak():#, term.hidden_cursor():
         dash.draw()
         term.cursor.moveTo(dash)
         dash.draw()

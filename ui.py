@@ -28,11 +28,11 @@ def draw_border(pos, dim, title=None):
         border += term.move_xy(pos+(0,i+1)) + "│ "
         border += term.move_xy(pos+(width-2,i+1)) + " │"
     border += term.move_xy(pos+(0,height-1)) + "└" + "─" * (width-2) + "┘"
-    print(border)
+    print(border, flush=False)
 
     # set title
     if title is not None:
-        print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)))
+        print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)), flush=False)
 
 def draw_border2(pos, dim, title=None):
     pos = np.array(pos)
@@ -45,11 +45,11 @@ def draw_border2(pos, dim, title=None):
         border += term.move_xy(pos+(0,i+1)) + "  "
         border += term.move_xy(pos+(width-2,i+1)) + " │"
     border += term.move_xy(pos+(0,height-1)) + " " + " " * (width-2) + "│"
-    print(border)
+    print(border, flush=False)
 
     # set title
     if title is not None:
-        print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)))
+        print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)), flush=False)
 
 
 
@@ -90,7 +90,7 @@ class UIElement:
 
     def clear(self):
         for key, val in self.last_print.items():
-            print(term.move_xy(key)+" "*len(Sequence(val, term)))
+            print(term.move_xy(key)+" "*len(Sequence(val, term)), flush=False)
         self.last_print = {}
         for e in self.elements:
             e.clear()
@@ -108,7 +108,7 @@ class UIElement:
 
         new_print = term.move_xy(pos)+seq
         if rel_pos not in self.last_print or self.last_print[rel_pos] != new_print:
-            print(new_print)
+            print(new_print, flush=False)
             self.last_print[rel_pos] = new_print
 
     # ------ #
@@ -167,9 +167,9 @@ class Line(UIElement):
     def set_editmode(self, mode: bool):
         self.edit_mode = mode
         if self.edit_mode:
-            print(term.normal_cursor, end='')
+            term.cursor.show()
         else:
-            print(term.hide_cursor, end='')
+            term.cursor.hide()
 
     def onKeyPress(self, val):
         if self.edit_mode:
@@ -276,7 +276,7 @@ class PlainWindow(UIElement):
         clean = ""
         for i in range(self.height):
             clean += term.move_xy(self.pos+(0,i)) + " "*self.width
-        print(clean)
+        print(clean, flush=False)
         super().clear()
 
     def close(self):
@@ -530,9 +530,9 @@ class TaskLine(Line):
 draw_calls = 0
 def redraw():
     global draw_calls
-    print(term.move_y(term.height - 4) + term.center('draw() calls: %i' % draw_calls).rstrip())
-    print(term.move_y(term.height - 3) + term.center('cursor: '+str(term.cursor.pos)).rstrip())
-    print(term.move_y(term.height - 2) + term.center('element: '+str(term.cursor.on_element) if term.cursor.on_element else "").rstrip())
+    print(term.move_y(term.height - 4) + term.center('draw() calls: %i' % draw_calls).rstrip(), flush=False)
+    print(term.move_y(term.height - 3) + term.center('cursor: '+str(term.cursor.pos)).rstrip(), flush=False)
+    print(term.move_y(term.height - 2) + term.center('element: '+str(term.cursor.on_element) if term.cursor.on_element else "").rstrip(), flush=False)
     draw_calls += 1
 
 
@@ -551,8 +551,8 @@ class Dashboard(UIElement):
                     elem.draw(clean)
             if self.overlay:
                 self.overlay.draw(True)
-            term.cursor.finalize()
         redraw()
+        term.cursor.finalize(term)
 
     def loop(self):
         val = ''
