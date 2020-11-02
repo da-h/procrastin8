@@ -534,6 +534,7 @@ class Dashboard(UIElement):
         super().__init__((0,0))
         self.model = model
         self.overlay = None
+        self.continue_loop = True
 
     def draw(self, clean=False):
         with term.location():
@@ -547,7 +548,7 @@ class Dashboard(UIElement):
 
     def loop(self):
         val = ''
-        while val.lower() != 'q':
+        while self.continue_loop:
             val = term.inkey()
             if val and term.cursor.on_element:
                 term.cursor.on_element.onKeyPress(val)
@@ -568,7 +569,10 @@ class Dashboard(UIElement):
             term.cursor.moveTo(self.elements[0])
 
     def onKeyPress(self, val):
-        if val == "+":
+        if val == "q":
+            self.continue_loop = False
+            return
+        elif val == "+":
             self.rel_pos += (4,3)
             return
         elif val == "-":
