@@ -13,14 +13,21 @@ class Cursor:
         self.last_position = (-1,-1)
 
     def moveTo(self, on_element):
-        if self.on_element != on_element:
-            old_elem = self.on_element
-        else:
-            old_elem = None
+
+        # elements are equal -> no change/events
+        if self.on_element == on_element:
+            return
+
+        # Event: onUnfocus
+        if self.on_element is not None:
+            self.on_element.onUnfocus()
+
         self.on_element = self.on_element_current = on_element
         self.pos = self.on_element.pos
-        self.on_element.onHover()
-        return old_elem
+
+        # Event: onFocus
+        if self.on_element is not None:
+            self.on_element.onFocus()
 
     def clear(self):
         self.on_element = None
@@ -42,7 +49,7 @@ class Cursor:
         # if changed:
         #     self.on_element = self.on_element_current
         #     self.moveTo(self.on_element)
-        #     self.on_element.onHover()
+        #     self.on_element.onFocus()
         # return changed
 
 
@@ -163,15 +170,22 @@ class UIElement:
             print(new_print)
             self.last_print[rel_pos] = new_print
 
-    # pass event to parent if nothing happens
+    # ------ #
+    # Events #
+    # ------ #
     def onKeyPress(self, val):
         if self.parent is not None:
             self.parent.onKeyPress(val)
 
-    def onHover(self):
+    def onFocus(self):
         pass
+
+    def onUnfocus(self):
+        pass
+
     def onElementClosed(self, elem):
-        pass
+        if self.parent is not None:
+            self.parent.onElementClosed(elem)
 
 
 class Line(UIElement):
@@ -379,7 +393,7 @@ class TextWindow(PlainWindow):
     def add_emptyline(self):
         self.add_line("")
 
-    def onHover(self):
+    def onFocus(self):
         if len(self.lines):
             term.cursor.moveTo(self.lines[0])
 
@@ -524,7 +538,7 @@ class Dashboard(UIElement):
             # self.clear()
             self.draw()
 
-    def onHover(self):
+    def onFocus(self):
         if len(self.elements):
             term.cursor.moveTo(self.elements[0])
 
