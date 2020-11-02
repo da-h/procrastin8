@@ -138,6 +138,8 @@ class Line(UIElement):
         self.wrapper = wrapper
         self.prepend = prepend
         self.edit_mode = False
+        self.edit_charpos = 0
+        self.edit_firstchar = 0
         self._typeset_text = None
 
     def formatText(self):
@@ -161,8 +163,18 @@ class Line(UIElement):
             highlight = lambda x: term.bold_white(term.ljust(x, width=self.wrapper.width))
 
         # print lines
+        total_chars = 0
+        prepend = Sequence(self.prepend, term)
+        prepend_len = prepend.length()
         for i, t in enumerate(self._typeset_text):
-            self.printAt((0,i),self.prepend+highlight(t))
+            t = Sequence(highlight(t), term)
+            self.printAt((0, i), prepend+t)
+
+            if self.edit_mode:
+                t_len = t.length()
+                if total_chars <= self.edit_charpos and self.edit_charpos < total_chars + t_len:
+                    term.cursor.pos = self.pos + np.array((self.edit_charpos - total_chars + prepend_len + self.edit_firstchar, i))
+                total_chars += t_len
 
     def set_editmode(self, mode: bool):
         self.edit_mode = mode
@@ -429,30 +441,30 @@ class TaskLine(Line):
         if self.text["creation-date"]:
             S.append(term.dim+(str(self.text["creation-date"]))+term.normal)
 
-        SText = []
         for text_i, t in enumerate(self.text["text"]):
             tstr = str(t)
-            if text_i != len(self.text["text"]):
-                tstr += " "
-            if self.edit_mode and self.text_i == text_i:
-                # breakpoint()
-                tstr = tstr[:self.text_charpos] + term.black_on_white(tstr[self.text_charpos]) + tstr[self.text_charpos+1:]
+            # if text_i != len(self.text["text"]):
+            #     tstr += " "
+            # if self.edit_mode and self.text_i == text_i:
+            #     # breakpoint()
+            #     tstr = tstr[:self.text_charpos] + term.black_on_white(tstr[self.text_charpos]) + tstr[self.text_charpos+1:]
+            # term.location(self.pos[0], self.pos[1])
 
             if isinstance(t, Tag):
                 if not TAG_HIDDEN or self.edit_mode:
-                    SText.append(term.red(tstr))
+                    S.append(term.red(tstr))
             elif isinstance(t, Subtag):
                 if not SUBTAG_HIDDEN or self.edit_mode:
-                    SText.append(term.red(term.dim+tstr))
+                    S.append(term.red(term.dim+tstr))
             elif isinstance(t, List):
-                SText.append(term.bold(term.blue(tstr)))
+                S.append(term.bold(term.blue(tstr)))
             elif isinstance(t, Modifier):
-                SText.append(term.green(tstr))
+                S.append(term.green(tstr))
             elif isinstance(t, ModifierDate):
-                SText.append(term.green(tstr))
+                S.append(term.green(tstr))
             else:
-                SText.append(tstr)
-        return " ".join([str(s) for s in S])+" "+"".join(SText)+term.normal
+                S.append(tstr)
+        return " ".join([str(s) for s in S])+term.normal
 
     def onKeyPress(self, val):
         if not self.edit_mode:
@@ -461,42 +473,48 @@ class TaskLine(Line):
                 self.text.save()
                 return
             elif val == "i" or val == "e":
+                # TODO merge all this into set_editmode
                 self.set_editmode(True)
                 self.text_i = 0
-                self.charpos = 0
+                self.edit_charpos = 0
+                self.edit_firstchar = 2
                 self._update_charPos()
                 return
             elif val == "I":
                 self.set_editmode(True)
                 self.text_i = 0
-                self.charpos = 0
+                self.edit_charpos = 0
+                self.edit_firstchar = 2
                 self._update_charPos()
                 return
             elif val == "A":
                 self.set_editmode(True)
                 self.text_i = 0
-                self.charpos = len(str(self.text)) - 1
+                self.edit_charpos = len(str(self.text)) - 1
+                self.edit_firstchar = 2
                 self._update_charPos()
                 return
         elif self.edit_mode:
             if val.code == term.KEY_RIGHT:
-                self.charpos = min(self.charpos+1,len(str(self.text))-1)
+                self.edit_charpos = min(self.edit_charpos+1,len(str(self.text))-1)
                 self._update_charPos()
                 return
             elif val.code == term.KEY_LEFT:
-                self.charpos = max(self.charpos-1,0)
+                self.edit_charpos = max(self.edit_charpos-1,0)
                 self._update_charPos()
                 return
             elif not val.is_sequence:
+                # TODO: better make raw?
                 self.text["text"][self.text_i] = self.text["text"][self.text_i][:self.text_charpos] + str(val) + self.text["text"][self.text_i][self.text_charpos:]
-                # TODO
-                # self.text.save()
+                self.edit_charpos += 1
+                self._update_charPos()
                 return
         super().onKeyPress(val)
 
+    # TODO: can this be removed now with the cursor inplace?
     def _update_charPos(self):
         text_i = 0
-        text_charpos = self.charpos
+        text_charpos = self.edit_charpos
         # breakpoint()
         while text_i < len(self.text["text"]) and text_charpos >= len(self.text["text"][text_i]):
             text_charpos -= len(self.text["text"][text_i])
@@ -518,7 +536,7 @@ class TaskLine(Line):
             return
 
         # rel_pos = term.cursor.relativePos()
-        # self.charpos = self.wrapper.width * rel_pos[1] + rel_pos[0]
+        # self.edit_charpos = self.wrapper.width * rel_pos[1] + rel_pos[0]
 
 
 
