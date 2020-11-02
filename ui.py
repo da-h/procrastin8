@@ -455,35 +455,43 @@ class TaskLine(Line):
         return " ".join([str(s) for s in S])+" "+"".join(SText)+term.normal
 
     def onKeyPress(self, val):
-        if val == "x":
-            self.text["complete"] = not self.text["complete"]
-            self.text.save()
-        elif val == "i" or val == "e":
-            self.set_editmode(True)
-            self.text_i = 0
-            self.charpos = 0
-            self._update_charPos()
-        elif val == "I":
-            self.set_editmode(True)
-            self.text_i = 0
-            self.charpos = 0
-            self._update_charPos()
-        elif val == "A":
-            self.set_editmode(True)
-            self.text_i = 0
-            self.charpos = len(str(self.text)) - 1
-            self._update_charPos()
+        if not self.edit_mode:
+            if val == "x":
+                self.text["complete"] = not self.text["complete"]
+                self.text.save()
+                return
+            elif val == "i" or val == "e":
+                self.set_editmode(True)
+                self.text_i = 0
+                self.charpos = 0
+                self._update_charPos()
+                return
+            elif val == "I":
+                self.set_editmode(True)
+                self.text_i = 0
+                self.charpos = 0
+                self._update_charPos()
+                return
+            elif val == "A":
+                self.set_editmode(True)
+                self.text_i = 0
+                self.charpos = len(str(self.text)) - 1
+                self._update_charPos()
+                return
         elif self.edit_mode:
             if val.code == term.KEY_RIGHT:
                 self.charpos = min(self.charpos+1,len(str(self.text))-1)
                 self._update_charPos()
+                return
             elif val.code == term.KEY_LEFT:
                 self.charpos = max(self.charpos-1,0)
                 self._update_charPos()
+                return
             elif not val.is_sequence:
                 self.text["text"][self.text_i] = self.text["text"][self.text_i][:self.text_charpos] + str(val) + self.text["text"][self.text_i][self.text_charpos:]
                 # TODO
                 # self.text.save()
+                return
         super().onKeyPress(val)
 
     def _update_charPos(self):
