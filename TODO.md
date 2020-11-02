@@ -4,7 +4,7 @@ x read from file +model
 x write (change) to file +model
 x rewrite this todo to todo.txt +model
 x redraw on close +dashboard
-manage multiple windows +dashboard
+qmanage multiple windows +dashboard
 x has collapsible sidebar +dashboard
 tabs +dashboard
 automatic arrangement of multiple windows +dashboard
@@ -42,3 +42,6 @@ basic bindings +taskwarrior
 x sort order +window
 task sort order should follow file not alphabet +window
 x skip empty lines when pressing up/down +window
+add more general onEnter/onLeave that also propagate to parents +window
+dim window borders if not under cursor +window
+editable tag-lines +todo

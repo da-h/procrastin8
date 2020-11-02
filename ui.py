@@ -42,6 +42,12 @@ class Cursor:
                 return True
         return False
 
+    def relativePos(self):
+        if self.on_element is None:
+            return self.pos
+
+        return self.pos - self.on_element.pos
+
     def finalize(self):
         pass
         # changed = any(self.last_position != self.pos)
@@ -196,6 +202,7 @@ class Line(UIElement):
         self.height = 1
         self.wrapper = wrapper
         self.prepend = prepend
+        self.edit_mode = False
         self._typeset_text = None
 
     def formatText(self):
@@ -223,11 +230,16 @@ class Line(UIElement):
             self.printAt((0,i),self.prepend+highlight(t))
 
     def onKeyPress(self, val):
-        # if not val.is_sequence:
-        #     self.text["text"][-1] = self.text["text"][-1] + val
-        #     return
+        if self.edit_mode:
+            if val.code == term.KEY_ESCAPE:
+                self.edit_mode = False
+            else:
+                self.onEditModeKey(val)
+            return
         return super().onKeyPress(val)
 
+    def onEditModeKey(self, val):
+        pass
 
 class HLine(UIElement):
     def __init__(self, text, wrapper, center=False, parent=None):
@@ -360,7 +372,6 @@ class TextWindow(PlainWindow):
         for line in self.lines:
             line.draw(clean)
 
-
     def onKeyPress(self, val):
         element = term.cursor.on_element
         non_empty_lines = list(filter(lambda l: l.text, self.lines))
@@ -475,28 +486,90 @@ class TaskLine(Line):
             S.append(term.bright_white(str(self.text["completion-date"])))
         if self.text["creation-date"]:
             S.append(term.dim+(str(self.text["creation-date"]))+term.normal)
-        for t in self.text["text"]:
+
+        SText = []
+        for text_i, t in enumerate(self.text["text"]):
+            tstr = str(t)
+            if text_i != len(self.text["text"]):
+                tstr += " "
+            if self.edit_mode and self.text_i == text_i:
+                # breakpoint()
+                tstr = tstr[:self.text_charpos] + term.black_on_white(tstr[self.text_charpos]) + tstr[self.text_charpos+1:]
+
             if isinstance(t, Tag):
-                if not TAG_HIDDEN:
-                    S.append(term.red(str(t)))
+                if not TAG_HIDDEN or self.edit_mode:
+                    SText.append(term.red(tstr))
             elif isinstance(t, Subtag):
-                if not SUBTAG_HIDDEN:
-                    S.append(term.red(term.dim+str(t)))
+                if not SUBTAG_HIDDEN or self.edit_mode:
+                    SText.append(term.red(term.dim+tstr))
             elif isinstance(t, List):
-                S.append(term.bold(term.blue(str(t))))
+                SText.append(term.bold(term.blue(tstr)))
             elif isinstance(t, Modifier):
-                S.append(term.green(str(t)))
+                SText.append(term.green(tstr))
             elif isinstance(t, ModifierDate):
-                S.append(term.green(str(t)))
+                SText.append(term.green(tstr))
             else:
-                S.append(t)
-        return " ".join([str(s) for s in S])+term.normal
+                SText.append(tstr)
+        return " ".join([str(s) for s in S])+" "+"".join(SText)+term.normal
 
     def onKeyPress(self, val):
         if val == "x":
             self.text["complete"] = not self.text["complete"]
             self.text.save()
+        elif val == "i" or val == "e":
+            self.edit_mode = True
+            self.text_i = 0
+            self.charpos = 0
+            self._update_charPos()
+        elif val == "I":
+            self.edit_mode = True
+            self.text_i = 0
+            self.charpos = 0
+            self._update_charPos()
+        elif val == "A":
+            self.edit_mode = True
+            self.text_i = 0
+            self.charpos = len(str(self.text)) - 1
+            self._update_charPos()
+        elif self.edit_mode:
+            if val.code == term.KEY_RIGHT:
+                self.charpos = min(self.charpos+1,len(str(self.text))-1)
+                self._update_charPos()
+            elif val.code == term.KEY_LEFT:
+                self.charpos = max(self.charpos-1,0)
+                self._update_charPos()
+            elif not val.is_sequence:
+                self.text["text"][self.text_i] = self.text["text"][self.text_i][:self.text_charpos] + str(val) + self.text["text"][self.text_i][self.text_charpos:]
+                # TODO
+                self.text.save()
         super().onKeyPress(val)
+
+    def _update_charPos(self):
+        text_i = 0
+        text_charpos = self.charpos
+        # breakpoint()
+        while text_i < len(self.text["text"]) and text_charpos >= len(self.text["text"][text_i]):
+            text_charpos -= len(self.text["text"][text_i])
+            text_i += 1
+            text_charpos -= 1
+
+        # normalize
+        if text_charpos < 0 and text_i >= len(self.text["text"]):
+            text_i = len(self.text["text"]) - 1
+            text_charpos = len(self.text["text"][text_i])
+        elif text_charpos < 0:# and text_i >= len(self.text["text"]):
+            text_i -= 1
+            text_charpos = len(self.text["text"][text_i])
+
+        self.text_charpos, self.text_i = text_charpos, text_i
+
+    def onEditModeKey(self, val):
+        if val.is_sequence:
+            return
+
+        # rel_pos = term.cursor.relativePos()
+        # self.charpos = self.wrapper.width * rel_pos[1] + rel_pos[0]
+
 
 
 
@@ -511,6 +584,7 @@ def redraw():
     print(term.move_y(term.height - 3) + term.center('cursor: '+str(term.cursor.pos)).rstrip())
     print(term.move_y(term.height - 2) + term.center('element: '+str(term.cursor.on_element) if term.cursor.on_element else "").rstrip())
     draw_calls += 1
+
 
 class Dashboard(UIElement):
 
