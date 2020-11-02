@@ -146,7 +146,7 @@ class Line(UIElement):
     # ensure lines have correct width
     def typeset(self):
         if self.wrapper is None:
-            self._typeset_text = self.text
+            self._typeset_text = self.formatText()
             self.height = 1
         else:
             self._typeset_text = self.wrapper.wrap(self.formatText())
