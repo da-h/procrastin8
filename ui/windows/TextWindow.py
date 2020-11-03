@@ -42,13 +42,19 @@ class TextWindow(Window):
         non_empty_lines = list(filter(lambda l: l.text, self.lines))
 
         if val.code == term.KEY_UP or val == 'k':
-            index = non_empty_lines.index(element)
-            if index > 0:
-                term.cursor.moveTo(non_empty_lines[index - 1])
+            try:
+                index = non_empty_lines.index(element)
+                if index > 0:
+                    term.cursor.moveTo(non_empty_lines[index - 1])
+            except:
+                term.cursor.moveTo(non_empty_lines[0])
         elif val.code == term.KEY_DOWN or val == 'j':
-            index = non_empty_lines.index(element)
-            if index < len(non_empty_lines) - 1:
-                term.cursor.moveTo(non_empty_lines[index + 1])
+            try:
+                index = non_empty_lines.index(element)
+                if index < len(non_empty_lines) - 1:
+                    term.cursor.moveTo(non_empty_lines[index + 1])
+            except:
+                term.cursor.moveTo(non_empty_lines[0])
         else:
             super().onKeyPress(val)
 
