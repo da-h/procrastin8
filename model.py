@@ -1,6 +1,7 @@
 import re
 import os
 from datetime import date
+from pathlib import Path
 
 
 rdate = "\d{4}-\d{2}-\d{2}"
@@ -157,11 +158,12 @@ class Task(dict):
 
 
 class Model():
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, todofile, donefile):
+        self.todofile = todofile
+        self.donefile = donefile
 
         self.todo = []
-        with open(self.filename,"r") as file:
+        with open(self.todofile,"r") as file:
             for line_no, t in enumerate(file):
                 if not t.strip():
                     continue
@@ -172,15 +174,35 @@ class Model():
 
     def save(self):
         try:
-            os.rename(self.filename, self.filename+"~")
-            with open(self.filename, "w") as f:
+            os.rename(self.todofile, self.todofile+"~")
+            with open(self.todofile, "w") as f:
                 for t in self.todo:
                     f.writelines(str(t)+"\n")
-            os.remove(self.filename+"~")
+            os.remove(self.todofile+"~")
         except Exception as  e:
-            print("An exception occured. The original file has been moved before modification to '%s'." % self.filename+"~")
+            print("An exception occured. The original file has been moved before modification to '%s'." % self.todofile+"~")
             print(str(e))
 
+    def archive(self):
+        todo, done = [], []
+            
+        for t in self.todo:
+            (done if t["complete"] else todo).append(t)
+
+        self.todo = todo
+
+        try:
+            Path(self.donefile).touch()
+            os.rename(self.donefile, self.donefile+"~")
+            with open(self.donefile, "w") as f:
+                for t in done:
+                    f.writelines(str(t)+"\n")
+            os.remove(self.donefile+"~")
+        except Exception as  e:
+            print("An exception occured. The original file has been moved before modification to '%s'." % self.donefile+"~")
+            print(str(e))
+
+        self.save()
 
     def sortBy(self, order_list=[]):
         if len(order_list) == 0:

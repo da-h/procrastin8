@@ -2,7 +2,10 @@ from blessed.sequences import Sequence
 from ui import get_term
 from ui.UIElement import UIElement
 from ui.windows.Sidebar import Sidebar
+from ui.lines.RadioLine import RadioLine
+from ui.windows import TaskWindow
 from settings import COLUMN_WIDTH
+from model import Tag
 
 term = get_term()
 
@@ -23,6 +26,7 @@ class Dashboard(UIElement):
         self.model = model
         self.overlay = None
         self.continue_loop = True
+        self.init_modelview()
 
     def draw(self, clean=False):
         with term.location():
@@ -73,7 +77,42 @@ class Dashboard(UIElement):
             self.rel_pos = (COLUMN_WIDTH,0)
             self.overlay.rel_pos = (-COLUMN_WIDTH,0)
             self.manage(self.overlay)
+            self.overlay.add_emptyline()
+            self.overlay.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.overlay.wrapper, parent=self.overlay))
+            self.overlay.manage(self.overlay.lines[-1])
+
+
             old_elem = term.cursor.moveTo(self.overlay.lines[0])
             redraw()
             return
+        elif val == 'X':
+            self.model.archive()
+            self.elements = []
+            self.init_modelview()
+            self.draw()
+            term.cursor.moveTo(self.elements[0])
         return super().onKeyPress(val)
+
+
+    def init_modelview(self):
+        win = TaskWindow((1,1),COLUMN_WIDTH, "Title")
+        tag = None
+        subtag = None
+        for l in self.model.sortBy(["lists", "tags","subtags"]):
+
+            # tag-line
+            if l["tags"] and tag not in l["tags"]:
+                # win.add_hline(term.white(tag))
+                if tag:
+                    win.add_emptyline()
+                tag = l["tags"][0]
+                win.add_line(term.cyan(tag))
+
+            # subtag-line
+            if l["subtags"] and subtag not in l["subtags"]:
+                subtag = l["subtags"][0] if l["subtags"] else None
+                win.add_line(term.cyan(term.dim+subtag), prepend=term.blue("· "))
+
+            # actual task
+            win.add_task(l, prepend="   " if l["subtags"] else "")
+        self.manage(win)
