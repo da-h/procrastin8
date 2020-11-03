@@ -29,6 +29,8 @@ class Line(UIElement):
         else:
             self._typeset_text = self.wrapper.wrap(self.formatText())
             self.height = max(len(self._typeset_text),1)
+        if self.text == "":
+            self._typeset_text = [""]
 
     def draw(self, clean=False):
         super().draw(clean)

@@ -48,3 +48,4 @@ add more general onEnter/onLeave that also propagate to parents +window
 dim window borders if not under cursor +window
 editable tag-lines +todo
 is self.manage() really needed? +window
+move uielement.clear to term to allow also element swapping +window
