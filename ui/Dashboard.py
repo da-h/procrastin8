@@ -3,9 +3,10 @@ from ui import get_term
 from ui.UIElement import UIElement
 from ui.windows.Sidebar import Sidebar
 from ui.lines.RadioLine import RadioLine
+from ui.lines.TaskLine import TaskLine
 from ui.windows import TaskWindow
 from settings import COLUMN_WIDTH
-from model import Tag
+from model import Tag, Subtag, List
 
 term = get_term()
 
@@ -91,11 +92,34 @@ class Dashboard(UIElement):
             self.init_modelview()
             self.draw()
             term.cursor.moveTo(self.elements[0])
+        elif val == 'n':
+            if isinstance(term.cursor.on_element, TaskLine):
+                initial_text = " ".join([str(Subtag(t)) for t in term.cursor.on_element.text["subtags"]] + [str(Tag(t)) for t in term.cursor.on_element.text["tags"]] + [str(List(t)) for t in term.cursor.on_element.text["lists"]])
+            else:
+                return
+
+            # get index of cursor
+            # TODO: make this nicer & correct
+            window_under_cursor = term.cursor.on_element.parent
+            non_empty_lines = list(filter(lambda l: l.text, window_under_cursor.lines))
+            try:
+                index = non_empty_lines.index(term.cursor.on_element)
+                if index > 0:
+                    term.cursor.moveTo(non_empty_lines[index - 1])
+            except:
+                term.cursor.moveTo(non_empty_lines[0])
+            self.model.new_task(initial_text, pos=term.cursor.on_element.text)
+            self.elements = []
+            self.init_modelview()
+            self.draw()
+            window_under_cursor = self.elements[0]
+            non_empty_lines = list(filter(lambda l: l.text, window_under_cursor.lines))
+            term.cursor.moveTo(non_empty_lines[index+1])
         return super().onKeyPress(val)
 
 
     def init_modelview(self):
-        win = TaskWindow((1,1),COLUMN_WIDTH, "Title")
+        win = TaskWindow((1,1),COLUMN_WIDTH, "Todos")
         tag = None
         subtag = None
         for l in self.model.sortBy(["lists", "tags","subtags"]):

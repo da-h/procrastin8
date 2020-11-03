@@ -208,3 +208,17 @@ class Model():
         if len(order_list) == 0:
             return self.todo
         return sorted(self.todo, key=lambda t: ["|".join(",".join(t[o]) for o in order_list)])
+
+    def new_task(self, initial_text="", pos=-1):
+        if isinstance(pos, Task):
+            pos = self.todo.index(pos)
+        task = Task.from_rawtext(self,initial_text)
+        self.todo.insert(pos+2, task)
+        self.save()
+        return task
+
+    def remove_task(self, pos=-1):
+        if isinstance(pos, int):
+            pos = self.todo[pos]
+        self.todo.remove(pos)
+        self.save()
