@@ -1,6 +1,7 @@
 from blessed import Terminal
 import numpy as np
 
+
 class Cursor:
 
     def __init__(self):
@@ -78,4 +79,9 @@ class WorkitTerminal(Terminal):
             return super().move_xy(x[0],x[1])
         return super().move_xy(x,y)
 
-
+term = None
+def get_term():
+    global term
+    if not term:
+        term = globals()["term"] = WorkitTerminal()
+    return term

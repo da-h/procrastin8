@@ -1,5 +1,10 @@
-from ui import term, TaskWindow, COLUMN_WIDTH, Dashboard
+from ui import get_term
+from ui.windows import TaskWindow
+from ui import Dashboard
+from settings import COLUMN_WIDTH
 from model import Model, Tag
+
+term = get_term()
 
 
 def main():
