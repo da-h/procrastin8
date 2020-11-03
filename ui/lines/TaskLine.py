@@ -67,13 +67,23 @@ class TaskLine(Line):
             elif val.code == term.KEY_LEFT:
                 self.edit_charpos = max(self.edit_charpos-1,0)
                 return
+            elif val.code == term.KEY_BACKSPACE:
+                self._updateText(self.text["raw_text"][:self.edit_charpos-1] + self.text["raw_text"][self.edit_charpos:])
+                self.edit_charpos -= 1
+                return
+            elif val.code == term.KEY_DELETE:
+                self._updateText(self.text["raw_text"][:self.edit_charpos] + self.text["raw_text"][self.edit_charpos+1:])
+                return
             elif not val.is_sequence:
-                text_optionals = self.text.__str__(print_description=False)
-                raw_text = (text_optionals + " " if text_optionals else "") + self.text["raw_text"][:self.edit_charpos] + str(val) + self.text["raw_text"][self.edit_charpos:]
-                self.text.update( Task.from_rawtext(self.text.model, raw_text ) )
+                self._updateText(self.text["raw_text"][:self.edit_charpos] + str(val) + self.text["raw_text"][self.edit_charpos:])
                 self.edit_charpos += 1
                 return
         super().onKeyPress(val)
+
+    def _updateText(self, raw_text):
+        text_optionals = self.text.__str__(print_description=False)
+        raw_text = (text_optionals + " " if text_optionals else "") + raw_text
+        self.text.update( Task.from_rawtext(self.text.model, raw_text ) )
 
     def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
         super().set_editmode(mode, charpos, firstchar)

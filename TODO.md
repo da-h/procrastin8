@@ -1,4 +1,4 @@
-finish edit of lines +important
+x finish edit of lines +important
 filter options +important
 x parse todo.md format +model
 x nicer line view +window
