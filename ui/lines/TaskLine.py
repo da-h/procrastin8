@@ -1,4 +1,4 @@
-from model import Tag, Subtag, List, Modifier, ModifierDate
+from model import Task, Tag, Subtag, List, Modifier, ModifierDate
 from settings import WINDOW_PADDING, COLUMN_WIDTH, TAG_HIDDEN, SUBTAG_HIDDEN, DIM_COMPLETE
 
 from ui import get_term
@@ -28,12 +28,6 @@ class TaskLine(Line):
 
         for text_i, t in enumerate(self.text["text"]):
             tstr = str(t)
-            # if text_i != len(self.text["text"]):
-            #     tstr += " "
-            # if self.edit_mode and self.text_i == text_i:
-            #     # breakpoint()
-            #     tstr = tstr[:self.text_charpos] + term.black_on_white(tstr[self.text_charpos]) + tstr[self.text_charpos+1:]
-            # term.location(self.pos[0], self.pos[1])
 
             if isinstance(t, Tag):
                 if not TAG_HIDDEN or self.edit_mode:
@@ -63,65 +57,33 @@ class TaskLine(Line):
                 self.text_i = 0
                 self.edit_charpos = 0
                 self.edit_firstchar = 2
-                self._update_charPos()
                 return
             elif val == "I":
                 self.set_editmode(True)
                 self.text_i = 0
                 self.edit_charpos = 0
                 self.edit_firstchar = 2
-                self._update_charPos()
                 return
             elif val == "A":
                 self.set_editmode(True)
                 self.text_i = 0
-                self.edit_charpos = len(str(self.text)) - 1
+                self.edit_charpos = len(self.text["raw_text"]) - 1
                 self.edit_firstchar = 2
-                self._update_charPos()
                 return
         elif self.edit_mode:
             if val.code == term.KEY_RIGHT:
-                self.edit_charpos = min(self.edit_charpos+1,len(str(self.text))-1)
-                self._update_charPos()
+                self.edit_charpos = min(self.edit_charpos+1,len(self.text["raw_text"])-1)
                 return
             elif val.code == term.KEY_LEFT:
                 self.edit_charpos = max(self.edit_charpos-1,0)
-                self._update_charPos()
                 return
             elif not val.is_sequence:
-                # TODO: better make raw?
-                self.text["text"][self.text_i] = self.text["text"][self.text_i][:self.text_charpos] + str(val) + self.text["text"][self.text_i][self.text_charpos:]
+                raw_text = self.text["raw_text"][:self.edit_charpos] + str(val) + self.text["raw_text"][self.edit_charpos:]
+                self.text.update( Task.from_rawtext(self.text.model, raw_text ) )
                 self.edit_charpos += 1
-                self._update_charPos()
                 return
         super().onKeyPress(val)
-
-    # TODO: can this be removed now with the cursor inplace?
-    def _update_charPos(self):
-        text_i = 0
-        text_charpos = self.edit_charpos
-        # breakpoint()
-        while text_i < len(self.text["text"]) and text_charpos >= len(self.text["text"][text_i]):
-            text_charpos -= len(self.text["text"][text_i])
-            text_i += 1
-            text_charpos -= 1
-
-        # normalize
-        if text_charpos < 0 and text_i >= len(self.text["text"]):
-            text_i = len(self.text["text"]) - 1
-            text_charpos = len(self.text["text"][text_i])
-        elif text_charpos < 0:# and text_i >= len(self.text["text"]):
-            text_i -= 1
-            text_charpos = len(self.text["text"][text_i])
-
-        self.text_charpos, self.text_i = text_charpos, text_i
 
     def onEditModeKey(self, val):
         if val.is_sequence:
             return
-
-        # rel_pos = term.cursor.relativePos()
-        # self.edit_charpos = self.wrapper.width * rel_pos[1] + rel_pos[0]
-
-
-

@@ -61,6 +61,7 @@ class CreationDateCompletionDate(date):
 
 
 class Task(dict):
+
     def __init__(self, model, d):
         super().__init__(d)
         self.model = model
@@ -81,6 +82,76 @@ class Task(dict):
     def save(self):
         self.model.save()
 
+    @classmethod
+    def from_rawtext(cls, model, t):
+        modifiers = {}
+        tags = []
+        subtags = []
+        lists = []
+
+        # match agains todo.txt
+        m = re_todo.match(t)
+        if m is None:
+            raise ValueError("does not match against todoregex")
+
+        # extract tags & modifiers from raw-text
+        raw_text = m[5]
+        text = []
+        for word in raw_text.split(" "):
+
+            m2 = re_modifier_with_date.match(word)
+            if m2:
+                modifiers[m2[1]] = date.fromisoformat(m2[2])
+                text.append(ModifierDate((m2[1], modifiers[m2[1]])))
+                continue
+
+            m2 = re_modifier.match(word)
+            if m2:
+                modifiers[m2[1]] = m2[2]
+                text.append(Modifier((m2[1], m2[2])))
+                continue
+
+            m2 = re_tag.match(word)
+            if m2:
+                tags.append(m2[1])
+                text.append(Tag(m2[1]))
+                continue
+
+            m2 = re_subtag.match(word)
+            if m2:
+                subtags.append(m2[1])
+                text.append(Subtag(m2[1]))
+                continue
+
+            m2 = re_list.match(word)
+            if m2:
+                lists.append(m2[1])
+                text.append(List(m2[1]))
+                continue
+
+            text.append(word)
+
+        if m[1] == "x":
+            completion_date = m[3]
+            creation_date = m[4]
+        else:
+            completion_date = None
+            creation_date = m[3]
+            # TODO error when both are specified
+
+        return Task(model, {
+            "complete": m[1] == "x",
+            "priority": m[2][1:-1] if m[2] else "M_",
+            "completion-date": date.fromisoformat(completion_date) if completion_date else None,
+            "creation-date": date.fromisoformat(creation_date) if creation_date else None,
+            "raw_text": t,
+            "text": text,
+            "tags": tags,
+            "subtags": subtags,
+            "lists": lists,
+            "modifier": modifiers,
+        })
+
 
 class Model():
     def __init__(self, filename):
@@ -92,74 +163,9 @@ class Model():
                 if not t.strip():
                     continue
 
-                modifiers = {}
-                tags = []
-                subtags = []
-                lists = []
-
-                # match agains todo.txt
-                m = re_todo.match(t)
-                if m is None:
-                    raise ValueError("does not match against todoregex")
-
-                # extract tags & modifiers from raw-text
-                raw_text = m[5]
-                text = []
-                for word in raw_text.split(" "):
-
-                    m2 = re_modifier_with_date.match(word)
-                    if m2:
-                        modifiers[m2[1]] = date.fromisoformat(m2[2])
-                        text.append(ModifierDate((m2[1], modifiers[m2[1]])))
-                        continue
-
-                    m2 = re_modifier.match(word)
-                    if m2:
-                        modifiers[m2[1]] = m2[2]
-                        text.append(Modifier((m2[1], m2[2])))
-                        continue
-
-                    m2 = re_tag.match(word)
-                    if m2:
-                        tags.append(m2[1])
-                        text.append(Tag(m2[1]))
-                        continue
-
-                    m2 = re_subtag.match(word)
-                    if m2:
-                        subtags.append(m2[1])
-                        text.append(Subtag(m2[1]))
-                        continue
-
-                    m2 = re_list.match(word)
-                    if m2:
-                        lists.append(m2[1])
-                        text.append(List(m2[1]))
-                        continue
-
-                    text.append(word)
-
-                if m[1] == "x":
-                    completion_date = m[3]
-                    creation_date = m[4]
-                else:
-                    completion_date = None
-                    creation_date = m[3]
-                    # TODO error when both are specified
-
-                self.todo.append(Task(self, {
-                    "complete": m[1] == "x",
-                    "priority": m[2][1:-1] if m[2] else "M_",
-                    "completion-date": date.fromisoformat(completion_date) if completion_date else None,
-                    "creation-date": date.fromisoformat(creation_date) if creation_date else None,
-                    "raw_text": t,
-                    "text": text,
-                    "tags": tags,
-                    "subtags": subtags,
-                    "lists": lists,
-                    "modifier": modifiers,
-                    "#": line_no
-                }))
+                task = Task.from_rawtext(self, t)
+                task["#"] = line_no
+                self.todo.append(task)
 
     def save(self):
         try:
