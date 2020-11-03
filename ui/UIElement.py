@@ -10,8 +10,8 @@ class UIElement:
             raise ValueError("Either position or parent have to be specified")
         self.parent = parent
         self.elements = []
-        self._rel_pos = np.array(rel_pos)
-        self._last_rel_pos = np.copy(rel_pos)
+        self._rel_pos = np.array(rel_pos) if rel_pos else np.array((0,0))
+        self._last_rel_pos = np.copy(rel_pos) if rel_pos else np.array((0,0))
         self.last_print = {}
 
     @property
