@@ -65,10 +65,9 @@ class Line(UIElement):
 
     def onKeyPress(self, val):
         if self.edit_mode:
+            self.onEditModeKey(val)
             if val.code == term.KEY_ESCAPE:
                 self.set_editmode(False)
-            else:
-                self.onEditModeKey(val)
             return
         return super().onKeyPress(val)
 

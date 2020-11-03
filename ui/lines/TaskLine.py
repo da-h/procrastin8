@@ -74,6 +74,10 @@ class TaskLine(Line):
             elif val.code == term.KEY_DELETE:
                 self._updateText(self.text["raw_text"][:self.edit_charpos] + self.text["raw_text"][self.edit_charpos+1:])
                 return
+            elif val.code == term.KEY_ESCAPE:
+                self.set_editmode(False)
+                self.text.save()
+                return
             elif not val.is_sequence:
                 self._updateText(self.text["raw_text"][:self.edit_charpos] + str(val) + self.text["raw_text"][self.edit_charpos:])
                 self.edit_charpos += 1
