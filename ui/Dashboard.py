@@ -102,12 +102,7 @@ class Dashboard(UIElement):
             # TODO: make this nicer & correct
             window_under_cursor = term.cursor.on_element.parent
             non_empty_lines = list(filter(lambda l: l.text, window_under_cursor.lines))
-            try:
-                index = non_empty_lines.index(term.cursor.on_element)
-                if index > 0:
-                    term.cursor.moveTo(non_empty_lines[index - 1])
-            except:
-                term.cursor.moveTo(non_empty_lines[0])
+            index = non_empty_lines.index(term.cursor.on_element)
             self.model.new_task(initial_text, pos=term.cursor.on_element.text)
             self.elements = []
             self.init_modelview()
@@ -115,6 +110,25 @@ class Dashboard(UIElement):
             window_under_cursor = self.elements[0]
             non_empty_lines = list(filter(lambda l: l.text, window_under_cursor.lines))
             term.cursor.moveTo(non_empty_lines[index+1])
+            term.cursor.on_element.set_editmode(True)
+        elif val == 'd':
+            if isinstance(term.cursor.on_element, TaskLine):
+                pass
+            else:
+                return
+
+            # get index of cursor
+            # TODO: make this nicer & correct
+            window_under_cursor = term.cursor.on_element.parent
+            non_empty_lines = list(filter(lambda l: l.text, window_under_cursor.lines))
+            index = non_empty_lines.index(term.cursor.on_element)
+            self.model.remove_task(pos=term.cursor.on_element.text)
+            self.elements = []
+            self.init_modelview()
+            self.draw()
+            window_under_cursor = self.elements[0]
+            non_empty_lines = list(filter(lambda l: l.text, window_under_cursor.lines))
+            term.cursor.moveTo(non_empty_lines[min(index,len(self.model.todo))])
         return super().onKeyPress(val)
 
 
