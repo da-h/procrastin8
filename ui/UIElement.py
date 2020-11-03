@@ -58,9 +58,10 @@ class UIElement:
             term.cursor.on_element_current = self
 
         new_print = term.move_xy(pos)+seq
-        if rel_pos not in self.last_print or self.last_print[rel_pos] != new_print:
+        pos = (*pos,)
+        if pos not in self.last_print or self.last_print[pos] != new_print:
             print(new_print, flush=False)
-            self.last_print[rel_pos] = new_print
+            self.last_print[pos] = new_print
 
     # ------ #
     # Events #
