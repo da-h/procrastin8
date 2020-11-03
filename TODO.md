@@ -1,3 +1,5 @@
+finish edit of lines +important
+filter options +important
 x parse todo.md format +model
 x nicer line view +window
 x read from file +model
@@ -17,7 +19,7 @@ filter-sidebar +sidebar
 choose projects / contexts +sidebar ++filter
 auto-filter +sidebar ++filter
 presets +sidebar ++filter
-nicer overall layout +sidebar
+x nicer overall layout +sidebar
 and/or filters +sidebar ++filter
 x ++settings window with show/hide options +sidebar
 ++settings connect settings to ui/model +sidebar
@@ -45,3 +47,4 @@ x skip empty lines when pressing up/down +window
 add more general onEnter/onLeave that also propagate to parents +window
 dim window borders if not under cursor +window
 editable tag-lines +todo
+is self.manage() really needed? +window
