@@ -52,8 +52,10 @@ class Line(UIElement):
                     term.cursor.pos = self.pos + np.array((self.edit_charpos - total_chars + prepend_len + self.edit_firstchar, i))
                 total_chars += t_len
 
-    def set_editmode(self, mode: bool):
+    def set_editmode(self, mode: bool, charpos: int=0, firstchar: int=0):
         self.edit_mode = mode
+        self.edit_charpos = charpos
+        self.edit_firstchar = firstchar
         if self.edit_mode:
             term.cursor.show()
         else:

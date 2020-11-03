@@ -26,7 +26,7 @@ class TaskLine(Line):
         if self.text["creation-date"]:
             S.append(term.dim+(str(self.text["creation-date"]))+term.normal)
 
-        for text_i, t in enumerate(self.text["text"]):
+        for t in self.text["text"]:
             tstr = str(t)
 
             if isinstance(t, Tag):
@@ -52,23 +52,13 @@ class TaskLine(Line):
                 self.text.save()
                 return
             elif val == "i" or val == "e":
-                # TODO merge all this into set_editmode
                 self.set_editmode(True)
-                self.text_i = 0
-                self.edit_charpos = 0
-                self.edit_firstchar = 2
                 return
             elif val == "I":
                 self.set_editmode(True)
-                self.text_i = 0
-                self.edit_charpos = 0
-                self.edit_firstchar = 2
                 return
             elif val == "A":
-                self.set_editmode(True)
-                self.text_i = 0
-                self.edit_charpos = len(self.text["raw_text"]) - 1
-                self.edit_firstchar = 2
+                self.set_editmode(True, charpos=len(self.text["raw_text"]) - 1, firstchar=2)
                 return
         elif self.edit_mode:
             if val.code == term.KEY_RIGHT:
@@ -84,6 +74,9 @@ class TaskLine(Line):
                 self.edit_charpos += 1
                 return
         super().onKeyPress(val)
+
+    def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
+        super().set_editmode(mode, charpos, firstchar)
 
     def onEditModeKey(self, val):
         if val.is_sequence:
