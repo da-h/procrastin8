@@ -66,17 +66,19 @@ class Task(dict):
         super().__init__(d)
         self.model = model
 
-    def __str__(self):
+    def __str__(self, print_optionals=True, print_description=True):
         S = []
-        if self["complete"]:
-            S.append("x")
-        if self["priority"] != "M_":
-            S.append("(%s)" % self["priority"])
-        if self["completion-date"]:
-            S.append(str(self["completion-date"]))
-        if self["creation-date"]:
-            S.append(str(self["creation-date"]))
-        S += self["text"]
+        if print_optionals:
+            if self["complete"]:
+                S.append("x")
+            if self["priority"] != "M_":
+                S.append("(%s)" % self["priority"])
+            if self["completion-date"]:
+                S.append(str(self["completion-date"]))
+            if self["creation-date"]:
+                S.append(str(self["creation-date"]))
+        if print_description:
+            S += self["text"]
         return " ".join(str(s) for s in S)
 
     def save(self):
@@ -144,7 +146,8 @@ class Task(dict):
             "priority": m[2][1:-1] if m[2] else "M_",
             "completion-date": date.fromisoformat(completion_date) if completion_date else None,
             "creation-date": date.fromisoformat(creation_date) if creation_date else None,
-            "raw_text": t,
+            # "raw_text_complete": t,
+            "raw_text": m[5],
             "text": text,
             "tags": tags,
             "subtags": subtags,

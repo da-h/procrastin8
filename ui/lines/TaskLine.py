@@ -78,7 +78,8 @@ class TaskLine(Line):
                 self.edit_charpos = max(self.edit_charpos-1,0)
                 return
             elif not val.is_sequence:
-                raw_text = self.text["raw_text"][:self.edit_charpos] + str(val) + self.text["raw_text"][self.edit_charpos:]
+                text_optionals = self.text.__str__(print_description=False)
+                raw_text = (text_optionals + " " if text_optionals else "") + self.text["raw_text"][:self.edit_charpos] + str(val) + self.text["raw_text"][self.edit_charpos:]
                 self.text.update( Task.from_rawtext(self.text.model, raw_text ) )
                 self.edit_charpos += 1
                 return
