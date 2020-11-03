@@ -79,5 +79,3 @@ class UIElement:
     def onElementClosed(self, elem):
         if self.parent is not None:
             self.parent.onElementClosed(elem)
-
-

@@ -37,5 +37,3 @@ class Window(UIElement):
     def close(self):
         self.clear()
         super().close()
-
-

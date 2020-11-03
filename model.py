@@ -186,4 +186,3 @@ class Model():
         if len(order_list) == 0:
             return self.todo
         return sorted(self.todo, key=lambda t: ["|".join(",".join(t[o]) for o in order_list)])
-

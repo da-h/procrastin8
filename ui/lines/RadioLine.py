@@ -42,5 +42,3 @@ class RadioLine(UIElement):
             self.active = (self.active + 1) % len(self.choices)
             return
         return super().onKeyPress(val)
-
-

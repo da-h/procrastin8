@@ -26,5 +26,3 @@ class Sidebar(TextWindow):
             return
 
         return super().onKeyPress(val)
-
-

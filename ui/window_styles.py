@@ -36,5 +36,3 @@ def draw_border2(pos, dim, title=None):
     # set title
     if title is not None:
         print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)), flush=False)
-
-

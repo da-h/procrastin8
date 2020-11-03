@@ -34,7 +34,7 @@ x +kb x to mark as done
 +kb n to make new
 +kb p to paste below
 +kb P to paste above
-+kb e to edit line
+x +kb e to edit line
 +kb hjkl for movement
 +kb strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
 +kb strg+Up/k swap up

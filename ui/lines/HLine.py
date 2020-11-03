@@ -23,5 +23,3 @@ class HLine(UIElement):
                 self.printAt((0,1), term.center(self.text, width=self.wrapper.width))
             else:
                 self.printAt((0,1), self.text+" ")
-
-

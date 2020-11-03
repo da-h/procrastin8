@@ -74,4 +74,3 @@ class Line(UIElement):
 
     def onEditModeKey(self, val):
         pass
-

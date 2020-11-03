@@ -16,5 +16,3 @@ class TaskWindow(TextWindow):
         elem = TaskLine(text, prepend=prepend, wrapper=wrapper, parent=self)
         self.lines.append(elem)
         self.manage(elem)
-
-
