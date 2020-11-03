@@ -1,1 +1,3 @@
-x +kb X to ++Archive done to done.txt
+x +kb d to delete
+x +kb n to make new
+x +kb hjkl for movement
