@@ -37,7 +37,7 @@ class Dashboard(UIElement):
     def loop(self):
         val = ''
         while self.continue_loop:
-            val = term.inkey()
+            val = term.inkey(esc_delay=0)
             if val and term.cursor.on_element:
                 term.cursor.on_element.onKeyPress(val)
 
