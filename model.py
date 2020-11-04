@@ -185,7 +185,7 @@ class Model():
 
     def archive(self):
         todo, done = [], []
-            
+
         for t in self.todo:
             (done if t["complete"] else todo).append(t)
 

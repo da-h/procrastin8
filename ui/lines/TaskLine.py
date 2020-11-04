@@ -62,10 +62,22 @@ class TaskLine(Line):
                 return
         elif self.edit_mode:
             if val.code == term.KEY_RIGHT:
-                self.edit_charpos = min(self.edit_charpos+1,len(self.text["raw_text"])-1)
+                self.edit_charpos = min(self.edit_charpos+1,len(self.text["raw_text"]))
                 return
             elif val.code == term.KEY_LEFT:
                 self.edit_charpos = max(self.edit_charpos-1,0)
+                return
+            elif val.code == term.KEY_DOWN or val == 'j':
+                self.edit_charpos = min(self.edit_charpos+self.wrapper.width-len(self.prepend)-self.edit_firstchar, len(self.text["raw_text"]))
+                return
+            elif val.code == term.KEY_UP or val == 'k':
+                self.edit_charpos = min(self.edit_charpos-self.wrapper.width+len(self.prepend)+self.edit_firstchar, len(self.text["raw_text"]))
+                return
+            elif val.code == term.KEY_HOME:
+                self.edit_charpos = 0
+                return
+            elif val.code == term.KEY_END:
+                self.edit_charpos = len(self.text["raw_text"])
                 return
             elif val.code == term.KEY_BACKSPACE:
                 self._updateText(self.text["raw_text"][:self.edit_charpos-1] + self.text["raw_text"][self.edit_charpos:])

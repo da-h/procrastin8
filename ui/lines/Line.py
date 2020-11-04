@@ -49,10 +49,10 @@ class Line(UIElement):
             self.printAt((0, i), prepend+t)
 
             if self.edit_mode:
-                t_len = t.length()
-                if total_chars <= self.edit_charpos and self.edit_charpos < total_chars + t_len:
+                t_len = len(t.strip())
+                if total_chars <= self.edit_charpos and self.edit_charpos <= total_chars + t_len:
                     term.cursor.pos = self.pos + np.array((self.edit_charpos - total_chars + prepend_len + self.edit_firstchar, i))
-                total_chars += t_len
+                total_chars += t_len - 1
 
     def set_editmode(self, mode: bool, charpos: int=0, firstchar: int=0):
         self.edit_mode = mode

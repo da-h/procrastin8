@@ -1,6 +1,6 @@
-+dashboard filter options ++order
++dashboard add basic filter options ++order
 +later tabs ++dashboard
-add task groups ++order +dashboard
+grouping instead of direct ordering ++order +dashboard
 automatic arrangement of multiple windows +dashboard
 +later allow resize ++dashboard
 ++order windows from model/groups +dashboard
@@ -19,18 +19,15 @@ and/or filters +sidebar ++filter
 +later ++kb p to paste below
 +later ++kb P to paste above
 +later ++kb strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
-add up/down j/k movement in edit mode +editmode
 +kb strg+Up/k swap up
 tag/subtag/list suggestions +editmode
 +kb strg+down/j swap down
-fix append to end +editmode
 +later key: u to ++undo
-fix cursorpos on line wrap during +editmode
 update window on edited tags/subtags +editmode
 +later basic bindings ++taskwarrior
-++order task sort order should follow file not alphabet +window
-++active add more general onEnter/onLeave that also propagate to parents +window
-++active dim window borders if not under cursor +window
+++order task sort order should follow file not alphabet +dashboard
+++window add more general onEnter/onLeave that also propagate to parents +later
+++window dim window borders if not under cursor +later
 +dashboard ++order editable tag-lines (make autoboxing for Tags, etc)
 ++manage is self.manage() really needed? +window
 ++manage move uielement.clear to term to allow also element swapping +window

@@ -1,3 +1,3 @@
-x +kb d to delete
-x +kb n to make new
-x +kb hjkl for movement
+x add up/down j/k movement in edit mode +editmode
+x fix append to end +editmode
+x fix cursorpos on line wrap during +editmode
