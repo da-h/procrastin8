@@ -5,7 +5,7 @@ from ui.windows.Sidebar import Sidebar
 from ui.lines.RadioLine import RadioLine
 from ui.lines.TaskLine import TaskLine
 from ui.windows import TaskWindow
-from settings import COLUMN_WIDTH, WINDOW_MARGIN
+from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE
 from model import Tag, Subtag, List
 
 term = get_term()
@@ -145,12 +145,10 @@ class Dashboard(UIElement):
 
     def init_modelview(self):
         win_pos = 0
-        win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, "Todos")
-        self.windows.append(win)
-        self.manage(win)
         list = None
         tag = None
         subtag = None
+        new_window = True
         for l in self.model.query(sortBy=["lists", "tags","subtags"]):
 
             # new list window
@@ -159,18 +157,25 @@ class Dashboard(UIElement):
             if l["lists"] and list not in l["lists"]:
                 # break
                 list = l["lists"][0]
+                new_window = True
+
+            if new_window:
+                win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, str(list) if list else "Todos")
                 win_pos += COLUMN_WIDTH + WINDOW_MARGIN
-                win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, "Todos")
                 self.windows.append(win)
                 self.manage(win)
+                new_window = False
 
             # tag-line
             if l["tags"] and tag not in l["tags"]:
-                # win.add_hline(term.white(tag))
-                if tag:
+                if tag and TODO_STYLE==1:
                     win.add_emptyline()
                 tag = l["tags"][0]
-                win.add_line(term.cyan(tag))
+                if TODO_STYLE == 2:
+                    win.add_hline(term.cyan(tag), center=True)
+                    win.add_emptyline()
+                elif TODO_STYLE == 1:
+                    win.add_line(term.cyan(tag))
 
             # subtag-line
             if l["subtags"] and subtag not in l["subtags"]:

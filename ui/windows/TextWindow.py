@@ -90,8 +90,8 @@ class TextWindow(Window):
         self.lines.append(elem)
         self.manage(elem)
 
-    def add_hline(self, text=""):
-        elem = HLine(text, wrapper=self.wrapper, parent=self)
+    def add_hline(self, text="", center=False):
+        elem = HLine(text, wrapper=self.wrapper, center=center, parent=self)
         self.lines.append(elem)
         self.manage(elem)
 

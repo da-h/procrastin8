@@ -1,5 +1,6 @@
 x +dashboard add basic filter options ++order
 @later tabs ++dashboard
+x basic window setup from todo lists ++order +dashboard
 grouping instead of direct ordering ++order +dashboard
 automatic arrangement of multiple windows +dashboard
 @later allow resize ++dashboard

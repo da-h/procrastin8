@@ -1,3 +1,4 @@
+from blessed.sequences import Sequence
 from ui.UIElement import UIElement
 from ui import get_term
 term = get_term()
@@ -20,6 +21,6 @@ class HLine(UIElement):
         self.printAt((0,1), term.dim+"─"*self.wrapper.width+term.normal)
         if self.text:
             if self.center:
-                self.printAt((0,1), term.center(self.text, width=self.wrapper.width))
+                self.printAt(((self.wrapper.width-1)//2 - Sequence(self.text, term).length()//2 - 1, 1), " "+self.text+" ")
             else:
                 self.printAt((0,1), self.text+" ")
