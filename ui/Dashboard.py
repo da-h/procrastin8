@@ -165,6 +165,8 @@ class Dashboard(UIElement):
                 self.windows.append(win)
                 self.manage(win)
                 new_window = False
+                tag = None
+                subtag = None
 
             # tag-line
             if l["tags"] and tag not in l["tags"]:
