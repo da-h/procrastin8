@@ -8,6 +8,7 @@ add started tag ++taskwarrior @later
 x scroll ++overlong +window
 splitted window ++overlong +window
 filter-sidebar +sidebar
+x let window remember cursor position +window
 choose projects / contexts +sidebar ++filter
 auto-filter +sidebar ++filter
 presets +sidebar ++filter
@@ -25,12 +26,12 @@ strg+e to move down +kb
 tag/subtag/list suggestions +editmode
 +kb strg+down/j swap down
 @later key: u to ++undo
+page-up/-down to jump to the start/end +kb
 update window on edited tags/subtags +editmode
 @later basic bindings ++taskwarrior
 ++order task sort order should follow file not alphabet +dashboard
 ++window add more general onEnter/onLeave that also propagate to parents @later
 ++window dim window borders if not under cursor @later
 @later +dashboard editable tag-lines (make autoboxing for Tags, etc)
-++window @later
 ++manage is self.manage() really needed? +window
 ++manage move uielement.clear to term to allow also element swapping +window

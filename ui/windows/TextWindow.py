@@ -24,6 +24,7 @@ class TextWindow(Window):
         self.wrapper = TextWrapper(width=width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2, initial_indent="", subsequent_indent=" " * indent, term=term)
         self.overfull_mode = overfull_mode
         self.scroll_pos = 0
+        self.current_line = 0
 
     def draw(self, clean=False):
         max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height) - self.rel_pos[1]
@@ -56,25 +57,27 @@ class TextWindow(Window):
         max_inner_height = max_height - self.padding[0] - self.padding[2]
 
         if val.code == term.KEY_UP or val == 'k':
-            try:
-                index = non_empty_lines.index(element)
-                if index > 0:
-                    focus_on = non_empty_lines[index - 1]
-                    term.cursor.moveTo(focus_on)
-                    if focus_on.rel_pos[1] < self.padding[1]:
-                        self.scroll_pos = max(self.scroll_pos + focus_on.rel_pos[1] - self.padding[1], 0)
-            except:
-                term.cursor.moveTo(non_empty_lines[0])
+            if self.current_line == 0:
+                return
+            elif self.current_line is None:
+                term.cursor.moveTo(non_empty_lines[self.current_line])
+
+            self.current_line -= 1
+            focus_on = non_empty_lines[self.current_line]
+            term.cursor.moveTo(focus_on)
+            if focus_on.rel_pos[1] < self.padding[1]:
+                self.scroll_pos = max(self.scroll_pos + focus_on.rel_pos[1] - self.padding[1], 0)
         elif val.code == term.KEY_DOWN or val == 'j':
-            try:
-                index = non_empty_lines.index(element)
-                if index < len(non_empty_lines) - 1:
-                    focus_on = non_empty_lines[index + 1]
-                    term.cursor.moveTo(focus_on)
-                    if focus_on.rel_pos[1] > max_inner_height:# - focus_on.height:
-                        self.scroll_pos += focus_on.rel_pos[1] - element.rel_pos[1] + focus_on.height - 1
-            except:
-                term.cursor.moveTo(non_empty_lines[0])
+            if self.current_line == len(non_empty_lines) - 1:
+                return
+            elif self.current_line is None:
+                term.cursor.moveTo(non_empty_lines[self.current_line])
+
+            self.current_line += 1
+            focus_on = non_empty_lines[self.current_line]
+            term.cursor.moveTo(focus_on)
+            if focus_on.rel_pos[1] > max_inner_height:# - focus_on.height:
+                self.scroll_pos += focus_on.rel_pos[1] - element.rel_pos[1] + focus_on.height - 1
         else:
             super().onKeyPress(val)
 
@@ -97,4 +100,5 @@ class TextWindow(Window):
 
     def onFocus(self):
         if len(self.lines):
-            term.cursor.moveTo(self.lines[0])
+            self.current_line = min(len(self.lines)-1, self.current_line)
+            term.cursor.moveTo(self.lines[self.current_line])
