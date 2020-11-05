@@ -4,7 +4,8 @@ grouping instead of direct ordering ++order +dashboard
 automatic arrangement of multiple windows +dashboard
 +later allow resize ++dashboard
 ++order windows from model/groups +dashboard
-scroll ++overlong +window
+add started tag ++taskwarrior +later
+x scroll ++overlong +window
 splitted window ++overlong +window
 filter-sidebar +sidebar
 choose projects / contexts +sidebar ++filter

@@ -15,7 +15,7 @@ class OverfullMode(Enum):
 class TextWindow(Window):
 
     def __init__(self, rel_pos, width, title, indent=2, parent=None, overfull_mode=OverfullMode.SCROLL, padding=(1,1,1,1), max_height=-1):
-        super().__init__(rel_pos=rel_pos, parent=parent, padding=padding, max_height=-1)
+        super().__init__(rel_pos=rel_pos, parent=parent, padding=padding, max_height=max_height)
         self.width = width
         self.height = 1
         self.indent = indent
@@ -35,9 +35,10 @@ class TextWindow(Window):
         for line in self.lines:
             line.rel_pos = np.array((self.padding[3] + WINDOW_PADDING, content_height - self.scroll_pos + self.padding[0]))
             line.typeset()
-            line.max_height = max(max_inner_height - content_height, 0)
+            line.max_height = max(max_inner_height - content_height + self.scroll_pos, 0)
+            if line.rel_pos[1] < self.padding[1]:
+                line.max_height = 0
             content_height += line.height
-        content_height += 1
 
         # draw window
         if self.overfull_mode == OverfullMode.SCROLL:
@@ -51,19 +52,28 @@ class TextWindow(Window):
     def onKeyPress(self, val):
         element = term.cursor.on_element
         non_empty_lines = list(filter(lambda l: l.text, self.lines))
+        max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height) - self.rel_pos[1]
+        max_inner_height = max_height - self.padding[0] - self.padding[2]
 
         if val.code == term.KEY_UP or val == 'k':
             try:
                 index = non_empty_lines.index(element)
                 if index > 0:
-                    term.cursor.moveTo(non_empty_lines[index - 1])
+                    focus_on = non_empty_lines[index - 1]
+                    term.cursor.moveTo(focus_on)
+                    if focus_on.rel_pos[1] < self.padding[1]:
+                        self.scroll_pos = max(self.scroll_pos + focus_on.rel_pos[1] - self.padding[1], 0)
             except:
                 term.cursor.moveTo(non_empty_lines[0])
         elif val.code == term.KEY_DOWN or val == 'j':
             try:
                 index = non_empty_lines.index(element)
                 if index < len(non_empty_lines) - 1:
-                    term.cursor.moveTo(non_empty_lines[index + 1])
+                    focus_on = non_empty_lines[index + 1]
+                    term.cursor.moveTo(focus_on)
+                    if focus_on.rel_pos[1] > max_inner_height:# - focus_on.height:
+                        # breakpoint()
+                        self.scroll_pos += focus_on.rel_pos[1] - element.rel_pos[1] + focus_on.height - 1
             except:
                 term.cursor.moveTo(non_empty_lines[0])
         else:
