@@ -41,7 +41,7 @@ class UIElement:
 
     def clear(self):
         for key, val in self.last_print.items():
-            print(term.move_xy(key)+" "*len(Sequence(val, term)), flush=False)
+            print(term.move_xy(key)+" "*len(Sequence(val, term)), end='', flush=False)
         self.last_print = {}
         for e in self.elements:
             e.clear()
@@ -60,7 +60,7 @@ class UIElement:
         new_print = term.move_xy(pos)+seq
         pos = (*pos,)
         if pos not in self.last_print or self.last_print[pos] != new_print:
-            print(new_print, flush=False)
+            print(new_print, end='', flush=False)
             self.last_print[pos] = new_print
 
     # ------ #

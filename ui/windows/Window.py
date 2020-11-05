@@ -5,8 +5,8 @@ term = get_term()
 
 class Window(UIElement):
 
-    def __init__(self, rel_pos, width=1, height=1, title="", parent=None):
-        super().__init__(rel_pos=rel_pos, parent=parent)
+    def __init__(self, rel_pos, width=1, height=1, title="", parent=None, max_height=-1, inner_offset=(1,1)):
+        super().__init__(rel_pos=rel_pos, parent=parent, inner_offset=inner_offset, max_height=max_height)
         self.width = width
         self.height = height
         self.title = title
@@ -31,7 +31,7 @@ class Window(UIElement):
         clean = ""
         for i in range(self.height):
             clean += term.move_xy(self.pos+(0,i)) + " "*self.width
-        print(clean, flush=False)
+        print(clean, end='', flush=False)
         super().clear()
 
     def close(self):

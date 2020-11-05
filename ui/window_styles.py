@@ -14,11 +14,11 @@ def draw_border(pos, dim, title=None):
         border += term.move_xy(pos+(0,i+1)) + "│ "
         border += term.move_xy(pos+(width-2,i+1)) + " │"
     border += term.move_xy(pos+(0,height-1)) + "└" + "─" * (width-2) + "┘"
-    print(border, flush=False)
+    print(border, end='', flush=False)
 
     # set title
     if title is not None:
-        print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)), flush=False)
+        print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)), end='', flush=False)
 
 def draw_border2(pos, dim, title=None):
     pos = np.array(pos)
@@ -31,8 +31,8 @@ def draw_border2(pos, dim, title=None):
         border += term.move_xy(pos+(0,i+1)) + "  "
         border += term.move_xy(pos+(width-2,i+1)) + " │"
     border += term.move_xy(pos+(0,height-1)) + " " + " " * (width-2) + "│"
-    print(border, flush=False)
+    print(border, end='', flush=False)
 
     # set title
     if title is not None:
-        print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)), flush=False)
+        print(term.move_xy(pos+(1+0,0)) + " %s " % term.bold(term.white(title)), end='', flush=False)
