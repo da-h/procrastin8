@@ -61,7 +61,7 @@ class UIElement:
 
         if self.max_height == 0:
             return
-        if self.max_height > 0 and (rel_pos[1] if ignore_padding else rel_pos[1] + self.padding[0] + self.padding[2]) > self.max_height:
+        if self.max_height > 0 and (rel_pos[1] if ignore_padding else rel_pos[1] + self.padding[0] + self.padding[2]) >= self.max_height:
             return
 
         new_print = term.move_xy(pos)+seq
