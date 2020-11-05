@@ -204,10 +204,17 @@ class Model():
 
         self.save()
 
-    def sortBy(self, order_list=[]):
-        if len(order_list) == 0:
-            return self.todo
-        return sorted(self.todo, key=lambda t: ["|".join(",".join(t[o]) for o in order_list)])
+    def query(self, filter=".*", sortBy=[]):
+        filter_re = re.compile(filter)
+        todo = []
+        for t in self.todo:
+            m = filter_re.match(t["raw_text"])
+            if m:
+                todo.append(t)
+
+        if len(sortBy) == 0:
+            return todo
+        return sorted(todo, key=lambda t: ["|".join(",".join(t[o]) for o in sortBy)])
 
     def new_task(self, initial_text="", pos=-1):
         if isinstance(pos, Task):

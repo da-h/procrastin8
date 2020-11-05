@@ -138,7 +138,7 @@ class Dashboard(UIElement):
         win = TaskWindow((1,1),COLUMN_WIDTH, "Todos")
         tag = None
         subtag = None
-        for l in self.model.sortBy(["lists", "tags","subtags"]):
+        for l in self.model.query(sortBy=["lists", "tags","subtags"]):
 
             # tag-line
             if l["tags"] and tag not in l["tags"]:

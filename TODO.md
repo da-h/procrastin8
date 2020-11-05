@@ -1,4 +1,4 @@
-+dashboard add basic filter options ++order
+x +dashboard add basic filter options ++order
 +zlater tabs ++dashboard
 grouping instead of direct ordering ++order +dashboard
 automatic arrangement of multiple windows +dashboard
@@ -30,6 +30,6 @@ update window on edited tags/subtags +editmode
 ++order task sort order should follow file not alphabet +dashboard
 ++window add more general onEnter/onLeave that also propagate to parents +zlater
 ++window dim window borders if not under cursor +zlater
-+dashboard ++order editable tag-lines (make autoboxing for Tags, etc)
++zlater +dashboard editable tag-lines (make autoboxing for Tags, etc)
 ++manage is self.manage() really needed? +window
 ++manage move uielement.clear to term to allow also element swapping +window

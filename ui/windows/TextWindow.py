@@ -72,7 +72,6 @@ class TextWindow(Window):
                     focus_on = non_empty_lines[index + 1]
                     term.cursor.moveTo(focus_on)
                     if focus_on.rel_pos[1] > max_inner_height:# - focus_on.height:
-                        # breakpoint()
                         self.scroll_pos += focus_on.rel_pos[1] - element.rel_pos[1] + focus_on.height - 1
             except:
                 term.cursor.moveTo(non_empty_lines[0])
