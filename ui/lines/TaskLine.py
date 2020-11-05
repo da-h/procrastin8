@@ -2,6 +2,7 @@ from model import Task, Tag, Subtag, List, Modifier, ModifierDate
 from settings import WINDOW_PADDING, COLUMN_WIDTH, LIST_HIDDEN, TAG_HIDDEN, SUBTAG_HIDDEN, DIM_COMPLETE
 
 from ui import get_term
+from ui.UIElement import UIElement
 from ui.lines.Line import Line
 term = get_term()
 
@@ -87,15 +88,11 @@ class TaskLine(Line):
             elif val.code == term.KEY_DELETE:
                 self._updateText(self.text["raw_text"][:self.edit_charpos] + self.text["raw_text"][self.edit_charpos+1:])
                 return
-            elif val.code == term.KEY_ESCAPE or val.code == term.ENTER:
-                self.set_editmode(False)
-                self.text.save()
-                return
             elif not val.is_sequence:
                 self._updateText(self.text["raw_text"][:self.edit_charpos] + str(val) + self.text["raw_text"][self.edit_charpos:])
                 self.edit_charpos += 1
                 return
-        super().onKeyPress(val)
+        UIElement.onKeyPress(self, val)
 
     def _updateText(self, raw_text):
         text_optionals = self.text.__str__(print_description=False)

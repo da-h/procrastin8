@@ -67,6 +67,8 @@ class Dashboard(UIElement):
             term.cursor.moveTo(self.elements[0])
 
     def onKeyPress(self, val):
+        element = term.cursor.on_element
+
         if val == "q":
             self.continue_loop = False
             return
@@ -111,7 +113,8 @@ class Dashboard(UIElement):
 
             # get index of cursor
             current_line = self.windows[self.current_window].current_line
-            self.model.new_task(initial_text, pos=term.cursor.on_element.text)
+            task = self.model.new_task(initial_text, pos=term.cursor.on_element.text)
+            task["unsaved"] = True
             self.elements = []
             self.init_modelview()
             self.draw()
@@ -137,8 +140,26 @@ class Dashboard(UIElement):
                 window = self.windows[min(self.current_window, len(self.windows))]
             else:
                 window = self.windows[len(self.current_window)-1]
-            window.current_line = min(current_line, len(window.lines)-1)
+            window.current_line = current_line - 1
             term.cursor.moveTo(window)
+
+        elif isinstance(element, TaskLine):
+            if element.edit_mode:
+                if val.code == term.KEY_ESCAPE:
+                    element.set_editmode(False)
+                    if "unsaved" in element.text:
+                        element.text.model.remove_task(term.cursor.on_element.text)
+                        window = self.windows[self.current_window]
+                        window.lines.remove(term.cursor.on_element)
+                        window.current_line -= 1
+                        term.cursor.moveTo(window)
+                    return
+                elif val.code == term.KEY_ENTER:
+                    element.set_editmode(False)
+                    if "unsaved" in element.text:
+                        del element.text["unsaved"]
+                    element.text.model.save()
+                    return
         return super().onKeyPress(val)
 
 
