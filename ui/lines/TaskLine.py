@@ -87,7 +87,7 @@ class TaskLine(Line):
             elif val.code == term.KEY_DELETE:
                 self._updateText(self.text["raw_text"][:self.edit_charpos] + self.text["raw_text"][self.edit_charpos+1:])
                 return
-            elif val.code == term.KEY_ESCAPE:
+            elif val.code == term.KEY_ESCAPE or val.code == term.ENTER:
                 self.set_editmode(False)
                 self.text.save()
                 return
