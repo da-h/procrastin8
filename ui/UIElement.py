@@ -43,7 +43,7 @@ class UIElement:
 
     def clear(self):
         for key, val in self.last_print.items():
-            print(term.move_xy(key)+" "*len(Sequence(val, term)), end='', flush=False)
+            print(term.move_xy(key)+" "*Sequence(val, term).length(), end='', flush=False)
         self.last_print = {}
         for e in self.elements:
             e.clear()
