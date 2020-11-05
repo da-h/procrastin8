@@ -48,7 +48,7 @@ class TaskLine(Line):
 
     def onKeyPress(self, val):
         if not self.edit_mode:
-            if val == "x":
+            if val == "x" or val == " ":
                 self.text["complete"] = not self.text["complete"]
                 self.text.save()
                 return
