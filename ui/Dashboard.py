@@ -13,10 +13,11 @@ term = get_term()
 
 draw_calls = 0
 def redraw():
+    return
     global draw_calls
-    print(term.move_y(term.height - 4) + term.center('draw() calls: %i' % draw_calls).rstrip(), flush=False)
-    print(term.move_y(term.height - 3) + term.center('cursor: '+str(term.cursor.pos)).rstrip(), flush=False)
-    print(term.move_y(term.height - 2) + term.center('element: '+str(term.cursor.on_element) if term.cursor.on_element else "").rstrip(), flush=False)
+    print(term.move_y(term.height - 4) + term.center('draw() calls: %i' % draw_calls).rstrip(), end='', flush=False)
+    print(term.move_y(term.height - 3) + term.center('cursor: '+str(term.cursor.pos)).rstrip(), end='', flush=False)
+    print(term.move_y(term.height - 2) + term.center('element: '+str(term.cursor.on_element) if term.cursor.on_element else "").rstrip(), end='', flush=False)
     draw_calls += 1
 
 
