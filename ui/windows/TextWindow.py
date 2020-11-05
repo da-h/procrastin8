@@ -78,6 +78,14 @@ class TextWindow(Window):
             term.cursor.moveTo(focus_on)
             if focus_on.rel_pos[1] > max_inner_height:# - focus_on.height:
                 self.scroll_pos += focus_on.rel_pos[1] - element.rel_pos[1] + focus_on.height - 1
+        elif val.code == term.KEY_HOME:
+            self.current_line = 0
+            term.cursor.moveTo(non_empty_lines[self.current_line])
+            return
+        elif val.code == term.KEY_END:
+            self.current_line = len(non_empty_lines)-1
+            term.cursor.moveTo(non_empty_lines[self.current_line])
+            return
         else:
             super().onKeyPress(val)
 
