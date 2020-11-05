@@ -214,7 +214,7 @@ class Model():
 
         if len(sortBy) == 0:
             return todo
-        return sorted(todo, key=lambda t: ["|".join(",".join(t[o]) for o in sortBy)])
+        return sorted(todo, key=lambda t: ["|".join(",".join(t[o]) if t[o] else "_" for o in sortBy)])
 
     def new_task(self, initial_text="", pos=-1):
         if isinstance(pos, Task):
