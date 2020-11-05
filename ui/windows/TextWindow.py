@@ -1,36 +1,47 @@
+import numpy as np
 from ui.windows.Window import Window
 from ui.lines.Line import Line
 from ui.lines.HLine import HLine
 from blessed.sequences import SequenceTextWrapper as TextWrapper
 from settings import WINDOW_PADDING
 from ui import get_term
+from enum import Enum
 term = get_term()
+
+class OverfullMode(Enum):
+    SCROLL = 1
 
 
 class TextWindow(Window):
 
-    def __init__(self, rel_pos, width, title, indent=2, parent=None):
-        super().__init__(rel_pos=rel_pos, parent=parent)
+    def __init__(self, rel_pos, width, title, indent=2, parent=None, overfull_mode=OverfullMode.SCROLL, padding=(1,1,1,1), max_height=-1):
+        super().__init__(rel_pos=rel_pos, parent=parent, padding=padding, max_height=-1)
         self.width = width
+        self.height = 1
         self.indent = indent
         self.title = title
         self.lines = []
-        self.wrapper = TextWrapper(width=width - 2 - WINDOW_PADDING * 2, initial_indent="", subsequent_indent=" " * indent, term=term)
-        self.height = 1
+        self.wrapper = TextWrapper(width=width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2, initial_indent="", subsequent_indent=" " * indent, term=term)
+        self.overfull_mode = overfull_mode
+        self.scroll_pos = 0
 
     def draw(self, clean=False):
+        max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height) - self.rel_pos[1]
+        max_inner_height = max_height - self.padding[0] - self.padding[2]
 
         # calculate dynamic height
         # & position lines
-        content_height = 1
+        content_height = 0
         for line in self.lines:
-            line.rel_pos = (1 + WINDOW_PADDING, content_height)
+            line.rel_pos = np.array((self.padding[3] + WINDOW_PADDING, content_height - self.scroll_pos + self.padding[0]))
             line.typeset()
+            line.max_height = max(max_inner_height - content_height, 0)
             content_height += line.height
         content_height += 1
 
         # draw window
-        self.height = content_height
+        if self.overfull_mode == OverfullMode.SCROLL:
+            self.height = min(content_height + self.padding[0] + self.padding[2], max_height)
         super().draw(clean)
 
         # draw text
@@ -60,7 +71,7 @@ class TextWindow(Window):
 
     def add_line(self, text, prepend=""):
         if prepend != "":
-            wrapper = TextWrapper(width=self.width - 2 - WINDOW_PADDING * 2 - len(prepend), initial_indent="", subsequent_indent=" " * self.indent, term=term)
+            wrapper = TextWrapper(width=self.width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2 - len(prepend), initial_indent="", subsequent_indent=" " * self.indent, term=term)
         else:
             wrapper = self.wrapper
         elem = Line(text, prepend=prepend, wrapper=wrapper, parent=self)

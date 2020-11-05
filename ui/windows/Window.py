@@ -5,8 +5,8 @@ term = get_term()
 
 class Window(UIElement):
 
-    def __init__(self, rel_pos, width=1, height=1, title="", parent=None, max_height=-1, inner_offset=(1,1)):
-        super().__init__(rel_pos=rel_pos, parent=parent, inner_offset=inner_offset, max_height=max_height)
+    def __init__(self, rel_pos, width=1, height=1, title="", parent=None, max_height=-1, padding=(1,1,1,1)):
+        super().__init__(rel_pos=rel_pos, parent=parent, padding=padding, max_height=max_height)
         self.width = width
         self.height = height
         self.title = title

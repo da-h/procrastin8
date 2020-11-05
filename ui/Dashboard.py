@@ -24,6 +24,8 @@ class Dashboard(UIElement):
 
     def __init__(self, model):
         super().__init__((0,0))
+        self.width = term.width
+        self.height = term.height
         self.model = model
         self.overlay = None
         self.continue_loop = True
