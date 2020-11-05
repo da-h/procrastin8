@@ -67,10 +67,10 @@ class TaskLine(Line):
             elif val.code == term.KEY_LEFT:
                 self.edit_charpos = max(self.edit_charpos-1,0)
                 return
-            elif val.code == term.KEY_DOWN or val == 'j':
+            elif val.code == term.KEY_DOWN:
                 self.edit_charpos = min(self.edit_charpos+self.wrapper.width-len(self.prepend)-self.edit_firstchar, len(self.text["raw_text"]))
                 return
-            elif val.code == term.KEY_UP or val == 'k':
+            elif val.code == term.KEY_UP:
                 self.edit_charpos = min(self.edit_charpos-self.wrapper.width+len(self.prepend)+self.edit_firstchar, len(self.text["raw_text"]))
                 return
             elif val.code == term.KEY_HOME:
