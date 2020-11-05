@@ -1,5 +1,5 @@
 from model import Task, Tag, Subtag, List, Modifier, ModifierDate
-from settings import WINDOW_PADDING, COLUMN_WIDTH, TAG_HIDDEN, SUBTAG_HIDDEN, DIM_COMPLETE
+from settings import WINDOW_PADDING, COLUMN_WIDTH, LIST_HIDDEN, TAG_HIDDEN, SUBTAG_HIDDEN, DIM_COMPLETE
 
 from ui import get_term
 from ui.lines.Line import Line
@@ -36,7 +36,8 @@ class TaskLine(Line):
                 if not SUBTAG_HIDDEN or self.edit_mode:
                     S.append(term.red(term.dim+tstr))
             elif isinstance(t, List):
-                S.append(term.bold(term.blue(tstr)))
+                if not LIST_HIDDEN or self.edit_mode:
+                    S.append(term.bold(term.blue(tstr)))
             elif isinstance(t, Modifier):
                 S.append(term.green(tstr))
             elif isinstance(t, ModifierDate):
