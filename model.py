@@ -221,7 +221,7 @@ class Model():
             pos = self.todo.index(pos)
         task = Task.from_rawtext(self,initial_text)
         self.todo.insert(pos+2, task)
-        self.save()
+        # self.save()
         return task
 
     def remove_task(self, pos=-1):
