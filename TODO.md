@@ -1,15 +1,11 @@
-x +dashboard add basic filter options ++order
 @later tabs ++dashboard
-x basic window setup from todo lists ++order +dashboard
 grouping instead of direct ordering ++order +dashboard
 automatic arrangement of multiple windows +dashboard
 @later allow resize ++dashboard
 ++order windows from model/groups +dashboard
 add started tag ++taskwarrior @later
-x scroll ++overlong +window
 splitted window ++overlong +window
 filter-sidebar +sidebar
-x let window remember cursor position +window
 choose projects / contexts +sidebar ++filter
 auto-filter +sidebar ++filter
 presets +sidebar ++filter
