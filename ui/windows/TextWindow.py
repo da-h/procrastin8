@@ -108,5 +108,5 @@ class TextWindow(Window):
 
     def onFocus(self):
         if len(self.lines):
-            self.current_line = min(len(self.lines)-1, self.current_line)
+            self.current_line = max(min(len(self.lines)-1, self.current_line),0)
             term.cursor.moveTo(self.lines[self.current_line])
