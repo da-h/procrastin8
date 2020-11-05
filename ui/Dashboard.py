@@ -5,7 +5,7 @@ from ui.windows.Sidebar import Sidebar
 from ui.lines.RadioLine import RadioLine
 from ui.lines.TaskLine import TaskLine
 from ui.windows import TaskWindow
-from settings import COLUMN_WIDTH
+from settings import COLUMN_WIDTH, WINDOW_MARGIN
 from model import Tag, Subtag, List
 
 term = get_term()
@@ -30,6 +30,8 @@ class Dashboard(UIElement):
         self.model = model
         self.overlay = None
         self.continue_loop = True
+        self.windows = []
+        self.current_window = 0
         self.init_modelview()
 
     def draw(self, clean=False):
@@ -68,11 +70,17 @@ class Dashboard(UIElement):
         if val == "q":
             self.continue_loop = False
             return
-        elif val == "+":
-            self.rel_pos += (4,3)
+        elif val.code == term.KEY_RIGHT:
+            last_window = self.current_window
+            self.current_window = min(self.current_window + 1, len(self.windows)-1)
+            if self.current_window != last_window:
+                term.cursor.moveTo(self.windows[self.current_window])
             return
-        elif val == "-":
-            self.rel_pos += (-4,-3)
+        elif val.code == term.KEY_LEFT:
+            last_window = self.current_window
+            self.current_window = min(self.current_window - 1, 0)
+            if self.current_window != last_window:
+                term.cursor.moveTo(self.windows[self.current_window])
             return
         elif val == "s" and self.overlay is None:
             # self.overlay = Prompt(COLUMN_WIDTH, parent=self)
@@ -136,10 +144,25 @@ class Dashboard(UIElement):
 
 
     def init_modelview(self):
-        win = TaskWindow((1,1),COLUMN_WIDTH, "Todos")
+        win_pos = 0
+        win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, "Todos")
+        self.windows.append(win)
+        self.manage(win)
+        list = None
         tag = None
         subtag = None
         for l in self.model.query(sortBy=["lists", "tags","subtags"]):
+
+            # new list window
+            # if l["lists"]:
+            # breakpoint()
+            if l["lists"] and list not in l["lists"]:
+                # break
+                list = l["lists"][0]
+                win_pos += COLUMN_WIDTH + WINDOW_MARGIN
+                win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, "Todos")
+                self.windows.append(win)
+                self.manage(win)
 
             # tag-line
             if l["tags"] and tag not in l["tags"]:
@@ -156,4 +179,3 @@ class Dashboard(UIElement):
 
             # actual task
             win.add_task(l, prepend="   " if l["subtags"] else "")
-        self.manage(win)
