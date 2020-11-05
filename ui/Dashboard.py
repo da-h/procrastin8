@@ -78,7 +78,7 @@ class Dashboard(UIElement):
             return
         elif val.code == term.KEY_LEFT:
             last_window = self.current_window
-            self.current_window = min(self.current_window - 1, 0)
+            self.current_window = max(self.current_window - 1, 0)
             if self.current_window != last_window:
                 term.cursor.moveTo(self.windows[self.current_window])
             return
@@ -110,17 +110,14 @@ class Dashboard(UIElement):
                 return
 
             # get index of cursor
-            # TODO: make this nicer & correct
-            window_under_cursor = term.cursor.on_element.parent
-            non_empty_lines = list(filter(lambda l: l.text, window_under_cursor.lines))
-            index = non_empty_lines.index(term.cursor.on_element)
+            current_line = self.windows[self.current_window].current_line
             self.model.new_task(initial_text, pos=term.cursor.on_element.text)
             self.elements = []
             self.init_modelview()
             self.draw()
-            window_under_cursor = self.elements[0]
-            non_empty_lines = list(filter(lambda l: l.text, window_under_cursor.lines))
-            term.cursor.moveTo(non_empty_lines[index+1])
+            window = self.windows[self.current_window]
+            window.current_line = current_line + 1
+            term.cursor.moveTo(window)
             term.cursor.on_element.set_editmode(True)
         elif val == 'd':
             if isinstance(term.cursor.on_element, TaskLine):
@@ -128,18 +125,20 @@ class Dashboard(UIElement):
             else:
                 return
 
-            # get index of cursor
-            # TODO: make this nicer & correct
-            window_under_cursor = term.cursor.on_element.parent
-            non_empty_lines = list(filter(lambda l: l.text, window_under_cursor.lines))
-            index = non_empty_lines.index(term.cursor.on_element)
+            current_line = self.windows[self.current_window].current_line
             self.model.remove_task(pos=term.cursor.on_element.text)
             self.elements = []
             self.init_modelview()
             self.draw()
-            window_under_cursor = self.elements[0]
-            non_empty_lines = list(filter(lambda l: l.text, window_under_cursor.lines))
-            term.cursor.moveTo(non_empty_lines[min(index,len(self.model.todo))])
+            if len(self.windows) <= self.current_window:
+                self.current_window = len(self.windows) - 1
+                current_line = 0
+            if len(self.windows) > 0:
+                window = self.windows[min(self.current_window, len(self.windows))]
+            else:
+                window = self.windows[len(self.current_window)-1]
+            window.current_line = min(current_line, len(window.lines)-1)
+            term.cursor.moveTo(window)
         return super().onKeyPress(val)
 
 
@@ -149,6 +148,7 @@ class Dashboard(UIElement):
         tag = None
         subtag = None
         new_window = True
+        self.windows = []
         for l in self.model.query(sortBy=["lists", "tags","subtags"]):
 
             # new list window
