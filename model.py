@@ -18,25 +18,33 @@ re_subtag = re.compile("\+\+(\w+)")
 re_list = re.compile("@(\w+)")
 
 
-class Tag(str):
+class MetaTag:
+    def __init__(self, name, line_no=None):
+        self.line_no = line_no
+        self.name = name
+        self.repr_char = ""
     def __str__(self):
-        return "+"+super().__str__()
+        return self.repr_char+self.name
     def __repr__(self):
-        return "+"+super().__str__()
+        return self.repr_char+self.name
 
 
-class Subtag(str):
-    def __str__(self):
-        return "++"+super().__str__()
-    def __repr__(self):
-        return "++"+super().__str__()
+class Tag(MetaTag):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.repr_char = "+"
 
 
-class List(str):
-    def __str__(self):
-        return "@"+super().__str__()
-    def __repr__(self):
-        return "@"+super().__str__()
+class Subtag(MetaTag):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.repr_char = "++"
+
+
+class List(MetaTag):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.repr_char = "@"
 
 
 class Modifier(tuple):
@@ -86,7 +94,7 @@ class Task(dict):
         self.model.save()
 
     @classmethod
-    def from_rawtext(cls, model, t):
+    def from_rawtext(cls, model, t, line_no=None):
         modifiers = {}
         tags = []
         subtags = []
@@ -116,20 +124,32 @@ class Task(dict):
 
             m2 = re_tag.match(word)
             if m2:
-                tags.append(m2[1])
-                text.append(Tag(m2[1]))
+                if m2[1] in model.tags:
+                    tag = model.tags[m2[1]]
+                else:
+                    tag = model.tags[m2[1]] = Tag(m2[1], line_no=line_no)
+                tags.append(tag)
+                text.append(tag)
                 continue
 
             m2 = re_subtag.match(word)
             if m2:
-                subtags.append(m2[1])
-                text.append(Subtag(m2[1]))
+                if m2[1] in model.subtags:
+                    subtag = model.subtags[m2[1]]
+                else:
+                    subtag = model.subtags[m2[1]] = Subtag(m2[1], line_no=line_no)
+                subtags.append(subtag)
+                text.append(subtag)
                 continue
 
             m2 = re_list.match(word)
             if m2:
-                lists.append(m2[1])
-                text.append(List(m2[1]))
+                if m2[1] in model.lists:
+                    list = model.lists[m2[1]]
+                else:
+                    list = model.lists[m2[1]] = List(m2[1], line_no=line_no)
+                lists.append(list)
+                text.append(list)
                 continue
 
             text.append(word)
@@ -142,7 +162,7 @@ class Task(dict):
             creation_date = m[3]
             # TODO error when both are specified
 
-        return Task(model, {
+        task = Task(model, {
             "complete": m[1] == "x",
             "priority": m[2][1:-1] if m[2] else "M_",
             "completion-date": date.fromisoformat(completion_date) if completion_date else None,
@@ -156,11 +176,19 @@ class Task(dict):
             "modifier": modifiers,
         })
 
+        if line_no:
+            task["#"] = line_no
+
+        return task
+
 
 class Model():
     def __init__(self, todofile, donefile):
         self.todofile = todofile
         self.donefile = donefile
+        self.lists = {}
+        self.tags = {}
+        self.subtags = {}
 
         self.todo = []
         with open(self.todofile,"r") as file:
@@ -168,8 +196,7 @@ class Model():
                 if not t.strip():
                     continue
 
-                task = Task.from_rawtext(self, t)
-                task["#"] = line_no
+                task = Task.from_rawtext(self, t, line_no=line_no)
                 self.todo.append(task)
 
     def save(self):
@@ -214,7 +241,7 @@ class Model():
 
         if len(sortBy) == 0:
             return todo
-        return sorted(todo, key=lambda t: ["|".join(",".join(t[o]) if t[o] else "_" for o in sortBy)])
+        return sorted(todo, key=lambda t: ["|".join(",".join(str(t[o])) if t[o] else "@" for o in sortBy)])
 
     def new_task(self, initial_text="", pos=-1):
         if isinstance(pos, Task):

@@ -107,7 +107,7 @@ class Dashboard(UIElement):
             term.cursor.moveTo(self.elements[0])
         elif val == 'n':
             if isinstance(term.cursor.on_element, TaskLine):
-                initial_text = " ".join([str(Subtag(t)) for t in term.cursor.on_element.text["subtags"]] + [str(Tag(t)) for t in term.cursor.on_element.text["tags"]] + [str(List(t)) for t in term.cursor.on_element.text["lists"]])
+                initial_text = " ".join([str(t) for t in term.cursor.on_element.text["subtags"]] + [str(t) for t in term.cursor.on_element.text["tags"]] + [str(t) for t in term.cursor.on_element.text["lists"]])
             else:
                 return
 
@@ -195,7 +195,7 @@ class Dashboard(UIElement):
                 new_window = True
 
             if new_window:
-                win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, str(list) if list else "Todos")
+                win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, list.name if list else "Todos")
                 win_pos += COLUMN_WIDTH + WINDOW_MARGIN
                 self.windows.append(win)
                 self.manage(win)
@@ -209,15 +209,15 @@ class Dashboard(UIElement):
                     win.add_emptyline()
                 tag = l["tags"][0]
                 if TODO_STYLE == 2:
-                    win.add_hline(term.cyan(tag), center=True)
+                    win.add_hline(term.cyan(tag.name), center=True)
                     win.add_emptyline()
                 elif TODO_STYLE == 1:
-                    win.add_line(term.cyan(tag))
+                    win.add_line(term.cyan(tag.name))
 
             # subtag-line
             if l["subtags"] and subtag not in l["subtags"]:
                 subtag = l["subtags"][0] if l["subtags"] else None
-                win.add_line(term.cyan(term.dim+subtag), prepend=term.blue("· "))
+                win.add_line(term.cyan(term.dim+subtag.name), prepend=term.blue("· "))
 
             # actual task
             win.add_task(l, prepend="   " if l["subtags"] else "")
