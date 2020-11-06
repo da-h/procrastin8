@@ -115,16 +115,12 @@ class Dashboard(UIElement):
             if AUTOADD_CREATIONDATE:
                 initial_text = datetime.now().strftime("%Y-%m-%d") + initial_text
 
-            # get index of cursor
-            current_line = self.windows[self.current_window].current_line
+            if term.cursor.on_element.text["priority"] != "M_":
+                initial_text = "("+term.cursor.on_element.text["priority"]+") " + initial_text
+
             task = self.model.new_task(initial_text, pos=term.cursor.on_element.text)
             task["unsaved"] = True
-            self.elements = []
-            self.init_modelview()
-            self.draw()
-            window = self.windows[self.current_window]
-            window.current_line = current_line + 1
-            term.cursor.moveTo(window)
+            self.reinit_modelview(line_offset=+1)
             term.cursor.on_element.set_editmode(True)
         elif val == 'd':
             if isinstance(term.cursor.on_element, TaskLine):
@@ -132,20 +128,8 @@ class Dashboard(UIElement):
             else:
                 return
 
-            current_line = self.windows[self.current_window].current_line
             self.model.remove_task(pos=term.cursor.on_element.text)
-            self.elements = []
-            self.init_modelview()
-            self.draw()
-            if len(self.windows) <= self.current_window:
-                self.current_window = len(self.windows) - 1
-                current_line = 0
-            if len(self.windows) > 0:
-                window = self.windows[min(self.current_window, len(self.windows))]
-            else:
-                window = self.windows[len(self.current_window)-1]
-            window.current_line = current_line - 1
-            term.cursor.moveTo(window)
+            self.reinit_modelview(line_offset=0)
 
         elif isinstance(element, TaskLine):
             if element.edit_mode:
@@ -164,19 +148,7 @@ class Dashboard(UIElement):
                         del element.text["unsaved"]
                     element.text.model.save()
 
-                    current_line = self.windows[self.current_window].current_line
-                    self.elements = []
-                    self.init_modelview()
-                    self.draw()
-                    if len(self.windows) <= self.current_window:
-                        self.current_window = len(self.windows) - 1
-                        current_line = 0
-                    if len(self.windows) > 0:
-                        window = self.windows[min(self.current_window, len(self.windows))]
-                    else:
-                        window = self.windows[len(self.current_window)-1]
-                    window.current_line = current_line - 1
-                    term.cursor.moveTo(window)
+                    self.reinit_modelview(line_offset=0)
                     return
             else:
                 if val == term.KEY_CTRL['p']:
@@ -194,6 +166,21 @@ class Dashboard(UIElement):
                     return
         return super().onKeyPress(val)
 
+    def reinit_modelview(self, line_offset = 0):
+        current_line = self.windows[self.current_window].current_line
+        self.elements = []
+        self.init_modelview()
+        self.draw()
+        if len(self.windows) <= self.current_window:
+            self.current_window = len(self.windows) - 1
+            current_line = 0
+        if len(self.windows) > 0:
+            window = self.windows[min(self.current_window, len(self.windows))]
+        else:
+            window = self.windows[len(self.current_window)-1]
+        window.current_line = current_line + line_offset
+        term.cursor.moveTo(window)
+        
 
     def init_modelview(self):
         win_pos = 0
