@@ -1,10 +1,8 @@
 @later tabs +dashboard
-grouping instead of direct ordering ++order +dashboard
 automatic arrangement of multiple windows +dashboard
 @later allow resize +dashboard
-++order windows from model/groups +dashboard
 add started tag +taskwarrior @later
-splitted window ++overlong +window
+splitt overlong windows @later +window
 filter-sidebar +sidebar
 (A) cannot add space before first element +bugs
 cannot edit priority/date +bugs
@@ -25,16 +23,16 @@ x strg+y strg+e to move down/up +kb
 +kb strg+Up/down or j/k swap up/down
 tag/subtag/list suggestions +editmode
 @later key: u to +undo
-strg+left/right in editmode to move by word +kb
+x tab/shift+tab in editmode to move by word +kb
 x HOME/END to jump to the start/end +kb
 update window on edited tags/subtags +editmode
 @later basic bindings +taskwarrior
 x enter to exit editmode +kb
-scape undos edit +editmode
+escape undos edit +undo @later
 ++order task sort order should follow file not alphabet +dashboard
 escape to exit editmode (no change) +kb @later
 +window add more general onEnter/onLeave that also propagate to parents @later
 +window dim window borders if not under cursor @later
 @later +dashboard editable tag-lines (make autoboxing for Tags, etc)
-++manage is self.manage() really needed? +window
-++manage move uielement.clear to term to allow also element swapping +window
+@later ++manage is self.manage() really needed? +window
+@later ++manage move uielement.clear to term to allow also element swapping +window
