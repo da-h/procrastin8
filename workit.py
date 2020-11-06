@@ -12,12 +12,12 @@ def main():
 
     # init
     if len(sys.argv) == 1:
-        todofile = "TODO.txt"
-        donefile = "DONE.txt"
+        todofile = "todo.txt"
+        donefile = "done.txt"
     else:
         todofile = sys.argv[-1]
         donefile = join(dirname(todofile), "done.txt")
-    model = Model("TODO.txt", "DONE.txt")
+    model = Model(todofile, donefile)
     dash = Dashboard(model)
 
     with term.fullscreen(), term.cbreak():#, term.hidden_cursor():
