@@ -19,12 +19,23 @@ class TaskLine(Line):
         default = "" #term.normal
         if self.text["complete"]:
             default = (term.dim if DIM_COMPLETE else "")
-            S.append(term.green("✗")+default)
+
+        if self.text["priority"] == "A":
+            S.append(term.red(self.text["priority"])+default)
+        elif self.text["priority"] == "B":
+            S.append(term.yellow(self.text["priority"])+default)
+        elif self.text["priority"] == "C":
+            S.append(term.green(self.text["priority"])+default)
+        elif self.text["priority"] == "D":
+            S.append(term.blue(self.text["priority"])+default)
+        elif self.text["priority"] == "M_":
+            if self.text["complete"]:
+                S.append(term.green("✗")+default)
+            else:
+                S.append(term.blue("·"))
         else:
-            S.append(term.blue("·"))
-            self.line_style = ""
-        if self.text["priority"] != "M_":
-            S.append("(%s)" % self.text["priority"])
+            S.append(term.grey(self.text["priority"])+default)
+
         if self.text["completion-date"]:
             S.append(term.bright_white(str(self.text["completion-date"])+default))
         if self.text["creation-date"]:
