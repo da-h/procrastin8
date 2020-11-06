@@ -8,8 +8,8 @@ filter-sidebar +sidebar
 cannot edit priority/date +bugs
 choose projects / contexts +sidebar ++filter
 insert space before tag +bugs
-x two-line lines are not correctly highlighted +bugs
 auto-filter +sidebar ++filter
+multiline editmode has wrong charpos sometimes +bugs
 presets +sidebar ++filter
 and/or filters +sidebar ++filter
 ++settings connect settings to ui/model +sidebar
@@ -19,16 +19,11 @@ and/or filters +sidebar ++filter
 @later +Archive only current windows
 @later +kb p to paste below
 @later +kb P to paste above
-x strg+y strg+e to move down/up +kb
 @later +kb strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
 +kb strg+Up/down or j/k swap up/down
 tag/subtag/list suggestions +editmode
 @later key: u to +undo
-x tab/shift+tab in editmode to move by word +kb
-x HOME/END to jump to the start/end +kb
-x update window on edited tags/subtags +editmode
 @later basic bindings +taskwarrior
-x enter to exit editmode +kb
 escape undos edit +undo @later
 ++order task sort order should follow file not alphabet +dashboard
 escape to exit editmode (no change) +kb @later

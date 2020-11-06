@@ -1,4 +1,6 @@
-x +dashboard add basic filter options ++order
-x basic window setup from todo lists ++order +dashboard
-x scroll ++overlong +window
-x let window remember cursor position +window
+x two-line lines are not correctly highlighted +bugs
+x strg+y strg+e to move down/up +kb
+x tab/shift+tab in editmode to move by word +kb
+x HOME/END to jump to the start/end +kb
+x update window on edited tags/subtags +editmode
+x enter to exit editmode +kb
