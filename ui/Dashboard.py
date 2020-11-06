@@ -71,6 +71,7 @@ class Dashboard(UIElement):
         element = term.cursor.on_element
 
         if val == "q":
+            term.cursor.show()
             self.continue_loop = False
             return
         elif val.code == term.KEY_RIGHT:
