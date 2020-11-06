@@ -169,6 +169,7 @@ class Task(dict):
             "creation-date": date.fromisoformat(creation_date) if creation_date else None,
             # "raw_text_complete": t,
             "raw_text": m[5],
+            "raw_full_text": t,
             "text": text,
             "tags": tags,
             "subtags": subtags,
@@ -235,7 +236,7 @@ class Model():
         filter_re = re.compile(filter)
         todo = []
         for t in self.todo:
-            m = filter_re.match(t["raw_text"])
+            m = filter_re.match(t["raw_full_text"])
             if m:
                 todo.append(t)
 
