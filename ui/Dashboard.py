@@ -125,13 +125,37 @@ class Dashboard(UIElement):
             self.reinit_modelview(line_offset=+1)
             term.cursor.on_element.set_editmode(True)
         elif val == 'd':
-            if isinstance(term.cursor.on_element, TaskLine):
-                pass
-            else:
+            if not isinstance(term.cursor.on_element, TaskLine):
                 return
 
             self.model.remove_task(pos=term.cursor.on_element.text)
             self.reinit_modelview(line_offset=0)
+        elif val.code == term.KEY_SDOWN:
+            if not isinstance(term.cursor.on_element, TaskLine):
+                return
+
+            window = self.windows[self.current_window]
+            non_empty_lines = list(filter(lambda l: l.text, window.lines))
+            if window.current_line < len(non_empty_lines) - 1:
+                next_line = list(filter(lambda l: isinstance(l, TaskLine), non_empty_lines[window.current_line + 1:]))
+                if not next_line:
+                    return
+                next_line = next_line[0]
+            self.model.swap_tasks(pos=term.cursor.on_element.text, pos2=next_line.text)
+            self.reinit_modelview(line_offset=1)
+        elif val.code == term.KEY_SUP:
+            if not isinstance(term.cursor.on_element, TaskLine):
+                return
+
+            window = self.windows[self.current_window]
+            non_empty_lines = list(filter(lambda l: l.text, window.lines))
+            if window.current_line >= 0:
+                next_line = list(filter(lambda l: isinstance(l, TaskLine), non_empty_lines[window.current_line - 1:]))
+                if not next_line:
+                    return
+                next_line = next_line[0]
+            self.model.swap_tasks(pos=term.cursor.on_element.text, pos2=next_line.text)
+            self.reinit_modelview(line_offset=-1)
 
         elif isinstance(element, TaskLine):
             if element.edit_mode:

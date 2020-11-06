@@ -3,31 +3,31 @@ automatic arrangement of multiple windows +dashboard @later
 @later allow resize +dashboard
 add started tag +taskwarrior @later
 splitt overlong windows @later +window
-filter-sidebar +sidebar
+++settings connect settings to ui/model +sidebar
 (A) cannot add space before first element +bugs
 enable edit of priority/date +dashboard @later
-choose projects / contexts +sidebar ++filter
-auto-filter +sidebar ++filter
-(B) multiline editmode has wrong charpos sometimes +bugs
 presets +sidebar ++filter
+choose projects / contexts +sidebar ++filter
+(B) multiline editmode has wrong charpos sometimes +bugs
 and/or filters +sidebar ++filter
-++settings connect settings to ui/model +sidebar
+filter-sidebar +sidebar
 ++settings save/load settings to file +sidebar
+tag/subtag/list suggestions +editmode
 @later +Archive opens small prompt
 @later +Archive all windows
 @later +Archive only current windows
 @later +kb p to paste below
 @later +kb P to paste above
 @later +kb strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
-+kb strg+Up/down or j/k swap up/down
-tag/subtag/list suggestions +editmode
 @later key: u to +undo
 @later basic bindings +taskwarrior
 escape undos edit +undo @later
 escape to exit editmode (no change) +kb @later
 +window add more general onEnter/onLeave that also propagate to parents @later
+auto-filter +sidebar ++filter
 prompt to edit raw todo text +dashboard @later
 +window dim window borders if not under cursor @later
 @later +dashboard editable tag-lines (make autoboxing for Tags, etc)
+2020-11-06 replace no_empty_lines with self.non_empty_lines ? +window @later
 @later ++manage is self.manage() really needed? +window
 @later ++manage move uielement.clear to term to allow also element swapping +window

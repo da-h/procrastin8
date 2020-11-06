@@ -273,3 +273,11 @@ class Model():
             pos = self.todo[pos]
         self.todo.remove(pos)
         self.save()
+
+    def swap_tasks(self, pos, pos2):
+        if not isinstance(pos, int):
+            pos = self.todo.index(pos)
+        if not isinstance(pos2, int):
+            pos2 = self.todo.index(pos2)
+        self.todo[pos], self.todo[pos2] = self.todo[pos2], self.todo[pos]
+        self.save()

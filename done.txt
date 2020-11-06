@@ -5,3 +5,4 @@ x HOME/END to jump to the start/end +kb
 x update window on edited tags/subtags +editmode
 x enter to exit editmode +kb
 x ++order task sort order should follow file not alphabet +dashboard
+x +kb strg+Up/down or j/k swap up/down
