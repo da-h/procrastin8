@@ -20,17 +20,17 @@ and/or filters +sidebar ++filter
 @later +Archive only current windows
 @later +kb p to paste below
 @later +kb P to paste above
-strg+e to move down +kb
+x strg+y strg+e to move down/up +kb
 @later +kb strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
-+kb strg+Up/k swap up
++kb strg+Up/down or j/k swap up/down
 tag/subtag/list suggestions +editmode
-+kb strg+down/j swap down
 @later key: u to +undo
 strg+left/right in editmode to move by word +kb
 x HOME/END to jump to the start/end +kb
 update window on edited tags/subtags +editmode
 @later basic bindings +taskwarrior
 x enter to exit editmode +kb
+scape undos edit +editmode
 ++order task sort order should follow file not alphabet +dashboard
 escape to exit editmode (no change) +kb @later
 +window add more general onEnter/onLeave that also propagate to parents @later

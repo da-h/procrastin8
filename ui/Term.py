@@ -73,6 +73,10 @@ class WorkitTerminal(Terminal):
     def __init__(self):
         super().__init__()
         self.cursor = Cursor()
+        self.KEY_CTRL = {
+            "e": "\x19",
+            "y": "\x05"
+        }
 
     def move_xy(self, x, y=None):
         if type(x) is np.ndarray or isinstance(x, tuple):

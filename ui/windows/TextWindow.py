@@ -86,6 +86,11 @@ class TextWindow(Window):
             self.current_line = len(non_empty_lines)-1
             term.cursor.moveTo(non_empty_lines[self.current_line])
             return
+        elif val == term.KEY_CTRL['e']:
+            self.scroll_pos = max(self.scroll_pos - 1, 0)
+        elif val == term.KEY_CTRL['y']:
+            if non_empty_lines[-1].rel_pos[1] > max_inner_height:
+                self.scroll_pos = self.scroll_pos + 1
         else:
             super().onKeyPress(val)
 
