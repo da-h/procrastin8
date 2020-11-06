@@ -10,6 +10,7 @@ priority = "\([A-Z]\)"
 ws = "\s*"
 
 
+re_priority = re.compile("[A-Z]")
 re_todo     = re.compile(f"{ws}({completion})?{ws}({priority})?{ws}({rdate})?{ws}({rdate})?{ws}(.*)")
 re_modifier_with_date = re.compile(f"(\w+):({rdate})")
 re_modifier = re.compile("(\w+):(\w+)")

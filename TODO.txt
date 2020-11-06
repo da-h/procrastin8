@@ -5,11 +5,10 @@ add started tag +taskwarrior @later
 splitt overlong windows @later +window
 filter-sidebar +sidebar
 (A) cannot add space before first element +bugs
-cannot edit priority/date +bugs
+enable edit of priority/date +dashboard @later
 choose projects / contexts +sidebar ++filter
-insert space before tag +bugs
 auto-filter +sidebar ++filter
-multiline editmode has wrong charpos sometimes +bugs
+(B) multiline editmode has wrong charpos sometimes +bugs
 presets +sidebar ++filter
 and/or filters +sidebar ++filter
 ++settings connect settings to ui/model +sidebar

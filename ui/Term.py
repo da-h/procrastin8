@@ -53,7 +53,7 @@ class Cursor:
 
         return self.pos - self.on_element.pos
 
-    def finalize(self, term):
+    def draw(self):
         if self.visible:
             print(term.move_xy(*self.pos)+term.normal_cursor, end='', flush=True)
         else:
@@ -75,7 +75,8 @@ class WorkitTerminal(Terminal):
         self.cursor = Cursor()
         self.KEY_CTRL = {
             "e": "\x19",
-            "y": "\x05"
+            "y": "\x05",
+            "p": "\x10"
         }
 
     def move_xy(self, x, y=None):

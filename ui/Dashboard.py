@@ -7,7 +7,7 @@ from ui.lines.RadioLine import RadioLine
 from ui.lines.TaskLine import TaskLine
 from ui.windows import TaskWindow
 from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE, AUTOADD_CREATIONDATE
-from model import Tag, Subtag, List
+from model import Tag, Subtag, List, re_priority
 
 term = get_term()
 
@@ -43,7 +43,7 @@ class Dashboard(UIElement):
             if self.overlay:
                 self.overlay.draw(True)
         redraw()
-        term.cursor.finalize(term)
+        term.cursor.draw()
 
     def loop(self):
         val = ''
@@ -178,6 +178,20 @@ class Dashboard(UIElement):
                     window.current_line = current_line - 1
                     term.cursor.moveTo(window)
                     return
+            else:
+                if val == term.KEY_CTRL['p']:
+                    element.set_editmode(True, charpos=0, firstchar=0)
+                    term.cursor.draw()
+                    new_val = term.inkey()
+                    if new_val.code == term.KEY_BACKSPACE:
+                        element.text["priority"] = "M_"
+                    else:
+                        new_priority = str(new_val).upper()
+                        if re_priority.match(new_priority):
+                            element.text["priority"] = new_priority
+                    element.set_editmode(False)
+                    element.text.model.save()
+                    return
         return super().onKeyPress(val)
 
 
@@ -188,7 +202,7 @@ class Dashboard(UIElement):
         subtag = None
         new_window = True
         self.windows = []
-        for l in self.model.query(sortBy=["lists", "tags","subtags"]):
+        for l in self.model.query(sortBy=["lists", "tags","subtags","priority"]):
 
             # new list window
             # if l["lists"]:
