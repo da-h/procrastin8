@@ -7,6 +7,7 @@ filter-sidebar +sidebar
 (A) cannot add space before first element +bugs
 cannot edit priority/date +bugs
 choose projects / contexts +sidebar ++filter
+insert space before tag +bugs
 x two-line lines are not correctly highlighted +bugs
 auto-filter +sidebar ++filter
 presets +sidebar ++filter
@@ -25,7 +26,7 @@ tag/subtag/list suggestions +editmode
 @later key: u to +undo
 x tab/shift+tab in editmode to move by word +kb
 x HOME/END to jump to the start/end +kb
-update window on edited tags/subtags +editmode
+x update window on edited tags/subtags +editmode
 @later basic bindings +taskwarrior
 x enter to exit editmode +kb
 escape undos edit +undo @later

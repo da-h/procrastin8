@@ -159,6 +159,20 @@ class Dashboard(UIElement):
                     if "unsaved" in element.text:
                         del element.text["unsaved"]
                     element.text.model.save()
+
+                    current_line = self.windows[self.current_window].current_line
+                    self.elements = []
+                    self.init_modelview()
+                    self.draw()
+                    if len(self.windows) <= self.current_window:
+                        self.current_window = len(self.windows) - 1
+                        current_line = 0
+                    if len(self.windows) > 0:
+                        window = self.windows[min(self.current_window, len(self.windows))]
+                    else:
+                        window = self.windows[len(self.current_window)-1]
+                    window.current_line = current_line - 1
+                    term.cursor.moveTo(window)
                     return
         return super().onKeyPress(val)
 
