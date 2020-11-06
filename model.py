@@ -21,7 +21,7 @@ re_list = re.compile("@(\w+)")
 
 class MetaTag:
     def __init__(self, name, line_no=None):
-        self.line_no = line_no
+        self.line_no = line_no if line_no is not None else -1
         self.name = name
         self.repr_char = ""
     def __str__(self):
@@ -234,6 +234,12 @@ class Model():
         self.save()
 
     def query(self, filter=".*", sortBy=[]):
+
+        def sortstr_lineno(x):
+            if isinstance(x, str):
+                return x
+            return [xi.repr_char+("%i" % xi.line_no)+xi.name for xi in x]
+
         filter_re = re.compile(filter)
         todo = []
         for t in self.todo:
@@ -243,7 +249,15 @@ class Model():
 
         if len(sortBy) == 0:
             return todo
-        return sorted(todo, key=lambda t: ["|".join(",".join(str(t[o])) if t[o] else "@" for o in sortBy)])
+
+        def sortstr(t):
+            return "|".join(
+                        ",".join(
+                            sortstr_lineno(t[o])
+                        ) if t[o] else "0000" for o in sortBy
+                    )
+
+        return sorted(todo, key=sortstr)
 
     def new_task(self, initial_text="", pos=-1):
         if isinstance(pos, Task):
