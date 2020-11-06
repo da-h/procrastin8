@@ -112,6 +112,7 @@ class TextWindow(Window):
         self.add_line("")
 
     def onFocus(self):
-        if len(self.lines):
-            self.current_line = max(min(len(self.lines)-1, self.current_line),0)
-            term.cursor.moveTo(self.lines[self.current_line])
+        non_empty_lines = list(filter(lambda l: l.text, self.lines))
+        if len(non_empty_lines):
+            self.current_line = max(min(len(non_empty_lines)-1, self.current_line),0)
+            term.cursor.moveTo(non_empty_lines[self.current_line])
