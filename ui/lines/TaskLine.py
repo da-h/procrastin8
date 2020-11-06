@@ -1,5 +1,6 @@
+from datetime import datetime
 from model import Task, Tag, Subtag, List, Modifier, ModifierDate
-from settings import WINDOW_PADDING, COLUMN_WIDTH, LIST_HIDDEN, TAG_HIDDEN, SUBTAG_HIDDEN, DIM_COMPLETE
+from settings import WINDOW_PADDING, COLUMN_WIDTH, LIST_HIDDEN, TAG_HIDDEN, SUBTAG_HIDDEN, DIM_COMPLETE, COMPLETIONDATE_HIDDEN, CREATIONDATE_HIDDEN, AUTOADD_COMPLETIONDATE
 
 from ui import get_term
 from ui.UIElement import UIElement
@@ -36,9 +37,9 @@ class TaskLine(Line):
         else:
             S.append(term.grey(self.text["priority"])+default)
 
-        if self.text["completion-date"]:
+        if not COMPLETIONDATE_HIDDEN and self.text["completion-date"]:
             S.append(term.bright_white(str(self.text["completion-date"])+default))
-        if self.text["creation-date"]:
+        if not CREATIONDATE_HIDDEN and self.text["creation-date"]:
             S.append(term.dim+(str(self.text["creation-date"]))+default)
 
         for t in self.text["text"]:
@@ -66,7 +67,12 @@ class TaskLine(Line):
         if not self.edit_mode:
             if val == "x" or val == " ":
                 self.text["complete"] = not self.text["complete"]
+                if AUTOADD_COMPLETIONDATE and self.text["creation-date"]:
+                    self.text["completion-date"] = datetime.now().strftime("%Y-%m-%d")
+                if self.text["completion-date"] and not self.text["complete"]:
+                    self.text["completion-date"] = None
                 self.text.save()
+
                 return
             elif val == "i" or val == "e":
                 self.set_editmode(True)

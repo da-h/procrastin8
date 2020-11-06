@@ -1,3 +1,4 @@
+from datetime import datetime
 from blessed.sequences import Sequence
 from ui import get_term
 from ui.UIElement import UIElement
@@ -5,7 +6,7 @@ from ui.windows.Sidebar import Sidebar
 from ui.lines.RadioLine import RadioLine
 from ui.lines.TaskLine import TaskLine
 from ui.windows import TaskWindow
-from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE
+from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE, AUTOADD_CREATIONDATE
 from model import Tag, Subtag, List
 
 term = get_term()
@@ -110,6 +111,9 @@ class Dashboard(UIElement):
                 initial_text = " ".join([str(t) for t in term.cursor.on_element.text["subtags"]] + [str(t) for t in term.cursor.on_element.text["tags"]] + [str(t) for t in term.cursor.on_element.text["lists"]])
             else:
                 return
+
+            if AUTOADD_CREATIONDATE:
+                initial_text = datetime.now().strftime("%Y-%m-%d") + initial_text
 
             # get index of cursor
             current_line = self.windows[self.current_window].current_line
