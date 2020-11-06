@@ -154,7 +154,8 @@ class Dashboard(UIElement):
                     return
             else:
                 if val == term.KEY_CTRL['p']:
-                    element.set_editmode(True, charpos=0, firstchar=0)
+                    element.set_editmode(True, charpos=0)
+                    term.cursor.pos = element.pos + (len(element.prepend),0)
                     term.cursor.draw()
                     new_val = term.inkey()
                     if new_val.code == term.KEY_BACKSPACE:

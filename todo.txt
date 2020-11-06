@@ -1,5 +1,5 @@
 @later tabs +dashboard
-automatic arrangement of multiple windows +dashboard
+automatic arrangement of multiple windows +dashboard @later
 @later allow resize +dashboard
 add started tag +taskwarrior @later
 splitt overlong windows @later +window
@@ -24,7 +24,6 @@ tag/subtag/list suggestions +editmode
 @later key: u to +undo
 @later basic bindings +taskwarrior
 escape undos edit +undo @later
-++order task sort order should follow file not alphabet +dashboard
 escape to exit editmode (no change) +kb @later
 +window add more general onEnter/onLeave that also propagate to parents @later
 prompt to edit raw todo text +dashboard @later
