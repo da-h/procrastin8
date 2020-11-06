@@ -1,5 +1,5 @@
+import numpy as np
 from ui.UIElement import UIElement
-from ui.window_styles import draw_border, draw_border2
 from ui import get_term
 term = get_term()
 
@@ -19,9 +19,14 @@ class Window(UIElement):
         super().draw(clean)
         if clean or self.last_width != self.width or self.last_height != self.height or self.last_title != self.title or any(self.last_pos != self.pos):
             if self.draw_style == "basic":
-                draw_border(self.pos, (self.width, self.height), self.title)
+                self.draw_border(self.pos, (self.width, self.height), self.title)
             elif self.draw_style == "basic-left-edge":
-                draw_border2(self.pos, (self.width, self.height), self.title)
+                self.draw_border2(self.pos, (self.width, self.height), self.title)
+
+            if self.last_height and self.last_height > self.height:
+                for i in range(self.last_height - self.height):
+                    self.printAt((0,i+self.height), " "*self.width, ignore_padding=True)
+
             self.last_width = self.width
             self.last_height = self.height
             self.last_title = self.title
@@ -37,3 +42,35 @@ class Window(UIElement):
     def close(self):
         self.clear()
         super().close()
+
+    def draw_border(self, pos, dim, title=None):
+        pos = np.array(pos)
+        dim = np.array(dim)
+        width, height = dim
+
+        # draw border
+        self.printAt((0,0), "┌" + "─" * (width-2) + "┐", ignore_padding=True)
+        for i in range(height-2):
+            self.printAt((0,i+1), "│  ", ignore_padding=True)
+            self.printAt((width-2,i+1), " │", ignore_padding=True)
+        self.printAt((0,height-1), "└" + "─" * (width-2) + "┘", ignore_padding=True)
+
+        # set title
+        if title is not None:
+            self.printAt((1+0,0), " %s " % term.bold(term.white(title)), ignore_padding=True)
+
+    def draw_border2(self, pos, dim, title=None):
+        pos = np.array(pos)
+        dim = np.array(dim)
+        width, height = dim
+
+        # draw border
+        self.printAt((0,0), " " + " " * (width-2) + "│", ignore_padding=True)
+        for i in range(height-2):
+            self.printAt((0,i+1), "  ", ignore_padding=True)
+            self.printAt((width-2,i+1), " │", ignore_padding=True)
+        self.printAt((0,height-1), " " + " " * (width-2) + "│", ignore_padding=True)
+
+        # set title
+        if title is not None:
+            self.printAt((1+0,0), " %s " % term.bold(term.white(title)), ignore_padding=True)
