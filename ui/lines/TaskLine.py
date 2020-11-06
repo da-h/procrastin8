@@ -95,6 +95,15 @@ class TaskLine(Line):
             elif val.code == term.KEY_RIGHT:
                 self._updateText(self.text["raw_text"][:self.edit_charpos] + self.text["raw_text"][self.edit_charpos+1:])
                 return
+            elif val.code == term.KEY_TAB:
+                self.edit_charpos += len(self.text["raw_text"][self.edit_charpos:].split(" ")[0]) + 1
+                self.edit_charpos = min(self.edit_charpos, len(self.text["raw_text"]))
+            elif val.code == term.KEY_BTAB:
+                at_word_start = self.text["raw_text"][self.edit_charpos-1] == " "
+                self.edit_charpos -= len(self.text["raw_text"][:self.edit_charpos].split(" ")[-2 if at_word_start else -1])
+                if at_word_start:
+                    self.edit_charpos -= 1
+                self.edit_charpos = max(self.edit_charpos, 0)
             elif not val.is_sequence:
                 self._updateText(self.text["raw_text"][:self.edit_charpos] + str(val) + self.text["raw_text"][self.edit_charpos:])
                 self.edit_charpos += 1
