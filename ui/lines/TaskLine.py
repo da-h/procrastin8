@@ -97,8 +97,9 @@ class TaskLine(Line):
                 self.edit_charpos = len(self.text["raw_text"])
                 return
             elif val.code == term.KEY_BACKSPACE:
-                self._updateText(self.text["raw_text"][:self.edit_charpos-1] + self.text["raw_text"][self.edit_charpos:])
-                self.edit_charpos -= 1
+                if self.edit_charpos > 0:
+                    self._updateText(self.text["raw_text"][:self.edit_charpos-1] + self.text["raw_text"][self.edit_charpos:])
+                    self.edit_charpos -= 1
                 return
             elif val.code == term.KEY_DELETE:
                 self._updateText(self.text["raw_text"][:self.edit_charpos] + self.text["raw_text"][self.edit_charpos+1:])

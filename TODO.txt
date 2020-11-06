@@ -28,6 +28,7 @@ escape undos edit +undo @later
 ++order task sort order should follow file not alphabet +dashboard
 escape to exit editmode (no change) +kb @later
 +window add more general onEnter/onLeave that also propagate to parents @later
+prompt to edit raw todo text +dashboard @later
 +window dim window borders if not under cursor @later
 @later +dashboard editable tag-lines (make autoboxing for Tags, etc)
 @later ++manage is self.manage() really needed? +window
