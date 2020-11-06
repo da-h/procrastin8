@@ -14,11 +14,16 @@ def main():
     if len(sys.argv) == 1:
         todofile = "todo.txt"
         donefile = "done.txt"
-    else:
-        todofile = sys.argv[-1]
+    elif len(sys.argv) >= 2:
+        todofile = sys.argv[1]
         donefile = join(dirname(todofile), "done.txt")
+
+    if len(sys.argv) == 3:
+        filter = sys.argv[-1]
+    else:
+        filter = ".*"
     model = Model(todofile, donefile)
-    dash = Dashboard(model)
+    dash = Dashboard(model, filter)
 
     with term.fullscreen(), term.cbreak():#, term.hidden_cursor():
         dash.draw()

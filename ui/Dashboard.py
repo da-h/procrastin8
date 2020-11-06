@@ -24,10 +24,11 @@ def redraw():
 
 class Dashboard(UIElement):
 
-    def __init__(self, model):
+    def __init__(self, model, filter=".*"):
         super().__init__((0,0))
         self.width = term.width
         self.height = term.height
+        self.filter = filter
         self.model = model
         self.overlay = None
         self.continue_loop = True
@@ -189,7 +190,7 @@ class Dashboard(UIElement):
         subtag = None
         new_window = True
         self.windows = []
-        for l in self.model.query(sortBy=["lists", "tags","subtags","priority"]):
+        for l in self.model.query(filter=self.filter, sortBy=["lists", "tags","subtags","priority"]):
 
             # new list window
             # if l["lists"]:

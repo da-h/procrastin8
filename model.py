@@ -222,30 +222,31 @@ class Model():
 
         try:
             Path(self.donefile).touch()
-            os.rename(self.donefile, self.donefile+"~")
-            with open(self.donefile, "w") as f:
+            with open(self.donefile, "a") as f:
                 for t in done:
                     f.writelines(str(t)+"\n")
-            os.remove(self.donefile+"~")
         except Exception as  e:
             print("An exception occured. The original file has been moved before modification to '%s'." % self.donefile+"~")
             print(str(e))
 
         self.save()
 
-    def query(self, filter=".*", sortBy=[]):
+    def query(self, filter="", sortBy=[]):
 
         def sortstr_lineno(x):
             if isinstance(x, str):
                 return x
             return [xi.repr_char+("%i" % xi.line_no)+xi.name for xi in x]
 
-        filter_re = re.compile(filter)
-        todo = []
-        for t in self.todo:
-            m = filter_re.match(t["raw_full_text"])
-            if m:
-                todo.append(t)
+        if filter:
+            filter_re = re.compile(".*("+filter+").*")
+            todo = []
+            for t in self.todo:
+                m = filter_re.match(t["raw_full_text"])
+                if m:
+                    todo.append(t)
+        else:
+            todo = self.todo
 
         if len(sortBy) == 0:
             return todo
