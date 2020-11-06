@@ -4,7 +4,7 @@ automatic arrangement of multiple windows +dashboard @later
 add started tag +taskwarrior @later
 splitt overlong windows @later +window
 ++settings connect settings to ui/model +sidebar
-(A) cannot add space before first element +bugs
+x (A) cannot add space before first element +bugs
 enable edit of priority/date +dashboard @later
 presets +sidebar ++filter
 choose projects / contexts +sidebar ++filter

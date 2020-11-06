@@ -95,7 +95,7 @@ class Task(dict):
         self.model.save()
 
     @classmethod
-    def from_rawtext(cls, model, t, line_no=None):
+    def from_rawtext(cls, model, t, line_no=None, leading_spaces=0):
         modifiers = {}
         tags = []
         subtags = []
@@ -109,6 +109,8 @@ class Task(dict):
         # extract tags & modifiers from raw-text
         raw_text = m[5]
         text = []
+        if leading_spaces > 0:
+            text.append(" "*(leading_spaces-1))
         for word in raw_text.split(" "):
 
             m2 = re_modifier_with_date.match(word)
@@ -169,7 +171,7 @@ class Task(dict):
             "completion-date": date.fromisoformat(completion_date) if completion_date else None,
             "creation-date": date.fromisoformat(creation_date) if creation_date else None,
             # "raw_text_complete": t,
-            "raw_text": m[5],
+            "raw_text": " "*leading_spaces+m[5],
             "raw_full_text": t,
             "text": text,
             "tags": tags,

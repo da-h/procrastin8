@@ -130,8 +130,9 @@ class TaskLine(Line):
 
     def _updateText(self, raw_text):
         text_optionals = self.text.__str__(print_description=False)
+        leading_spaces = len(raw_text) - len(raw_text.lstrip())
         raw_text = (text_optionals + " " if text_optionals else "") + raw_text
-        self.text.update( Task.from_rawtext(self.text.model, raw_text ) )
+        self.text.update( Task.from_rawtext(self.text.model, raw_text, leading_spaces=leading_spaces ) )
 
     def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
         super().set_editmode(mode, charpos, firstchar)
