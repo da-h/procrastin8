@@ -16,35 +16,39 @@ class TaskLine(Line):
 
     def formatText(self):
         S = []
+        default = "" #term.normal
         if self.text["complete"]:
-            S.append(term.green("✗")+(term.dim if DIM_COMPLETE else ""))
+            default = (term.dim if DIM_COMPLETE else "")
+            S.append(term.green("✗")+default)
         else:
             S.append(term.blue("·"))
+            self.line_style = ""
         if self.text["priority"] != "M_":
             S.append("(%s)" % self.text["priority"])
         if self.text["completion-date"]:
-            S.append(term.bright_white(str(self.text["completion-date"])))
+            S.append(term.bright_white(str(self.text["completion-date"])+default))
         if self.text["creation-date"]:
-            S.append(term.dim+(str(self.text["creation-date"]))+term.normal)
+            S.append(term.dim+(str(self.text["creation-date"]))+default)
 
         for t in self.text["text"]:
             tstr = str(t)
 
             if isinstance(t, Tag):
                 if not TAG_HIDDEN or self.edit_mode:
-                    S.append(term.red(tstr))
+                    S.append(term.red(tstr)+default)
             elif isinstance(t, Subtag):
                 if not SUBTAG_HIDDEN or self.edit_mode:
-                    S.append(term.red(term.dim+tstr))
+                    S.append(term.red(term.dim+tstr)+default)
             elif isinstance(t, List):
                 if not LIST_HIDDEN or self.edit_mode:
-                    S.append(term.bold(term.blue(tstr)))
+                    S.append(term.bold(term.blue(tstr))+default)
             elif isinstance(t, Modifier):
-                S.append(term.green(tstr))
+                S.append(term.green(tstr)+default)
             elif isinstance(t, ModifierDate):
-                S.append(term.green(tstr))
+                S.append(term.green(tstr)+default)
             else:
                 S.append(tstr)
+        self.line_style = default
         return " ".join([str(s) for s in S])+term.normal
 
     def onKeyPress(self, val):
@@ -86,6 +90,9 @@ class TaskLine(Line):
                 self.edit_charpos -= 1
                 return
             elif val.code == term.KEY_DELETE:
+                self._updateText(self.text["raw_text"][:self.edit_charpos] + self.text["raw_text"][self.edit_charpos+1:])
+                return
+            elif val.code == term.KEY_RIGHT:
                 self._updateText(self.text["raw_text"][:self.edit_charpos] + self.text["raw_text"][self.edit_charpos+1:])
                 return
             elif not val.is_sequence:

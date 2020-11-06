@@ -17,6 +17,7 @@ class Line(UIElement):
         self.edit_charpos = 0
         self.edit_firstchar = 0
         self._typeset_text = None
+        self.line_style = ""
 
     def formatText(self):
         return str(self.text)
@@ -38,7 +39,7 @@ class Line(UIElement):
         # check what highlight it is
         highlight = lambda x: term.ljust(x,width=self.wrapper.width)
         if term.cursor.on_element == self:
-            highlight = lambda x: term.bold_white(term.ljust(x, width=self.wrapper.width))
+            highlight = lambda x: term.bold(term.ljust(x, width=self.wrapper.width))
 
         # print lines
         total_chars = 0
@@ -46,7 +47,7 @@ class Line(UIElement):
         prepend_len = prepend.length()
         for i, t in enumerate(self._typeset_text):
             t = Sequence(highlight(t), term)
-            self.printAt((0, i), prepend+t)
+            self.printAt((0, i), prepend+self.line_style+t)
 
             if self.edit_mode:
                 t_len = len(t.strip())

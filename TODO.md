@@ -9,7 +9,7 @@ filter-sidebar +sidebar
 (A) cannot add space before first element +bugs
 cannot edit priority/date +bugs
 choose projects / contexts +sidebar ++filter
-two-line lines are not correctly highlighted +bugs
+x two-line lines are not correctly highlighted +bugs
 auto-filter +sidebar ++filter
 presets +sidebar ++filter
 and/or filters +sidebar ++filter
@@ -27,12 +27,12 @@ tag/subtag/list suggestions +editmode
 +kb strg+down/j swap down
 @later key: u to +undo
 strg+left/right in editmode to move by word +kb
-page-up/-down to jump to the start/end +kb
+x HOME/END to jump to the start/end +kb
 update window on edited tags/subtags +editmode
 @later basic bindings +taskwarrior
-enter to exit editmode +kb
+x enter to exit editmode +kb
 ++order task sort order should follow file not alphabet +dashboard
-escape to exit editmode (no change) +kb
+escape to exit editmode (no change) +kb @later
 +window add more general onEnter/onLeave that also propagate to parents @later
 +window dim window borders if not under cursor @later
 @later +dashboard editable tag-lines (make autoboxing for Tags, etc)
