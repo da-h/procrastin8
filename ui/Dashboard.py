@@ -109,16 +109,16 @@ class Dashboard(UIElement):
         elif val == 'n':
             if isinstance(term.cursor.on_element, TaskLine):
                 initial_text = " ".join([str(t) for t in term.cursor.on_element.text["subtags"]] + [str(t) for t in term.cursor.on_element.text["tags"]] + [str(t) for t in term.cursor.on_element.text["lists"]])
-            else:
-                return
+            elif isinstance(term.cursor.on_element, TaskWindow):
+                initial_text = ""
 
             if AUTOADD_CREATIONDATE:
                 initial_text = datetime.now().strftime("%Y-%m-%d") + initial_text
 
-            if term.cursor.on_element.text["priority"] != "M_":
+            if isinstance(term.cursor.on_element, TaskLine) and term.cursor.on_element.text["priority"] != "M_":
                 initial_text = "("+term.cursor.on_element.text["priority"]+") " + initial_text
 
-            task = self.model.new_task(initial_text, pos=term.cursor.on_element.text)
+            task = self.model.new_task(initial_text, pos=term.cursor.on_element.text if isinstance(term.cursor.on_element, TaskLine) else 0)
             task["unsaved"] = True
             self.reinit_modelview(line_offset=+1)
             term.cursor.on_element.set_editmode(True)
@@ -180,7 +180,6 @@ class Dashboard(UIElement):
             window = self.windows[len(self.current_window)-1]
         window.current_line = current_line + line_offset
         term.cursor.moveTo(window)
-        
 
     def init_modelview(self):
         win_pos = 0
@@ -226,3 +225,9 @@ class Dashboard(UIElement):
 
             # actual task
             win.add_task(l, prepend="   " if l["subtags"] else "")
+
+        # create a window if no entries exist
+        if new_window:
+            win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, list.name if list else "Todos")
+            self.windows.append(win)
+            self.manage(win)
