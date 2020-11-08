@@ -101,12 +101,10 @@ class TextWindow(Window):
             wrapper = self.wrapper
         elem = Line(text, prepend=prepend, wrapper=wrapper, parent=self)
         self.lines.append(elem)
-        self.manage(elem)
 
     def add_hline(self, text="", center=False):
         elem = HLine(text, wrapper=self.wrapper, center=center, parent=self)
         self.lines.append(elem)
-        self.manage(elem)
 
     def add_emptyline(self):
         self.add_line("")

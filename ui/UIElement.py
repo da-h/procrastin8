@@ -8,6 +8,8 @@ class UIElement:
     def __init__(self, rel_pos=None, parent=None, max_height=-1, padding=(0,0,0,0)):
         if not rel_pos and not parent:
             raise ValueError("Either position or parent have to be specified")
+        if parent:
+            parent.elements.append(self)
         self.parent = parent
         self.padding = padding
         self.max_height = max_height
@@ -28,16 +30,8 @@ class UIElement:
     def rel_pos(self, a):
         self._rel_pos = np.array(a)
 
-    def manage(self, elem):
-        self.elements.append(elem)
-        elem.parent = self
-
     def draw(self):
         pass
-
-    def manage(self, elem):
-        elem.parent = self
-        self.elements.append(elem)
 
     def close(self):
         if self.parent:

@@ -12,11 +12,8 @@ class Sidebar(TextWindow):
         self.draw_style = "basic-left-edge"
 
         self.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.wrapper, parent=self))
-        self.manage(self.lines[-1])
         # self.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.wrapper, parent=self))
-        # self.manage(self.lines[-1])
         # self.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.wrapper, parent=self))
-        # self.manage(self.lines[-1])
 
     def onKeyPress(self, val):
 

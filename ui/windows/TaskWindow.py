@@ -15,4 +15,3 @@ class TaskWindow(TextWindow):
             wrapper = self.wrapper
         elem = TaskLine(text, prepend=prepend, wrapper=wrapper, parent=self)
         self.lines.append(elem)
-        self.manage(elem)

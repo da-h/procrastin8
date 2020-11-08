@@ -90,10 +90,8 @@ class Dashboard(UIElement):
             self.overlay.draw()
             self.rel_pos = (COLUMN_WIDTH,0)
             self.overlay.rel_pos = (-COLUMN_WIDTH,0)
-            self.manage(self.overlay)
             self.overlay.add_emptyline()
             self.overlay.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.overlay.wrapper, parent=self.overlay))
-            self.overlay.manage(self.overlay.lines[-1])
 
 
             old_elem = term.cursor.moveTo(self.overlay.lines[0])
@@ -223,10 +221,9 @@ class Dashboard(UIElement):
                 new_window = True
 
             if new_window:
-                win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, list.name if list else "Todos")
+                win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, list.name if list else "Todos", parent=self)
                 win_pos += COLUMN_WIDTH + WINDOW_MARGIN
                 self.windows.append(win)
-                self.manage(win)
                 new_window = False
                 tag = None
                 subtag = None
@@ -252,6 +249,5 @@ class Dashboard(UIElement):
 
         # create a window if no entries exist
         if new_window:
-            win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, list.name if list else "Todos")
+            win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, list.name if list else "Todos", parent=self)
             self.windows.append(win)
-            self.manage(win)
