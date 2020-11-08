@@ -1,3 +1,4 @@
+from blessed.sequences import Sequence
 from datetime import datetime
 from model import Task, Tag, Subtag, List, Modifier, ModifierDate
 from settings import WINDOW_PADDING, COLUMN_WIDTH, LIST_HIDDEN, TAG_HIDDEN, SUBTAG_HIDDEN, DIM_COMPLETE, COMPLETIONDATE_HIDDEN, CREATIONDATE_HIDDEN, AUTOADD_COMPLETIONDATE
@@ -85,16 +86,24 @@ class TaskLine(Line):
                 return
         elif self.edit_mode:
             if val.code == term.KEY_RIGHT:
-                self.edit_charpos = min(self.edit_charpos+1,len(self.text["raw_text"]))
+                self.edit_charpos = min(self.edit_charpos + 1, len(self.text["raw_text"]))
                 return
             elif val.code == term.KEY_LEFT:
-                self.edit_charpos = max(self.edit_charpos-1,0)
+                self.edit_charpos = max(self.edit_charpos - 1, 0)
                 return
             elif val.code == term.KEY_DOWN:
-                self.edit_charpos = min(self.edit_charpos+self.wrapper.width-len(self.prepend)-self.edit_firstchar, len(self.text["raw_text"]))
+                i, j = self._get_pos_in_line()
+                if j < len(self._typeset_text) - 1:
+                    self.edit_charpos += len(Sequence(self._typeset_text[j], term).strip_seqs()[i:]) + i - 1
+                    self.edit_charpos = min(self.edit_charpos , len(self.text["raw_text"]))
                 return
             elif val.code == term.KEY_UP:
-                self.edit_charpos = min(self.edit_charpos-self.wrapper.width+len(self.prepend)+self.edit_firstchar, len(self.text["raw_text"]))
+                i, j = self._get_pos_in_line()
+                if j > 0:
+                    indent_len = len(self.wrapper.initial_indent) if j == 0 else len(self.wrapper.subsequent_indent)
+                    self.edit_charpos -= len(Sequence(self._typeset_text[j], term).strip_seqs()[:i]) - indent_len + 1
+                    self.edit_charpos -= len(Sequence(self._typeset_text[j-1], term).strip_seqs()[i:])
+                    self.edit_charpos = max(self.edit_charpos , 0)
                 return
             elif val.code == term.KEY_HOME:
                 self.edit_charpos = 0
@@ -108,9 +117,6 @@ class TaskLine(Line):
                     self.edit_charpos -= 1
                 return
             elif val.code == term.KEY_DELETE:
-                self._updateText(self.text["raw_text"][:self.edit_charpos] + self.text["raw_text"][self.edit_charpos+1:])
-                return
-            elif val.code == term.KEY_RIGHT:
                 self._updateText(self.text["raw_text"][:self.edit_charpos] + self.text["raw_text"][self.edit_charpos+1:])
                 return
             elif val.code == term.KEY_TAB:

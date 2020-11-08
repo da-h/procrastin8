@@ -8,12 +8,13 @@ x (A) cannot add space before first element +bugs
 enable edit of priority/date +dashboard @later
 presets +sidebar ++filter
 choose projects / contexts +sidebar ++filter
-(B) multiline editmode has wrong charpos sometimes +bugs
+x (B) multiline editmode has wrong charpos sometimes +bugs +blub bla blub blub bla blub
 and/or filters +sidebar ++filter
 filter-sidebar +sidebar
 ++settings save/load settings to file +sidebar
 tag/subtag/list suggestions +editmode
 @later +Archive opens small prompt
+2020-11-08 move edit_mode related onKeyPress to Line +editmode
 @later +Archive all windows
 @later +Archive only current windows
 @later +kb p to paste below

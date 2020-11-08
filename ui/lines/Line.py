@@ -42,18 +42,27 @@ class Line(UIElement):
             highlight = lambda x: term.bold(term.ljust(x, width=self.wrapper.width))
 
         # print lines
-        total_chars = 0
-        prepend = Sequence(self.prepend, term)
-        prepend_len = prepend.length()
         for i, t in enumerate(self._typeset_text):
             t = Sequence(highlight(t), term)
-            self.printAt((0, i), prepend+self.line_style+t)
+            self.printAt((0, i), self.prepend+self.line_style+t)
 
-            if self.edit_mode:
-                t_len = len(t.strip())
-                if total_chars <= self.edit_charpos and self.edit_charpos <= total_chars + t_len:
-                    term.cursor.pos = self.pos + np.array((self.edit_charpos - total_chars + prepend_len + self.edit_firstchar, i))
-                total_chars += t_len - 1
+        if self.edit_mode:
+            # self.edit_charpos = 34
+            prepend = Sequence(self.prepend, term)
+            prepend_len = prepend.length()
+            term.cursor.pos = self.pos + (prepend_len, 0) + self._get_pos_in_line()
+
+    def _get_pos_in_line(self):
+        total_chars = 0
+
+        for i, t in enumerate(self._typeset_text):
+            t = Sequence(t, term).lstrip()
+            t_len = len(t)
+            if total_chars <= self.edit_charpos + self.edit_firstchar and self.edit_charpos  + self.edit_firstchar < total_chars + t_len + 1:
+                indent_len = len(self.wrapper.initial_indent) if i == 0 else len(self.wrapper.subsequent_indent)
+                return (self.edit_charpos + self.edit_firstchar - total_chars + indent_len, i)
+            total_chars += t_len + 1
+        return (0,0)
 
     def set_editmode(self, mode: bool, charpos: int=0, firstchar: int=0):
         self.edit_mode = mode
