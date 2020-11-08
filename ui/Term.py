@@ -60,14 +60,6 @@ class Cursor:
             print(term.move_xy(*self.pos)+term.normal_cursor, end='', flush=True)
         else:
             print(term.move_xy(*self.pos)+term.hide_cursor, end='', flush=True)
-        # print(term.hide_cursor, end='')
-        # changed = any(self.last_position != self.pos)
-        # self.last_position = np.copy(self.pos)
-        # if changed:
-        #     self.on_element = self.on_element_current
-        #     self.moveTo(self.on_element)
-        #     self.on_element.onFocus()
-        # return changed
 
 
 class WorkitTerminal(Terminal):

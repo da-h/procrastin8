@@ -105,17 +105,17 @@ class Dashboard(UIElement):
             term.cursor.moveTo(self.elements[0])
         elif val == 'n':
             if isinstance(term.cursor.on_element, TaskLine):
-                initial_text = " ".join([str(t) for t in term.cursor.on_element.text["subtags"]] + [str(t) for t in term.cursor.on_element.text["tags"]] + [str(t) for t in term.cursor.on_element.text["lists"]])
+                initial_text = " ".join([str(t) for t in term.cursor.on_element.task["subtags"]] + [str(t) for t in term.cursor.on_element.task["tags"]] + [str(t) for t in term.cursor.on_element.task["lists"]])
             elif isinstance(term.cursor.on_element, TaskWindow):
                 initial_text = ""
 
             if AUTOADD_CREATIONDATE:
                 initial_text = datetime.now().strftime("%Y-%m-%d") + initial_text
 
-            if isinstance(term.cursor.on_element, TaskLine) and term.cursor.on_element.text["priority"] != "M_":
-                initial_text = "("+term.cursor.on_element.text["priority"]+") " + initial_text
+            if isinstance(term.cursor.on_element, TaskLine) and term.cursor.on_element.task["priority"] != "M_":
+                initial_text = "("+term.cursor.on_element.task["priority"]+") " + initial_text
 
-            task = self.model.new_task(initial_text, pos=term.cursor.on_element.text if isinstance(term.cursor.on_element, TaskLine) else 0)
+            task = self.model.new_task(initial_text, pos=term.cursor.on_element.task if isinstance(term.cursor.on_element, TaskLine) else 0)
             task["unsaved"] = True
             self.reinit_modelview(line_offset=+1)
             term.cursor.on_element.set_editmode(True)
@@ -123,7 +123,7 @@ class Dashboard(UIElement):
             if not isinstance(term.cursor.on_element, TaskLine):
                 return
 
-            self.model.remove_task(pos=term.cursor.on_element.text)
+            self.model.remove_task(pos=term.cursor.on_element.task)
             self.reinit_modelview(line_offset=0)
         elif val.code == term.KEY_SDOWN:
             if not isinstance(term.cursor.on_element, TaskLine):
@@ -135,7 +135,7 @@ class Dashboard(UIElement):
                 if not next_line:
                     return
                 next_line = next_line[0]
-            self.model.swap_tasks(pos=term.cursor.on_element.text, pos2=next_line.text)
+            self.model.swap_tasks(pos=term.cursor.on_element.task, pos2=next_line.task)
             self.reinit_modelview(line_offset=1)
         elif val.code == term.KEY_SUP:
             if not isinstance(term.cursor.on_element, TaskLine):
@@ -147,15 +147,15 @@ class Dashboard(UIElement):
                 if not next_line:
                     return
                 next_line = next_line[0]
-            self.model.swap_tasks(pos=term.cursor.on_element.text, pos2=next_line.text)
+            self.model.swap_tasks(pos=term.cursor.on_element.task, pos2=next_line.task)
             self.reinit_modelview(line_offset=-1)
 
         elif isinstance(element, TaskLine):
             if element.edit_mode:
                 if val.code == term.KEY_ESCAPE:
                     element.set_editmode(False)
-                    if "unsaved" in element.text:
-                        element.text.model.remove_task(term.cursor.on_element.text)
+                    if "unsaved" in element.task:
+                        element.task.model.remove_task(term.cursor.on_element.task)
                         window = self.windows[self.current_window]
                         window.lines.remove(term.cursor.on_element)
                         window.current_line -= 1
@@ -163,9 +163,9 @@ class Dashboard(UIElement):
                     return
                 elif val.code == term.KEY_ENTER:
                     element.set_editmode(False)
-                    if "unsaved" in element.text:
-                        del element.text["unsaved"]
-                    element.text.model.save()
+                    if "unsaved" in element.task:
+                        del element.task["unsaved"]
+                    element.task.model.save()
 
                     self.reinit_modelview(line_offset=0)
                     return
@@ -176,13 +176,13 @@ class Dashboard(UIElement):
                     term.cursor.draw()
                     new_val = term.inkey()
                     if new_val.code == term.KEY_BACKSPACE:
-                        element.text["priority"] = "M_"
+                        element.task["priority"] = "M_"
                     else:
                         new_priority = str(new_val).upper()
                         if re_priority.match(new_priority):
-                            element.text["priority"] = new_priority
+                            element.task["priority"] = new_priority
                     element.set_editmode(False)
-                    element.text.model.save()
+                    element.task.model.save()
                     return
         return super().onKeyPress(val)
 

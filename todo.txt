@@ -13,7 +13,7 @@ filter-sidebar +sidebar
 ++settings save/load settings to file +sidebar
 tag/subtag/list suggestions +editmode
 @later +Archive opens small prompt
-2020-11-08 move edit_mode related onKeyPress to Line +editmode
+x 2020-11-08 2020-11-08 move edit_mode related onKeyPress to Line +editmode
 @later +Archive all windows
 @later +Archive only current windows
 @later +kb p to paste below

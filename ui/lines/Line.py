@@ -9,7 +9,8 @@ class Line(UIElement):
 
     def __init__(self, text="", rel_pos=None, prepend="", wrapper=None, parent=None):
         super().__init__(rel_pos=rel_pos, parent=parent)
-        self.text = text
+        if text is not None:
+            self.text = text
         self.height = 1
         self.wrapper = wrapper
         self.prepend = prepend
@@ -30,7 +31,7 @@ class Line(UIElement):
         else:
             self._typeset_text = self.wrapper.wrap(self.formatText())
             self.height = max(len(self._typeset_text),1)
-        if self.text == "":
+        if len(self._typeset_text) == 0:
             self._typeset_text = [""]
 
     def draw(self):
@@ -75,11 +76,59 @@ class Line(UIElement):
 
     def onKeyPress(self, val):
         if self.edit_mode:
-            self.onEditModeKey(val)
-            if val.code == term.KEY_ESCAPE:
-                self.set_editmode(False)
-            return
+            if val.code == term.KEY_RIGHT:
+                self.edit_charpos = min(self.edit_charpos + 1, len(self.text))
+                return
+            elif val.code == term.KEY_LEFT:
+                self.edit_charpos = max(self.edit_charpos - 1, 0)
+                return
+            elif val.code == term.KEY_DOWN:
+                i, j = self._get_pos_in_line()
+                if j < len(self._typeset_text) - 1:
+                    self.edit_charpos += len(Sequence(self._typeset_text[j], term).strip_seqs()[i:]) + i - 1
+                    self.edit_charpos = min(self.edit_charpos , len(self.text))
+                return
+            elif val.code == term.KEY_UP:
+                i, j = self._get_pos_in_line()
+                if j > 0:
+                    indent_len = len(self.wrapper.initial_indent) if j == 0 else len(self.wrapper.subsequent_indent)
+                    self.edit_charpos -= len(Sequence(self._typeset_text[j], term).strip_seqs()[:i]) - indent_len + 1
+                    self.edit_charpos -= len(Sequence(self._typeset_text[j-1], term).strip_seqs()[i:])
+                    self.edit_charpos = max(self.edit_charpos , 0)
+                return
+            elif val.code == term.KEY_HOME:
+                self.edit_charpos = 0
+                return
+            elif val.code == term.KEY_END:
+                self.edit_charpos = len(self.text)
+                return
+            elif val.code == term.KEY_BACKSPACE:
+                if self.edit_charpos > 0:
+                    self._updateText(self.text[:self.edit_charpos-1] + self.text[self.edit_charpos:])
+                    self.edit_charpos -= 1
+                return
+            elif val.code == term.KEY_DELETE:
+                self._updateText(self.text[:self.edit_charpos] + self.text[self.edit_charpos+1:])
+                return
+            elif val.code == term.KEY_TAB:
+                self.edit_charpos += len(self.text[self.edit_charpos:].split(" ")[0]) + 1
+                self.edit_charpos = min(self.edit_charpos, len(self.text))
+                return
+            elif val.code == term.KEY_BTAB:
+                at_word_start = self.text[self.edit_charpos-1] == " "
+                self.edit_charpos -= len(self.text[:self.edit_charpos].split(" ")[-2 if at_word_start else -1])
+                if at_word_start:
+                    self.edit_charpos -= 1
+                self.edit_charpos = max(self.edit_charpos, 0)
+                return
+            elif not val.is_sequence:
+                self._updateText(self.text[:self.edit_charpos] + str(val) + self.text[self.edit_charpos:])
+                self.edit_charpos += 1
+                return
         return super().onKeyPress(val)
+
+    def _updateText(self, raw_text):
+        self.text = raw_text
 
     def onEditModeKey(self, val):
         pass
