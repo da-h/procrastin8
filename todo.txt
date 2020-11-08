@@ -23,11 +23,12 @@ tag/subtag/list suggestions +editmode
 @later basic bindings +taskwarrior
 escape undos edit +undo @later
 escape to exit editmode (no change) +kb @later
-+window add more general onEnter/onLeave that also propagate to parents @later
++window add more general onEnter/onLeave that also propagates to parents @later
 auto-filter +sidebar ++filter
 prompt to edit raw todo text +dashboard @later
 +window dim window borders if not under cursor @later
-@later +dashboard editable tag-lines (make autoboxing for Tags, etc)
-2020-11-06 replace no_empty_lines with self.non_empty_lines ? +window @later
-@later ++manage is self.manage() really needed? +window
++dashboard editable tag-lines (make autoboxing for Tags, etc)
+x 2020-11-08 2020-11-06 replace no_empty_lines with self.non_empty_lines ? +window @later
+2020-11-08 make todo-groups editable +dashboard
+x @later ++manage is self.manage() really needed? +window
 x @later ++manage move uielement.clear to term to allow also element swapping +window

@@ -21,6 +21,7 @@ class TextWindow(Window):
         self.indent = indent
         self.title = title
         self.lines = []
+        self.content_lines = []
         self.wrapper = TextWrapper(width=width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2, initial_indent="", subsequent_indent=" " * indent, term=term)
         self.overfull_mode = overfull_mode
         self.scroll_pos = 0
@@ -52,7 +53,6 @@ class TextWindow(Window):
 
     def onKeyPress(self, val):
         element = term.cursor.on_element
-        non_empty_lines = list(filter(lambda l: l.text, self.lines))
         max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height) - self.rel_pos[1]
         max_inner_height = max_height - self.padding[0] - self.padding[2]
 
@@ -60,57 +60,62 @@ class TextWindow(Window):
             if self.current_line == 0:
                 return
             elif self.current_line is None:
-                term.cursor.moveTo(non_empty_lines[self.current_line])
+                term.cursor.moveTo(self.content_lines[self.current_line])
 
             self.current_line -= 1
-            focus_on = non_empty_lines[self.current_line]
+            focus_on = self.content_lines[self.current_line]
             term.cursor.moveTo(focus_on)
             if focus_on.rel_pos[1] < self.padding[1]:
                 self.scroll_pos = max(self.scroll_pos + focus_on.rel_pos[1] - self.padding[1], 0)
         elif val.code == term.KEY_DOWN or val == 'j':
-            if self.current_line == len(non_empty_lines) - 1:
+            if self.current_line == len(self.content_lines) - 1:
                 return
             elif self.current_line is None:
-                term.cursor.moveTo(non_empty_lines[self.current_line])
+                term.cursor.moveTo(self.content_lines[self.current_line])
 
             self.current_line += 1
-            focus_on = non_empty_lines[self.current_line]
+            focus_on = self.content_lines[self.current_line]
             term.cursor.moveTo(focus_on)
             if focus_on.rel_pos[1] > max_inner_height:# - focus_on.height:
                 self.scroll_pos += focus_on.rel_pos[1] - element.rel_pos[1] + focus_on.height - 1
         elif val.code == term.KEY_HOME:
             self.current_line = 0
-            term.cursor.moveTo(non_empty_lines[self.current_line])
+            term.cursor.moveTo(self.content_lines[self.current_line])
             return
         elif val.code == term.KEY_END:
-            self.current_line = len(non_empty_lines)-1
-            term.cursor.moveTo(non_empty_lines[self.current_line])
+            self.current_line = len(self.content_lines)-1
+            term.cursor.moveTo(self.content_lines[self.current_line])
             return
         elif val == term.KEY_CTRL['e']:
             self.scroll_pos = max(self.scroll_pos - 1, 0)
         elif val == term.KEY_CTRL['y']:
-            if non_empty_lines[-1].rel_pos[1] > max_inner_height:
+            if self.content_lines[-1].rel_pos[1] > max_inner_height:
                 self.scroll_pos = self.scroll_pos + 1
         else:
             super().onKeyPress(val)
 
     def add_line(self, text, prepend=""):
-        if prepend != "":
-            wrapper = TextWrapper(width=self.width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2 - len(prepend), initial_indent="", subsequent_indent=" " * self.indent, term=term)
+        if isinstance(text, str):
+            if prepend != "":
+                wrapper = TextWrapper(width=self.width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2 - len(prepend), initial_indent="", subsequent_indent=" " * self.indent, term=term)
+            else:
+                wrapper = self.wrapper
+            elem = Line(text, prepend=prepend, wrapper=wrapper, parent=self)
         else:
-            wrapper = self.wrapper
-        elem = Line(text, prepend=prepend, wrapper=wrapper, parent=self)
+            elem = text
         self.lines.append(elem)
+        if not isinstance(text, str) or text:
+            self.content_lines.append(elem)
 
     def add_hline(self, text="", center=False):
         elem = HLine(text, wrapper=self.wrapper, center=center, parent=self)
         self.lines.append(elem)
+        self.content_lines.append(elem)
 
     def add_emptyline(self):
         self.add_line("")
 
     def onFocus(self):
-        non_empty_lines = list(filter(lambda l: l.text, self.lines))
-        if len(non_empty_lines):
-            self.current_line = max(min(len(non_empty_lines)-1, self.current_line),0)
-            term.cursor.moveTo(non_empty_lines[self.current_line])
+        if len(self.content_lines):
+            self.current_line = max(min(len(self.content_lines)-1, self.current_line),0)
+            term.cursor.moveTo(self.content_lines[self.current_line])

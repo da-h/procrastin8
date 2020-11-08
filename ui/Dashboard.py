@@ -130,9 +130,8 @@ class Dashboard(UIElement):
                 return
 
             window = self.windows[self.current_window]
-            non_empty_lines = list(filter(lambda l: l.text, window.lines))
-            if window.current_line < len(non_empty_lines) - 1:
-                next_line = list(filter(lambda l: isinstance(l, TaskLine), non_empty_lines[window.current_line + 1:]))
+            if window.current_line < len(window.content_lines) - 1:
+                next_line = list(filter(lambda l: isinstance(l, TaskLine), window.content_lines[window.current_line + 1:]))
                 if not next_line:
                     return
                 next_line = next_line[0]
@@ -143,9 +142,8 @@ class Dashboard(UIElement):
                 return
 
             window = self.windows[self.current_window]
-            non_empty_lines = list(filter(lambda l: l.text, window.lines))
             if window.current_line >= 0:
-                next_line = list(filter(lambda l: isinstance(l, TaskLine), non_empty_lines[window.current_line - 1:]))
+                next_line = list(filter(lambda l: isinstance(l, TaskLine), window.content_lines[window.current_line - 1:]))
                 if not next_line:
                     return
                 next_line = next_line[0]

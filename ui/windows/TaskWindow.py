@@ -14,4 +14,4 @@ class TaskWindow(TextWindow):
         else:
             wrapper = self.wrapper
         elem = TaskLine(text, prepend=prepend, wrapper=wrapper, parent=self)
-        self.lines.append(elem)
+        self.add_line(elem)
