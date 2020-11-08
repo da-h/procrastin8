@@ -26,6 +26,7 @@ class Cursor:
 
         # Event: onUnfocus
         if self.on_element is not None:
+            self.on_element.onLeave()
             self.on_element.onUnfocus()
 
         self.on_element = self.on_element_current = on_element
@@ -34,6 +35,7 @@ class Cursor:
 
         # Event: onFocus
         if self.on_element is not None:
+            self.on_element.onEnter()
             self.on_element.onFocus()
 
     def clear(self):

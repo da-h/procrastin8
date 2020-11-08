@@ -63,6 +63,14 @@ class UIElement:
     def onUnfocus(self):
         pass
 
+    def onEnter(self):
+        if self.parent:
+            self.parent.onEnter()
+
+    def onLeave(self):
+        if self.parent:
+            self.parent.onLeave()
+
     def onElementClosed(self, elem):
         if self.parent is not None:
             self.parent.onElementClosed(elem)

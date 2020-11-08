@@ -23,10 +23,10 @@ x 2020-11-08 2020-11-08 move edit_mode related onKeyPress to Line +editmode
 @later basic bindings +taskwarrior
 escape undos edit +undo @later
 escape to exit editmode (no change) +kb @later
-+window add more general onEnter/onLeave that also propagates to parents @later
+x +window add more general onEnter/onLeave that also propagates to parents
 auto-filter +sidebar ++filter
 prompt to edit raw todo text +dashboard @later
-+window dim window borders if not under cursor @later
+x +window dim window borders if not under cursor
 +dashboard editable tag-lines (make autoboxing for Tags, etc)
 x 2020-11-08 2020-11-06 replace no_empty_lines with self.non_empty_lines ? +window @later
 2020-11-08 make todo-groups editable +dashboard
