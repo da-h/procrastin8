@@ -1,5 +1,4 @@
 from datetime import datetime
-from blessed.sequences import Sequence
 from ui import get_term
 from ui.UIElement import UIElement
 from ui.windows.Sidebar import Sidebar
