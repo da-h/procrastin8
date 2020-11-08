@@ -33,8 +33,8 @@ class Line(UIElement):
         if self.text == "":
             self._typeset_text = [""]
 
-    def draw(self, clean=False):
-        super().draw(clean)
+    def draw(self):
+        super().draw()
 
         # check what highlight it is
         highlight = lambda x: term.ljust(x,width=self.wrapper.width)

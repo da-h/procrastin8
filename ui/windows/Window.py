@@ -10,37 +10,16 @@ class Window(UIElement):
         self.width = width
         self.height = height
         self.title = title
-        self.last_width = None
-        self.last_height = None
-        self.last_title = None
         self.draw_style = "basic"
 
-    def draw(self, clean=False):
-        super().draw(clean)
-        if clean or self.last_width != self.width or self.last_height != self.height or self.last_title != self.title or any(self.last_pos != self.pos):
-            if self.draw_style == "basic":
-                self.draw_border(self.pos, (self.width, self.height), self.title)
-            elif self.draw_style == "basic-left-edge":
-                self.draw_border2(self.pos, (self.width, self.height), self.title)
-
-            if self.last_height and self.last_height > self.height:
-                for i in range(self.last_height - self.height):
-                    self.printAt((0,i+self.height), " "*self.width, ignore_padding=True)
-
-            self.last_width = self.width
-            self.last_height = self.height
-            self.last_title = self.title
-            self.last_pos = self.pos
-
-    def clear(self):
-        clean = ""
-        for i in range(self.height):
-            clean += term.move_xy(self.pos+(0,i)) + " "*self.width
-        print(clean, end='', flush=False)
-        super().clear()
+    def draw(self):
+        super().draw()
+        if self.draw_style == "basic":
+            self.draw_border(self.pos, (self.width, self.height), self.title)
+        elif self.draw_style == "basic-left-edge":
+            self.draw_border2(self.pos, (self.width, self.height), self.title)
 
     def close(self):
-        self.clear()
         super().close()
 
     def draw_border(self, pos, dim, title=None):

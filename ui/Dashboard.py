@@ -35,15 +35,15 @@ class Dashboard(UIElement):
         self.current_window = 0
         self.init_modelview()
 
-    def draw(self, clean=False):
+    def draw(self):
         with term.location():
             for elem in self.elements:
                 if elem != self.overlay:
-                    elem.draw(clean)
+                    elem.draw()
             if self.overlay:
-                self.overlay.draw(True)
+                self.overlay.draw()
         redraw()
-        term.cursor.draw()
+        term.draw()
 
     def loop(self):
         val = ''
@@ -51,8 +51,6 @@ class Dashboard(UIElement):
             val = term.inkey(esc_delay=0)
             if val and term.cursor.on_element:
                 term.cursor.on_element.onKeyPress(val)
-
-            # self.clear()
             self.draw()
 
     def onFocus(self):
@@ -63,7 +61,7 @@ class Dashboard(UIElement):
         self.elements.remove(elem)
         if elem == self.overlay:
             self.overlay = None
-        self.draw(True)
+        self.draw()
         if term.cursor.isOnElement(elem):
             term.cursor.moveTo(self.elements[0])
 

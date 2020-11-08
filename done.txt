@@ -6,3 +6,4 @@ x update window on edited tags/subtags +editmode
 x enter to exit editmode +kb
 x ++order task sort order should follow file not alphabet +dashboard
 x +kb strg+Up/down or j/k swap up/down
+x (A) cannot add space before first element +bugs

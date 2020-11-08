@@ -15,8 +15,8 @@ class HLine(UIElement):
     def typeset(self):
         pass
 
-    def draw(self, clean=False):
-        super().draw(clean)
+    def draw(self):
+        super().draw()
         self.printAt((0,0),          " "*self.wrapper.width)
         self.printAt((0,1), term.dim+"─"*self.wrapper.width+term.normal)
         if self.text:

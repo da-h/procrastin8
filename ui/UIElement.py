@@ -13,19 +13,7 @@ class UIElement:
         self.max_height = max_height
         self.elements = []
         self._rel_pos = np.array(rel_pos) if rel_pos else np.array((0,0))
-        self._last_rel_pos = np.copy(rel_pos) if rel_pos else np.array((0,0))
         self.last_print = {}
-
-    @property
-    def rel_pos(self):
-        return self._rel_pos
-    @rel_pos.setter
-    def rel_pos(self,a):
-        if any(a != self._last_rel_pos):
-            self._rel_pos = self._last_rel_pos
-            self.clear()
-        self._rel_pos = np.copy(a)
-        self._last_rel_pos = np.copy(a)
 
     @property
     def pos(self):
@@ -33,23 +21,25 @@ class UIElement:
             return self.parent.pos + self.rel_pos
         return self.rel_pos
 
+    @property
+    def rel_pos(self):
+        return self._rel_pos
+    @rel_pos.setter
+    def rel_pos(self, a):
+        self._rel_pos = np.array(a)
+
     def manage(self, elem):
         self.elements.append(elem)
         elem.parent = self
 
-    def draw(self, clean=False):
-        if clean:
-            self.clear()
+    def draw(self):
+        pass
 
-    def clear(self):
-        for key, val in self.last_print.items():
-            print(term.move_xy(key)+" "*val.length(), end='', flush=False)
-        self.last_print = {}
-        for e in self.elements:
-            e.clear()
+    def manage(self, elem):
+        elem.parent = self
+        self.elements.append(elem)
 
     def close(self):
-        self.clear()
         if self.parent:
             self.parent.onElementClosed(self)
 
@@ -64,11 +54,7 @@ class UIElement:
         if self.max_height > 0 and (rel_pos[1] if ignore_padding else rel_pos[1] + self.padding[0] + self.padding[2]) >= self.max_height:
             return
 
-        new_print = term.move_xy(pos)+seq
-        pos = (*pos,)
-        if pos not in self.last_print or self.last_print[pos] != new_print:
-            print(new_print, end='', flush=False)
-            self.last_print[pos] = seq
+        term.printAt(pos, seq)
 
     # ------ #
     # Events #

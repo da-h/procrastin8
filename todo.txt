@@ -4,7 +4,6 @@ automatic arrangement of multiple windows +dashboard @later
 add started tag +taskwarrior @later
 splitt overlong windows @later +window
 ++settings connect settings to ui/model +sidebar
-x (A) cannot add space before first element +bugs
 enable edit of priority/date +dashboard @later
 presets +sidebar ++filter
 choose projects / contexts +sidebar ++filter
@@ -31,4 +30,4 @@ prompt to edit raw todo text +dashboard @later
 @later +dashboard editable tag-lines (make autoboxing for Tags, etc)
 2020-11-06 replace no_empty_lines with self.non_empty_lines ? +window @later
 @later ++manage is self.manage() really needed? +window
-@later ++manage move uielement.clear to term to allow also element swapping +window
+x @later ++manage move uielement.clear to term to allow also element swapping +window

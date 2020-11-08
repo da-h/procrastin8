@@ -15,8 +15,8 @@ class RadioLine(UIElement):
     def typeset(self):
         pass
 
-    def draw(self, clean=False):
-        super().draw(clean)
+    def draw(self):
+        super().draw()
         # check what highlight it is
         highlight = lambda x: term.ljust(x,width=self.wrapper.width)
         if term.cursor.on_element == self:

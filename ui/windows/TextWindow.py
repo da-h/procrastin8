@@ -26,7 +26,7 @@ class TextWindow(Window):
         self.scroll_pos = 0
         self.current_line = 0
 
-    def draw(self, clean=False):
+    def draw(self):
         max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height) - self.rel_pos[1]
         max_inner_height = max_height - self.padding[0] - self.padding[2]
 
@@ -44,11 +44,11 @@ class TextWindow(Window):
         # draw window
         if self.overfull_mode == OverfullMode.SCROLL:
             self.height = min(content_height + self.padding[0] + self.padding[2], max_height)
-        super().draw(clean)
+        super().draw()
 
         # draw text
         for line in self.lines:
-            line.draw(clean)
+            line.draw()
 
     def onKeyPress(self, val):
         element = term.cursor.on_element
