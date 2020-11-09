@@ -7,7 +7,7 @@ term = get_term()
 
 class Line(UIElement):
 
-    def __init__(self, text="", rel_pos=None, prepend="", wrapper=None, parent=None):
+    def __init__(self, text="", rel_pos=None, prepend="", wrapper=None, parent=None, center=False):
         super().__init__(rel_pos=rel_pos, parent=parent)
         if text is not None:
             self.text = text
@@ -19,6 +19,7 @@ class Line(UIElement):
         self.edit_firstchar = 0
         self._typeset_text = None
         self.line_style = ""
+        self.center = center
 
     def formatText(self):
         return str(self.text)
@@ -35,17 +36,21 @@ class Line(UIElement):
             self._typeset_text = [""]
 
     def draw(self):
-        super().draw()
 
         # check what highlight it is
-        highlight = lambda x: term.ljust(x,width=self.wrapper.width)
+        highlight = lambda x: x
         if term.cursor.on_element == self:
-            highlight = lambda x: term.bold(term.ljust(x, width=self.wrapper.width))
+            highlight = lambda x: term.bold(x)
 
         # print lines
         for i, t in enumerate(self._typeset_text):
             t = Sequence(highlight(t), term)
-            self.printAt((0, i), self.prepend+self.line_style+t)
+            t_len = t.length()
+            t = self.prepend+self.line_style+t
+            if self.center:
+                self.printAt(((self.wrapper.width-1)//2 - t_len//2 - 1, 1), " "+t+" ")
+            else:
+                self.printAt((0, i), t)
 
         if self.edit_mode:
             # self.edit_charpos = 34

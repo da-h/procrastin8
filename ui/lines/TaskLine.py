@@ -18,6 +18,7 @@ class TaskLine(Line):
 
     def __init__(self, text, *args, **kwargs):
         self.task = text
+        self.hide_taskbullet = False
         super().__init__(*args, text=None, **kwargs)
 
     @property
@@ -41,6 +42,8 @@ class TaskLine(Line):
         elif self.task["priority"] == "M_":
             if self.task["complete"]:
                 S.append(term.green("✗")+default)
+            elif self.hide_taskbullet:
+                pass
             else:
                 S.append(term.blue("·"))
         else:
@@ -74,9 +77,13 @@ class TaskLine(Line):
 
     def onKeyPress(self, val):
         if self.edit_mode:
+            # if val.code == term.KEY_ESCAPE:
+            #     self.task = Task.from_rawtext(self.task.model, self.previous_text)
+            #     self.set_editmode(False)
+            #     return
             super().onKeyPress(val)
             return
-        if not self.edit_mode:
+        else:
             if val == "x" or val == " ":
                 self.task["complete"] = not self.task["complete"]
                 if AUTOADD_COMPLETIONDATE and self.task["creation-date"]:
@@ -84,7 +91,6 @@ class TaskLine(Line):
                 if self.task["completion-date"] and not self.task["complete"]:
                     self.task["completion-date"] = None
                 self.task.save()
-
                 return
             elif val == "i" or val == "e":
                 self.set_editmode(True)
@@ -104,6 +110,10 @@ class TaskLine(Line):
         self.task.update( Task.from_rawtext(self.task.model, raw_text, leading_spaces=leading_spaces ) )
 
     def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
+        if mode:
+            self.previous_text = self.text
+        else:
+            self.previous_text = None
         super().set_editmode(mode, charpos, firstchar)
 
     def onEditModeKey(self, val):

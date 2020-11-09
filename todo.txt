@@ -23,5 +23,4 @@ escape undos edit +undo @later
 escape to exit editmode (no change) +kb @later
 auto-filter +sidebar ++filter
 prompt to edit raw todo text +dashboard @later
-2020-11-08 make todo-groups editable +dashboard
-+dashboard editable tag-lines (make autoboxing for Tags, etc)
+x 2020-11-09 2020-11-08 make todo-groups editable +dashboard

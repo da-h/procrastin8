@@ -4,9 +4,10 @@ from ui.UIElement import UIElement
 from ui.windows.Sidebar import Sidebar
 from ui.lines.RadioLine import RadioLine
 from ui.lines.TaskLine import TaskLine
+from ui.TaskGroup import TaskGroup
 from ui.windows import TaskWindow
 from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE, AUTOADD_CREATIONDATE
-from model import Tag, Subtag, List, re_priority
+from model import Task, Tag, Subtag, List, re_priority
 
 term = get_term()
 
@@ -150,6 +151,50 @@ class Dashboard(UIElement):
             self.model.swap_tasks(pos=term.cursor.on_element.task, pos2=next_line.task)
             self.reinit_modelview(line_offset=-1)
 
+        elif isinstance(element, TaskGroup):
+            if element.edit_mode:
+                if val.code == term.KEY_ESCAPE:
+                    element.task = element.previous_task
+                    element.previous_task = None
+                    element.set_editmode(False)
+                    return
+                elif val.code == term.KEY_ENTER:
+                    element.set_editmode(False)
+                    new_common_lists = set(element.task["lists"])
+                    new_common_tags = set(element.task["tags"])
+                    new_common_subtags = set(element.task["subtags"])
+
+                    for task in element.get_all_tasks():
+                        lists = set(task["lists"])
+                        tags = set(task["tags"])
+                        subtags = set(task["subtags"])
+
+                        # remove differences from text
+                        for t in element.common_lists.difference(new_common_lists):
+                            task["text"].remove(t)
+                        for t in element.common_tags.difference(new_common_tags):
+                            task["text"].remove(t)
+                        for t in element.common_subtags.difference(new_common_subtags):
+                            task["text"].remove(t)
+
+                        # add new to text
+                        for t in new_common_subtags.difference(element.common_subtags):
+                            task["text"].append(t)
+                        for t in new_common_tags.difference(element.common_tags):
+                            task["text"].append(t)
+                        for t in new_common_lists.difference(element.common_lists):
+                            task["text"].append(t)
+
+                        # save new state for easier access
+                        task["lists"] = list(lists.difference(element.common_lists).union(new_common_lists))
+                        task["tags"] = list(tags.difference(element.common_tags).union(new_common_tags))
+                        task["subtags"] = list(subtags.difference(element.common_subtags).union(new_common_subtags))
+
+                        # update text-representation
+                        task.update_rawtext()
+                    self.model.save()
+                    self.reinit_modelview(line_offset=-1)
+
         elif isinstance(element, TaskLine):
             if element.edit_mode:
                 if val.code == term.KEY_ESCAPE:
@@ -208,7 +253,11 @@ class Dashboard(UIElement):
         subtag = None
         new_window = True
         self.windows = []
+        task_group = None
+        subtask_group = None
         for l in self.model.query(filter=self.filter, sortBy=["lists", "tags","subtags","priority"]):
+            # if "filter-sidebar" in l["raw_text"]:
+            #     breakpoint()
 
             # new list window
             # if l["lists"]:
@@ -225,25 +274,29 @@ class Dashboard(UIElement):
                 new_window = False
                 tag = None
                 subtag = None
+                task_group = None
+                subtask_group = None
 
             # tag-line
             if l["tags"] and tag not in l["tags"]:
                 if tag and TODO_STYLE==1:
                     win.add_emptyline()
                 tag = l["tags"][0]
-                if TODO_STYLE == 2:
-                    win.add_hline(term.cyan(tag.name), center=True)
-                    win.add_emptyline()
-                elif TODO_STYLE == 1:
-                    win.add_line(term.cyan(tag.name))
+                task_group = win.add_taskgroup(tag, model=self.model)
+                subtask_group = None
+            elif not l["tags"]:
+                task_group = None
+                subtask_group = None
 
             # subtag-line
             if l["subtags"] and subtag not in l["subtags"]:
                 subtag = l["subtags"][0] if l["subtags"] else None
-                win.add_line(term.cyan(term.dim+subtag.name), prepend=term.blue("· "))
+                subtask_group = task_group.add_taskgroup(term.dim+subtag.name, prepend=term.blue("· "), model=self.model)
+            elif not l["subtags"]:
+                subtask_group = None
 
             # actual task
-            win.add_task(l, prepend="   " if l["subtags"] else "")
+            (subtask_group if subtask_group else task_group if task_group else win).add_task(l, prepend="   " if l["subtags"] else "")
 
         # create a window if no entries exist
         if new_window:

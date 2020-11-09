@@ -91,6 +91,10 @@ class Task(dict):
             S += self["text"]
         return " ".join(str(s) for s in S)
 
+    def update_rawtext(self):
+        self["raw_text"] = Task.__str__(self, print_optionals=False)
+        self["raw_full_text"] = Task.__str__(self)
+
     def save(self):
         self.model.save()
 
@@ -172,7 +176,7 @@ class Task(dict):
             "creation-date": date.fromisoformat(creation_date) if creation_date else None,
             # "raw_text_complete": t,
             "raw_text": " "*leading_spaces+m[5],
-            "raw_full_text": t,
+            "raw_full_text": m[0],
             "text": text,
             "tags": tags,
             "subtags": subtags,
