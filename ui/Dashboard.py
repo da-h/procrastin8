@@ -286,6 +286,9 @@ class Dashboard(UIElement):
                 subtask_group = None
             elif not l["tags"]:
                 task_group = None
+                if tag:
+                    win.add_emptyline()
+                    tag = None
                 subtask_group = None
 
             # subtag-line
@@ -293,6 +296,7 @@ class Dashboard(UIElement):
                 subtag = l["subtags"][0] if l["subtags"] else None
                 subtask_group = task_group.add_taskgroup(term.dim+subtag.name, prepend=term.blue("· "), model=self.model)
             elif not l["subtags"]:
+                subtag = None
                 subtask_group = None
 
             # actual task
