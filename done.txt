@@ -7,3 +7,10 @@ x enter to exit editmode +kb
 x ++order task sort order should follow file not alphabet +dashboard
 x +kb strg+Up/down or j/k swap up/down
 x (A) cannot add space before first element +bugs
+x (B) multiline editmode has wrong charpos sometimes +bugs +blub bla blub blub bla blub
+x 2020-11-08 2020-11-08 move edit_mode related onKeyPress to Line +editmode
+x +window add more general onEnter/onLeave that also propagates to parents
+x +window dim window borders if not under cursor
+x 2020-11-08 2020-11-06 replace no_empty_lines with self.non_empty_lines ? +window @later
+x @later ++manage is self.manage() really needed? +window
+x @later ++manage move uielement.clear to term to allow also element swapping +window

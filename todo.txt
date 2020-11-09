@@ -7,13 +7,11 @@ splitt overlong windows @later +window
 enable edit of priority/date +dashboard @later
 presets +sidebar ++filter
 choose projects / contexts +sidebar ++filter
-x (B) multiline editmode has wrong charpos sometimes +bugs +blub bla blub blub bla blub
 and/or filters +sidebar ++filter
 filter-sidebar +sidebar
 ++settings save/load settings to file +sidebar
 tag/subtag/list suggestions +editmode
 @later +Archive opens small prompt
-x 2020-11-08 2020-11-08 move edit_mode related onKeyPress to Line +editmode
 @later +Archive all windows
 @later +Archive only current windows
 @later +kb p to paste below
@@ -23,12 +21,7 @@ x 2020-11-08 2020-11-08 move edit_mode related onKeyPress to Line +editmode
 @later basic bindings +taskwarrior
 escape undos edit +undo @later
 escape to exit editmode (no change) +kb @later
-x +window add more general onEnter/onLeave that also propagates to parents
 auto-filter +sidebar ++filter
 prompt to edit raw todo text +dashboard @later
-x +window dim window borders if not under cursor
-+dashboard editable tag-lines (make autoboxing for Tags, etc)
-x 2020-11-08 2020-11-06 replace no_empty_lines with self.non_empty_lines ? +window @later
 2020-11-08 make todo-groups editable +dashboard
-x @later ++manage is self.manage() really needed? +window
-x @later ++manage move uielement.clear to term to allow also element swapping +window
++dashboard editable tag-lines (make autoboxing for Tags, etc)
