@@ -1,5 +1,5 @@
 @later tabs +dashboard
-automatic arrangement of multiple windows +dashboard @later
+automatic arrangement of multiple windows +dashboard
 @later allow resize +dashboard
 add started tag +taskwarrior @later
 splitt overlong windows @later +window
@@ -10,7 +10,12 @@ choose projects / contexts +sidebar ++filter
 and/or filters +sidebar ++filter
 filter-sidebar +sidebar
 ++settings save/load settings to file +sidebar
-tag/subtag/list suggestions +editmode
+2020-11-09 modifiers are not editable +bug
+2020-11-09 hide t:date +sidebar ++filter tags
+2020-11-09 after change, windows do not remember cursor position +bug
+2020-11-09 rename tags to projects and modifiers to tags +code
+2020-11-09 +kb N for completely new task
+tag/subtag/list suggestions +editmode @later
 @later +Archive opens small prompt
 @later +Archive all windows
 @later +Archive only current windows
