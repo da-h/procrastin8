@@ -1,4 +1,6 @@
+import signal
 from datetime import datetime
+import numpy as np
 from ui import get_term
 from ui.UIElement import UIElement
 from ui.windows.Sidebar import Sidebar
@@ -35,6 +37,14 @@ class Dashboard(UIElement):
         self.windows = []
         self.current_window = 0
         self.init_modelview()
+
+        def on_resize(sig, action):
+            print(term.home + term.clear)
+            self.width = term.width
+            self.height = term.height
+            self.elements = []
+            self.init_modelview()
+        signal.signal(signal.SIGWINCH, on_resize)
 
     def draw(self):
         with term.location():
@@ -361,3 +371,44 @@ class Dashboard(UIElement):
         if new_window:
             win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, list.name if list else "Todos", parent=self)
             self.windows.append(win)
+
+
+        # pack windows if space is not sufficient
+        if term.width < win_pos:
+            self.draw()
+            max_columns = term.width//(COLUMN_WIDTH+WINDOW_MARGIN)
+            wins_to_stack = len(self.windows) - max_columns
+            win_stacks = [[i] for i in range(len(self.windows))]
+
+            while len(win_stacks) > max_columns:
+                stack_heights = [sum(self.windows[i].height for i in stack) for stack in win_stacks]
+                smallest, second_smallest = sorted(np.argpartition(stack_heights, 2)[:2])
+                win_stacks[smallest] += win_stacks[second_smallest]
+                del win_stacks[second_smallest]
+
+            # set positions from stacks
+            for stack_i, stack in enumerate(win_stacks):
+                current_height = 0
+                for win_i in stack:
+                    self.windows[win_i].rel_pos = (1+(COLUMN_WIDTH+WINDOW_MARGIN)*stack_i, 1+current_height)
+                    current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
+
+                if 1 + current_height < term.height:
+                    continue
+
+                # set max-height if height exceeds terminal height
+                win_heights = np.array([self.windows[i].height for i in stack])
+                while 1 + win_heights.sum() > term.height:
+                    win_heights[win_heights == np.max(win_heights)] -= 1
+                for win_i, max_height in zip(stack, win_heights):
+                    self.windows[win_i].max_height = max_height
+
+                # reposition with new max_height
+                current_height = 0
+                for win_i in stack:
+                    self.windows[win_i].rel_pos = (1+(COLUMN_WIDTH+WINDOW_MARGIN)*stack_i, 1+current_height)
+                    current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
+
+
+            self.draw()
+

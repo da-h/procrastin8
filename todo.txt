@@ -1,5 +1,5 @@
 @later tabs +dashboard
-automatic arrangement of multiple windows +dashboard
+x automatic arrangement of multiple windows +dashboard
 @later allow resize +dashboard
 add started tag +taskwarrior @later
 splitt overlong windows @later +window
