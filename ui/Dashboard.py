@@ -233,6 +233,9 @@ class Dashboard(UIElement):
 
                 # ESC to exit editmode & restore previous
                 if val.code == term.KEY_ESCAPE:
+
+                    element.task = element.previous_task
+                    element.previous_task = None
                     element.set_editmode(False)
                     if "unsaved" in element.task:
                         element.task.model.remove_task(element.task)

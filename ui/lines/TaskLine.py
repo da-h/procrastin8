@@ -1,3 +1,4 @@
+from copy import copy
 from blessed.sequences import Sequence
 from datetime import datetime
 from model import Task, Tag, Subtag, List, Modifier, ModifierDate
@@ -111,9 +112,9 @@ class TaskLine(Line):
 
     def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
         if mode:
-            self.previous_text = self.text
+            self.previous_task = copy(self.task)
         else:
-            self.previous_text = None
+            self.previous_task = None
         super().set_editmode(mode, charpos, firstchar)
 
     def onEditModeKey(self, val):
