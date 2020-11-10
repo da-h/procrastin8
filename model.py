@@ -270,7 +270,7 @@ class Model():
         if isinstance(pos, Task):
             pos = self.todo.index(pos)
         task = Task.from_rawtext(self,initial_text)
-        self.todo.insert(pos+2, task)
+        self.todo.insert(pos+1, task)
         # self.save()
         return task
 

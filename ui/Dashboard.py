@@ -127,7 +127,7 @@ class Dashboard(UIElement):
                 initial_text = ""
 
             if AUTOADD_CREATIONDATE:
-                initial_text = datetime.now().strftime("%Y-%m-%d") + initial_text
+                initial_text = datetime.now().strftime("%Y-%m-%d") + " " + initial_text
 
             if isinstance(element, TaskLine) and element.task["priority"] != "M_":
                 initial_text = "("+element.task["priority"]+") " + initial_text

@@ -17,7 +17,7 @@ x 2020-11-10 2020-11-09 after change, windows do not remember cursor position +b
 x 2020-11-10 2020-11-09 taskgroup produces bugs for some keyshortcuts +bug
 2020-11-10 make TaskGroup behave like TaskLine +code
 2020-11-09 +kb N for completely new task
-2020-11-10 new task may place cursor on wrong element +bug
+x 2020-11-10 2020-11-10 new task may place cursor on wrong element +bug
 tag/subtag/list suggestions +editmode @later
 x 2020-11-10 2020-11-10 escape does not restore previous state +bug
 @later +Archive opens small prompt
@@ -33,3 +33,4 @@ escape to exit editmode (no change) +kb @later
 auto-filter +sidebar ++filter
 prompt to edit raw todo text +dashboard @later
 x 2020-11-09 2020-11-08 make todo-groups editable +dashboard
+2020-11-10 scroll when too much windows to be shown +dashboard @later
