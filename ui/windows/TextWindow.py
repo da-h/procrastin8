@@ -28,7 +28,7 @@ class TextWindow(Window):
         self.current_line = 0
 
     def draw(self):
-        max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height) - self.rel_pos[1]
+        max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height)
         max_inner_height = max_height - self.padding[0] - self.padding[2]
 
         # calculate dynamic height
@@ -53,7 +53,7 @@ class TextWindow(Window):
 
     def onKeyPress(self, val):
         element = term.cursor.on_element
-        max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height) - self.rel_pos[1]
+        max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height)
         max_inner_height = max_height - self.padding[0] - self.padding[2]
 
         if val.code == term.KEY_UP or val == 'k':
