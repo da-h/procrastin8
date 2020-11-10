@@ -69,10 +69,17 @@ class Dashboard(UIElement):
     def onKeyPress(self, val):
         element = term.cursor.on_element
 
+        # =============== #
+        # general actions #
+        # =============== #
+
+        # q to exit
         if val == "q":
             term.cursor.show()
             self.continue_loop = False
             return
+
+        # LEFT/RIGHT to move between windows
         elif val.code == term.KEY_RIGHT:
             last_window = self.current_window
             self.current_window = min(self.current_window + 1, len(self.windows)-1)
@@ -85,6 +92,8 @@ class Dashboard(UIElement):
             if self.current_window != last_window:
                 term.cursor.moveTo(self.windows[self.current_window])
             return
+
+        # s to open settings window
         elif val == "s" and self.overlay is None:
             # self.overlay = Prompt(COLUMN_WIDTH, parent=self)
             self.overlay = Sidebar(COLUMN_WIDTH, parent=self)
@@ -98,16 +107,17 @@ class Dashboard(UIElement):
             old_elem = term.cursor.moveTo(self.overlay.lines[0])
             redraw()
             return
+
+        # X to Archive done tasks
         elif val == 'X':
             self.model.archive()
             self.elements = []
             self.init_modelview()
             self.draw()
             term.cursor.moveTo(self.elements[0])
+
+        # n to create new task
         elif val == 'n':
-            if isinstance(term.cursor.on_element, TaskLine):
-                initial_text = " ".join([str(t) for t in term.cursor.on_element.task["subtags"]] + [str(t) for t in term.cursor.on_element.task["tags"]] + [str(t) for t in term.cursor.on_element.task["lists"]])
-            elif isinstance(term.cursor.on_element, TaskWindow):
             if isinstance(element, TaskGroup):
                 element._update_common_tags()
                 initial_text = " ".join([str(t) for t in element.common_subtags] + [str(t) for t in element.common_tags] + [str(t) for t in element.common_lists])
@@ -119,22 +129,27 @@ class Dashboard(UIElement):
             if AUTOADD_CREATIONDATE:
                 initial_text = datetime.now().strftime("%Y-%m-%d") + initial_text
 
-            if isinstance(term.cursor.on_element, TaskLine) and term.cursor.on_element.task["priority"] != "M_":
-                initial_text = "("+term.cursor.on_element.task["priority"]+") " + initial_text
+            if isinstance(element, TaskLine) and element.task["priority"] != "M_":
+                initial_text = "("+element.task["priority"]+") " + initial_text
 
-            pos = element.task if isinstance(element, TaskLine) and type(element) != TaskGroup else -1
+            pos = element.task if isinstance(element, TaskLine) and not isinstance(element, TaskGroup) else -1
             task = self.model.new_task(initial_text, pos=pos)
             task["unsaved"] = True
             self.reinit_modelview(line_offset=+1)
             term.cursor.on_element.set_editmode(True)
+
+        # d to delete current task
         elif val == 'd':
-            if not isinstance(term.cursor.on_element, TaskLine):
+            if not isinstance(element, TaskLine) or isinstance(element, TaskGroup):
                 return
 
-            self.model.remove_task(pos=term.cursor.on_element.task)
+            self.model.remove_task(pos=element.task)
             self.reinit_modelview(line_offset=0)
+
+
+        # Shift + UP/DOWN to swap tasks up/down
         elif val.code == term.KEY_SDOWN:
-            if not isinstance(term.cursor.on_element, TaskLine):
+            if not isinstance(element, TaskLine) or isinstance(element, TaskGroup):
                 return
 
             window = self.windows[self.current_window]
@@ -143,10 +158,10 @@ class Dashboard(UIElement):
                 if not next_line:
                     return
                 next_line = next_line[0]
-            self.model.swap_tasks(pos=term.cursor.on_element.task, pos2=next_line.task)
+            self.model.swap_tasks(pos=element.task, pos2=next_line.task)
             self.reinit_modelview(line_offset=1)
         elif val.code == term.KEY_SUP:
-            if not isinstance(term.cursor.on_element, TaskLine):
+            if not isinstance(element, TaskLine) or isinstance(element, TaskGroup):
                 return
 
             window = self.windows[self.current_window]
@@ -155,16 +170,24 @@ class Dashboard(UIElement):
                 if not next_line:
                     return
                 next_line = next_line[0]
-            self.model.swap_tasks(pos=term.cursor.on_element.task, pos2=next_line.task)
+            self.model.swap_tasks(pos=element.task, pos2=next_line.task)
             self.reinit_modelview(line_offset=-1)
 
+
+        # =================== #
+        # cursor on TaskGroup #
+        # =================== #
         elif isinstance(element, TaskGroup):
             if element.edit_mode:
+
+                # ESC to exit editmode & restore previous
                 if val.code == term.KEY_ESCAPE:
                     element.task = element.previous_task
                     element.previous_task = None
                     element.set_editmode(False)
                     return
+
+                # ENTER to exit editmode & save for all tasks in group
                 elif val.code == term.KEY_ENTER:
                     element.set_editmode(False)
                     new_common_lists = set(element.task["lists"])
@@ -202,17 +225,24 @@ class Dashboard(UIElement):
                     self.model.save()
                     self.reinit_modelview(line_offset=-1)
 
+        # ================== #
+        # cursor on TaskLine #
+        # ================== #
         elif isinstance(element, TaskLine):
             if element.edit_mode:
+
+                # ESC to exit editmode & restore previous
                 if val.code == term.KEY_ESCAPE:
                     element.set_editmode(False)
                     if "unsaved" in element.task:
-                        element.task.model.remove_task(term.cursor.on_element.task)
+                        element.task.model.remove_task(element.task)
                         window = self.windows[self.current_window]
-                        window.lines.remove(term.cursor.on_element)
+                        window.lines.remove(element)
                         window.current_line -= 1
                         term.cursor.moveTo(window)
                     return
+
+                # ENTER to exit editmode & save
                 elif val.code == term.KEY_ENTER:
                     element.set_editmode(False)
                     if "unsaved" in element.task:
@@ -221,7 +251,10 @@ class Dashboard(UIElement):
 
                     self.reinit_modelview(line_offset=0)
                     return
+
             else:
+
+                # CTRL + p to set priority
                 if val == term.KEY_CTRL['p']:
                     element.set_editmode(True, charpos=0)
                     term.cursor.pos = element.pos + (len(element.prepend),0)
