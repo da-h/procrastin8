@@ -243,6 +243,7 @@ class Dashboard(UIElement):
                         window.lines.remove(element)
                         window.current_line -= 1
                         term.cursor.moveTo(window)
+                        self.reinit_modelview(line_offset=0)
                     return
 
                 # ENTER to exit editmode & save
