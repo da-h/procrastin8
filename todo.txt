@@ -12,7 +12,7 @@ filter-sidebar +sidebar
 ++settings save/load settings to file +sidebar
 2020-11-09 modifiers are not editable +bug
 2020-11-09 hide t:date +sidebar ++filter tags
-2020-11-09 after change, windows do not remember cursor position +bug
+x 2020-11-10 2020-11-09 after change, windows do not remember cursor position +bug
 2020-11-09 rename tags to projects and modifiers to tags +code
 x 2020-11-10 2020-11-09 taskgroup produces bugs for some keyshortcuts +bug
 2020-11-10 make TaskGroup behave like TaskLine +code

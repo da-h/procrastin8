@@ -275,18 +275,29 @@ class Dashboard(UIElement):
         return super().onKeyPress(val)
 
     def reinit_modelview(self, line_offset = 0):
-        current_line = self.windows[self.current_window].current_line
+
+        # save cursor positions in each window
+        current_lines_per_window = {
+            win.title: win.current_line for win in self.windows
+        }
+
         self.elements = []
         self.init_modelview()
+
+        # restore cursor positions in each window
+        for win in self.windows:
+            win.current_line = current_lines_per_window[win.title]
+
         self.draw()
         if len(self.windows) <= self.current_window:
             self.current_window = len(self.windows) - 1
-            current_line = 0
+            self.window[self.current_window].current_line = 0
         if len(self.windows) > 0:
             window = self.windows[min(self.current_window, len(self.windows))]
         else:
             window = self.windows[len(self.current_window)-1]
-        window.current_line = current_line + line_offset
+
+        window.current_line += line_offset
         term.cursor.moveTo(window)
 
     def init_modelview(self):
