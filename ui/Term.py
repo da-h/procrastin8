@@ -99,16 +99,25 @@ class WorkitTerminal(Terminal):
         else:
             self.buffered_print[pos] = [seq]
 
+    # secure print
+    def print(self, pos, seq):
+        if self.height <= pos[1]:
+            return
+        if pos[1] <= 0:
+            return
+        print(term.move_xy(pos)+seq, end='', flush=False)
+
+
     def draw(self):
 
         # remove what is not requested again
         for pos, seq in self.buffered_delete.items():
-            print(term.move_xy(pos)+" "*seq.length(), end='', flush=False)
+            self.print(pos," "*seq.length())
 
         # print all new sequences
         for pos, seq_list in self.buffered_print.items():
             for seq in seq_list:
-                print(term.move_xy(pos)+seq, end='', flush=False)
+                self.print(pos, seq)
                 self.current_state[pos] = seq
 
         # flush & draw cursor
