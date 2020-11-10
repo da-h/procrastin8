@@ -108,6 +108,12 @@ class Dashboard(UIElement):
             if isinstance(term.cursor.on_element, TaskLine):
                 initial_text = " ".join([str(t) for t in term.cursor.on_element.task["subtags"]] + [str(t) for t in term.cursor.on_element.task["tags"]] + [str(t) for t in term.cursor.on_element.task["lists"]])
             elif isinstance(term.cursor.on_element, TaskWindow):
+            if isinstance(element, TaskGroup):
+                element._update_common_tags()
+                initial_text = " ".join([str(t) for t in element.common_subtags] + [str(t) for t in element.common_tags] + [str(t) for t in element.common_lists])
+            elif isinstance(element, TaskLine):
+                initial_text = " ".join([str(t) for t in element.task["subtags"]] + [str(t) for t in element.task["tags"]] + [str(t) for t in element.task["lists"]])
+            elif isinstance(element, TaskWindow):
                 initial_text = ""
 
             if AUTOADD_CREATIONDATE:
@@ -116,7 +122,8 @@ class Dashboard(UIElement):
             if isinstance(term.cursor.on_element, TaskLine) and term.cursor.on_element.task["priority"] != "M_":
                 initial_text = "("+term.cursor.on_element.task["priority"]+") " + initial_text
 
-            task = self.model.new_task(initial_text, pos=term.cursor.on_element.task if isinstance(term.cursor.on_element, TaskLine) else 0)
+            pos = element.task if isinstance(element, TaskLine) and type(element) != TaskGroup else -1
+            task = self.model.new_task(initial_text, pos=pos)
             task["unsaved"] = True
             self.reinit_modelview(line_offset=+1)
             term.cursor.on_element.set_editmode(True)
