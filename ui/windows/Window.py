@@ -16,7 +16,7 @@ class Window(UIElement):
     def draw(self):
         super().draw()
         if self.draw_style == "basic":
-            self.draw_border(self.pos, (self.width, self.height), self.title, color=term.normal if self.active else term.dim)
+            self.draw_border(self.pos, (self.width, self.height), self.title, color=term.yellow if self.active else term.dim)
         elif self.draw_style == "basic-left-edge":
             self.draw_border2(self.pos, (self.width, self.height), self.title, color=term.normal if self.active else term.dim)
 

@@ -382,7 +382,7 @@ class Dashboard(UIElement):
 
             while len(win_stacks) > max_columns:
                 stack_heights = [sum(self.windows[i].height for i in stack) for stack in win_stacks]
-                smallest, second_smallest = sorted(np.argpartition(stack_heights, 2)[:2])
+                smallest, second_smallest = sorted(np.argpartition(stack_heights, 2)[:2]) if len(stack_heights) > 2 else [0,1]
                 win_stacks[smallest] += win_stacks[second_smallest]
                 del win_stacks[second_smallest]
 
