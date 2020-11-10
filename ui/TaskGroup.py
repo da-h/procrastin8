@@ -49,10 +49,14 @@ class TaskGroup(TaskLine):
 
     def draw(self):
         if self.active:
-            total_height = self.total_height()
-            for i in range(0, total_height):
-                self.printAt((-WINDOW_PADDING,i), term.black_on_blue(" "*1))
-                self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1,i), term.black_on_blue(" "*1))
+            total_height = self.total_height() - 1
+            self.printAt((-WINDOW_PADDING,0), term.blue_bold("┏"*1))
+            self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1,0), term.blue_bold("┓"*1))
+            for i in range(1, total_height):
+                self.printAt((-WINDOW_PADDING,i), term.blue_bold("┃"*1))
+                self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1,i), term.blue_bold("┃"*1))
+            self.printAt((-WINDOW_PADDING,total_height), term.blue_bold("┗"*1))
+            self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1,total_height), term.blue_bold("┛"*1))
 
         if TODO_STYLE == 1:
             super().draw()
@@ -86,21 +90,23 @@ class TaskGroup(TaskLine):
         if not self.edit_mode:
             if val == "e":
                 self.previous_task = copy(self.task)
-
-                all_tasks = self.get_all_tasks()
-
-                # determine common lists/tags/subtags of children
-                self.common_lists = set(all_tasks[0]["lists"])
-                self.common_tags = set(all_tasks[0]["tags"])
-                self.common_subtags = set(all_tasks[0]["subtags"])
-
-                for task in all_tasks[1:]:
-                    self.common_lists.intersection(task["lists"])
-                    self.common_tags.intersection(task["tags"])
-                    self.common_subtags.intersection(task["subtags"])
+                self._update_common_tags()
                 self.raw_text = " ".join(str(t) for t in self.common_lists.union(self.common_tags).union(self.common_subtags))
 
                 self.task = Task.from_rawtext(self.model, self.raw_text)
                 self.set_editmode(True, firstchar=0)
                 return
         super().onKeyPress(val)
+
+    def _update_common_tags(self):
+        all_tasks = self.get_all_tasks()
+
+        # determine common lists/tags/subtags of children
+        self.common_lists = set(all_tasks[0]["lists"])
+        self.common_tags = set(all_tasks[0]["tags"])
+        self.common_subtags = set(all_tasks[0]["subtags"])
+
+        for task in all_tasks[1:]:
+            self.common_lists.intersection(task["lists"])
+            self.common_tags.intersection(task["tags"])
+            self.common_subtags.intersection(task["subtags"])
