@@ -29,7 +29,7 @@ class Dashboard(UIElement):
     def __init__(self, model, filter=".*"):
         super().__init__((0,0))
         self.width = term.width
-        self.height = term.height
+        self.height = term.height - self.pos[1]
         self.filter = filter
         self.model = model
         self.overlay = None
@@ -334,6 +334,7 @@ class Dashboard(UIElement):
 
             if new_window:
                 win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, list.name if list else "Todos", parent=self)
+                win.max_height = self.height - 1
                 win_pos += COLUMN_WIDTH + WINDOW_MARGIN
                 self.windows.append(win)
                 new_window = False
