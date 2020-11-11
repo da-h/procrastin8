@@ -14,3 +14,9 @@ x +window dim window borders if not under cursor
 x 2020-11-08 2020-11-06 replace no_empty_lines with self.non_empty_lines ? +window @later
 x @later ++manage is self.manage() really needed? +window
 x @later ++manage move uielement.clear to term to allow also element swapping +window
+x automatic arrangement of multiple windows +dashboard
+x 2020-11-10 2020-11-09 after change, windows do not remember cursor position +bug
+x 2020-11-10 2020-11-09 taskgroup produces bugs for some keyshortcuts +bug
+x 2020-11-10 2020-11-10 new task may place cursor on wrong element +bug
+x 2020-11-10 2020-11-10 escape does not restore previous state +bug
+x 2020-11-09 2020-11-08 make todo-groups editable +dashboard
