@@ -41,11 +41,21 @@ class TextWindow(Window):
             if line.rel_pos[1] < self.padding[1]:
                 line.max_height = 0
             content_height += line.height
+        self.max_scroll = max(content_height - max_inner_height, 0)
 
         # draw window
+        draw_args = {}
         if self.overfull_mode == OverfullMode.SCROLL:
             self.height = min(content_height + self.padding[0] + self.padding[2], max_height)
-        super().draw()
+        if self.max_scroll != 0:
+            if self.scroll_pos != 0:
+                draw_args["top_line"] = "╴"
+            if self.scroll_pos != self.max_scroll:
+                draw_args["bottom_line"] = "╴"
+        super().draw(**draw_args)
+        if content_height > max_inner_height:
+            max_scroll = content_height - max_inner_height
+            self.printAt((self.width-WINDOW_PADDING,int(self.scroll_pos/max_scroll*(max_inner_height-1))), term.yellow("┃") if self.active else "┃")
 
         # draw text
         for line in self.lines:

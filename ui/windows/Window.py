@@ -13,27 +13,27 @@ class Window(UIElement):
         self.draw_style = "basic"
         self.active = False
 
-    def draw(self):
+    def draw(self, **draw_args):
         super().draw()
         if self.draw_style == "basic":
-            self.draw_border(self.pos, (self.width, self.height), self.title, color=term.yellow if self.active else term.dim)
+            self.draw_border(self.pos, (self.width, self.height), self.title, color=term.yellow if self.active else term.dim, **draw_args)
         elif self.draw_style == "basic-left-edge":
-            self.draw_border2(self.pos, (self.width, self.height), self.title, color=term.normal if self.active else term.dim)
+            self.draw_border2(self.pos, (self.width, self.height), self.title, color=term.normal if self.active else term.dim, **draw_args)
 
     def close(self):
         super().close()
 
-    def draw_border(self, pos, dim, title=None, color=term.normal):
+    def draw_border(self, pos, dim, title=None, color=term.normal, top_line="─", bottom_line="─"):
         pos = np.array(pos)
         dim = np.array(dim)
         width, height = dim
 
         # draw border
-        self.printAt((0,0), color+"┌" + "─" * (width-2) + "┐", ignore_padding=True)
+        self.printAt((0,0), color+"┌" + top_line * (width-2) + "┐", ignore_padding=True)
         for i in range(height-2):
             self.printAt((0,i+1), color+"│  ", ignore_padding=True)
             self.printAt((width-2,i+1), color+" │", ignore_padding=True)
-        self.printAt((0,height-1), color+"└" + "─" * (width-2) + "┘", ignore_padding=True)
+        self.printAt((0,height-1), color+"└" + bottom_line * (width-2) + "┘", ignore_padding=True)
 
         # set title
         if title is not None:
