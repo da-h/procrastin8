@@ -78,6 +78,9 @@ class WorkitTerminal(Terminal):
         self.buffered_delete = {}
         self.current_state = {}
 
+        if not self.dim:
+            self.dim = self.bright_black
+
     def move_xy(self, x, y=None):
         if type(x) is np.ndarray or isinstance(x, tuple):
             return super().move_xy(x[0],x[1])
