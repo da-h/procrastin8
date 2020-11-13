@@ -410,6 +410,14 @@ class Dashboard(UIElement):
                     self.windows[win_i].rel_pos = (1+(COLUMN_WIDTH+WINDOW_MARGIN)*stack_i, 1+current_height)
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
+            # re order windows based on stacks
+            new_window_order = []
+            for stack in win_stacks:
+                for win_i in stack:
+                    if self.windows[win_i].active:
+                        self.current_window = len(new_window_order)
+                    new_window_order.append(self.windows[win_i])
+            self.windows = new_window_order
 
             self.draw()
 
