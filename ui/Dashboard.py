@@ -10,8 +10,14 @@ from ui.TaskGroup import TaskGroup
 from ui.windows import TaskWindow
 from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE, AUTOADD_CREATIONDATE
 from model import Task, Tag, Subtag, List, re_priority
+from enum import Enum
 
 term = get_term()
+
+
+class StackMode(Enum):
+    MERGE_SMALLEST = 0
+    KEEP_ORDER = 1
 
 
 draw_calls = 0
@@ -36,6 +42,8 @@ class Dashboard(UIElement):
         self.continue_loop = True
         self.windows = []
         self.current_window = 0
+        # self.stackmode = StackMode.MERGE_SMALLEST
+        self.stackmode = StackMode.KEEP_ORDER
         self.init_modelview()
 
         def on_resize(sig, action):
@@ -313,7 +321,7 @@ class Dashboard(UIElement):
 
     def init_modelview(self):
         win_pos = 0
-        list = None
+        listtag = None
         tag = None
         subtag = None
         new_window = True
@@ -324,16 +332,16 @@ class Dashboard(UIElement):
             # if "filter-sidebar" in l["raw_text"]:
             #     breakpoint()
 
-            # new list window
+            # new listname window
             # if l["lists"]:
             # breakpoint()
-            if l["lists"] and list not in l["lists"]:
+            if l["lists"] and listtag not in l["lists"]:
                 # break
-                list = l["lists"][0]
+                listtag = l["lists"][0]
                 new_window = True
 
             if new_window:
-                win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, list.name if list else "Todos", parent=self)
+                win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, listtag.name if listtag else "Todos", parent=self)
                 win.max_height = self.height - 1
                 win_pos += COLUMN_WIDTH + WINDOW_MARGIN
                 self.windows.append(win)
@@ -370,7 +378,7 @@ class Dashboard(UIElement):
 
         # create a window if no entries exist
         if new_window:
-            win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, list.name if list else "Todos", parent=self)
+            win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, listtag.name if listtag else "Todos", parent=self)
             self.windows.append(win)
 
 
@@ -381,11 +389,27 @@ class Dashboard(UIElement):
             wins_to_stack = len(self.windows) - max_columns
             win_stacks = [[i] for i in range(len(self.windows))]
 
-            while len(win_stacks) > max_columns:
-                stack_heights = [sum(self.windows[i].height for i in stack) for stack in win_stacks]
-                smallest, second_smallest = sorted(np.argpartition(stack_heights, 2)[:2]) if len(stack_heights) > 2 else [0,1]
-                win_stacks[smallest] += win_stacks[second_smallest]
-                del win_stacks[second_smallest]
+
+            # in this mode, we stack smallest windows until the stack-length equals the maximal number of columns
+            if self.stackmode == StackMode.MERGE_SMALLEST:
+                while len(win_stacks) > max_columns:
+                    stack_heights = [sum(self.windows[i].height for i in stack) for stack in win_stacks]
+                    smallest, second_smallest = sorted(np.argpartition(stack_heights, 2)[:2]) if len(stack_heights) > 2 else [0,1]
+                    win_stacks[smallest] += win_stacks[second_smallest]
+                    del win_stacks[second_smallest]
+
+            # in this mode, we keep the order of the windows, stacking neighbouring windows by specifying the break positions in the window list
+            elif self.stackmode == StackMode.KEEP_ORDER:
+                win_heights = [w.height for w in self.windows]
+                break_positions = [0]
+                cumsum_heights = np.cumsum([0] + win_heights)
+                target_height =  cumsum_heights[-1] // max_columns
+                for i, cumsum in enumerate(cumsum_heights):
+                    if cumsum >= cumsum_heights[break_positions[-1]] + target_height:
+                        break_positions.append(i)
+                break_positions.append(len(self.windows))
+
+                win_stacks = [list(range(s_start,s_end)) for s_start, s_end in zip(break_positions, break_positions[1:])]
 
             # set positions from stacks
             for stack_i, stack in enumerate(win_stacks):
@@ -411,13 +435,14 @@ class Dashboard(UIElement):
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
             # re order windows based on stacks
-            new_window_order = []
-            for stack in win_stacks:
-                for win_i in stack:
-                    if self.windows[win_i].active:
-                        self.current_window = len(new_window_order)
-                    new_window_order.append(self.windows[win_i])
-            self.windows = new_window_order
+            if self.stackmode == StackMode.MERGE_SMALLEST:
+                new_window_order = []
+                for stack in win_stacks:
+                    for win_i in stack:
+                        if self.windows[win_i].active:
+                            self.current_window = len(new_window_order)
+                        new_window_order.append(self.windows[win_i])
+                self.windows = new_window_order
 
             self.draw()
 
