@@ -72,6 +72,7 @@ class WorkitTerminal(Terminal):
         self.KEY_CTRL = {
             "e": "\x19",
             "y": "\x05",
+            "r": "\x12",
             "p": "\x10"
         }
         self.buffered_print = {}

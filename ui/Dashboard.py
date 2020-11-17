@@ -1,4 +1,5 @@
 import signal
+from itertools import chain
 from datetime import datetime
 import numpy as np
 from ui import get_term
@@ -8,7 +9,7 @@ from ui.lines.RadioLine import RadioLine
 from ui.lines.TaskLine import TaskLine
 from ui.TaskGroup import TaskGroup
 from ui.windows import TaskWindow
-from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE, AUTOADD_CREATIONDATE
+from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE, AUTOADD_CREATIONDATE, WINDOW_PADDING
 from model import Task, Tag, Subtag, List, re_priority
 from enum import Enum
 
@@ -18,6 +19,9 @@ term = get_term()
 class StackMode(Enum):
     MERGE_SMALLEST = 0
     KEEP_ORDER = 1
+class SortMode(Enum):
+    FILE = 0
+    GROUP_FULL = 1
 
 
 draw_calls = 0
@@ -41,9 +45,12 @@ class Dashboard(UIElement):
         self.overlay = None
         self.continue_loop = True
         self.windows = []
+        self.marked = []
         self.current_window = 0
         # self.stackmode = StackMode.MERGE_SMALLEST
         self.stackmode = StackMode.KEEP_ORDER
+        # self.sortmode = SortMode.GROUP_FULL
+        self.sortmode = SortMode.FILE
         self.init_modelview()
 
         def on_resize(sig, action):
@@ -59,6 +66,11 @@ class Dashboard(UIElement):
             for elem in self.elements:
                 if elem != self.overlay:
                     elem.draw()
+            for i, elem in enumerate(self.marked):
+                # self.printAt(elem.pos - self.pos + (-2,0), term.yellow("┃"), ignore_padding=True)
+                # self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-1,0), term.yellow("┃"), ignore_padding=True)
+                self.printAt(elem.pos - self.pos + (-1,0), term.yellow("⯈"), ignore_padding=True)
+                self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-2,0), term.yellow(str(i+1)), ignore_padding=True)
             if self.overlay:
                 self.overlay.draw()
         redraw()
@@ -133,6 +145,37 @@ class Dashboard(UIElement):
             self.init_modelview()
             self.draw()
             term.cursor.moveTo(self.elements[0])
+
+        # Ctrl+r to save order of current view
+        elif self.sortmode != SortMode.FILE and val == term.KEY_CTRL['r']:
+            tasks = list(chain.from_iterable([win.get_all_tasks() for win in self.windows]))
+            self.model.save_order(tasks)
+            self.init_modelview()
+
+        # Ctrl+r to move marked elements to the top
+        elif self.sortmode == SortMode.FILE and val == term.KEY_CTRL['r']:
+            all_tasks = list(chain.from_iterable([win.get_all_tasks() for win in self.windows]))
+            marked_tasks = [m.task for m in self.marked]
+            for t in marked_tasks:
+                all_tasks.remove(t)
+            tasks = marked_tasks + all_tasks
+            self.marked = []
+            self.model.save_order(tasks)
+            self.init_modelview()
+
+        # space to mark task
+        elif val == ' ':
+            def mark(elem):
+                if isinstance(elem, TaskGroup):
+                    for e in elem.tasklines:
+                        mark(e)
+                    return
+
+                if elem in self.marked:
+                    self.marked.remove(elem)
+                else:
+                    self.marked.append(elem)
+            mark(element)
 
         # n to create new task
         elif val == 'n':
@@ -328,7 +371,12 @@ class Dashboard(UIElement):
         self.windows = []
         task_group = None
         subtask_group = None
-        for l in self.model.query(filter=self.filter, sortBy=["lists", "tags","subtags","priority"]):
+
+        if self.sortmode == SortMode.GROUP_FULL:
+            sort_by = ["lists", "tags","subtags","priority"]
+        elif self.sortmode == SortMode.FILE:
+            sort_by = []
+        for l in self.model.query(filter=self.filter, sortBy=sort_by):
             # if "filter-sidebar" in l["raw_text"]:
             #     breakpoint()
 

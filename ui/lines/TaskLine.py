@@ -85,7 +85,7 @@ class TaskLine(Line):
             super().onKeyPress(val)
             return
         else:
-            if val == "x" or val == " ":
+            if val == "x":
                 self.task["complete"] = not self.task["complete"]
                 if AUTOADD_COMPLETIONDATE and self.task["creation-date"]:
                     self.task["completion-date"] = datetime.now().strftime("%Y-%m-%d")

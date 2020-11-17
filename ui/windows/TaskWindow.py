@@ -9,6 +9,15 @@ term = get_term()
 
 class TaskWindow(TextWindow):
 
+    def get_all_tasks(self):
+        tasks = []
+        for taskline in self.lines:
+            if isinstance(taskline, TaskGroup):
+                pass
+            elif isinstance(taskline, TaskLine):
+                tasks.append(taskline.task)
+        return tasks
+
     def add_task(self, text, prepend=""):
         if prepend != "":
             wrapper = TextWrapper(width=self.width-2-WINDOW_PADDING*2-len(prepend), initial_indent="",subsequent_indent=" "*self.indent, term=term)

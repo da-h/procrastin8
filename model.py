@@ -287,3 +287,10 @@ class Model():
             pos2 = self.todo.index(pos2)
         self.todo[pos], self.todo[pos2] = self.todo[pos2], self.todo[pos]
         self.save()
+
+    def save_order(self, tasks):
+        task_pos = [self.todo.index(t) for t in tasks]
+        task_pos_sorted = sorted(task_pos)
+        for new_pos, task in zip(task_pos_sorted, tasks):
+            self.todo[new_pos] = task
+        self.save()
