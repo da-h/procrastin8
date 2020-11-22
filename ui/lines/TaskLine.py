@@ -28,7 +28,7 @@ class TaskLine(Line):
 
     def formatText(self):
         S = []
-        default = "" #term.normal
+        default = self.line_style
         if self.task["complete"]:
             default = (term.dim if DIM_COMPLETE else "")
 
@@ -73,7 +73,7 @@ class TaskLine(Line):
                 S.append(term.green(tstr)+default)
             else:
                 S.append(tstr)
-        self.line_style = default
+        self.last_line_style = default
         return " ".join([str(s) for s in S])+term.normal
 
     def onKeyPress(self, val):

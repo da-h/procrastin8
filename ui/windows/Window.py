@@ -37,7 +37,8 @@ class Window(UIElement):
 
         # set title
         if title is not None:
-            self.printAt((1+0,0), color+" %s " % term.bold(term.white(title)), ignore_padding=True)
+            if isinstance(title, str):
+                self.printAt((1+0,0), color+" %s " % term.bold(term.white(title)), ignore_padding=True)
 
     def draw_border2(self, pos, dim, title=None, color=term.normal):
         pos = np.array(pos)

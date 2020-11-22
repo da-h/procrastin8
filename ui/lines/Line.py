@@ -7,18 +7,20 @@ term = get_term()
 
 class Line(UIElement):
 
-    def __init__(self, text="", rel_pos=None, prepend="", wrapper=None, parent=None, center=False):
+    def __init__(self, text="", rel_pos=None, prepend="", append="", wrapper=None, parent=None, center=False):
         super().__init__(rel_pos=rel_pos, parent=parent)
         if text is not None:
             self.text = text
         self.height = 1
         self.wrapper = wrapper
         self.prepend = prepend
+        self.append = append
         self.edit_mode = False
         self.edit_charpos = 0
         self.edit_firstchar = 0
         self._typeset_text = None
         self.line_style = ""
+        self.last_line_style = ""
         self.center = center
 
     def formatText(self):
@@ -46,7 +48,7 @@ class Line(UIElement):
         for i, t in enumerate(self._typeset_text):
             t = Sequence(highlight(t), term)
             t_len = t.length()
-            t = self.prepend+self.line_style+t
+            t = self.prepend+self.last_line_style+t+self.append
             if self.center:
                 self.printAt(((self.wrapper.width-1)//2 - t_len//2 - 1, 1), " "+t+" ")
             else:

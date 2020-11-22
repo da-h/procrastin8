@@ -19,13 +19,15 @@ class TextWindow(Window):
         self.width = width
         self.height = 1
         self.indent = indent
-        self.title = title
         self.lines = []
         self.content_lines = []
         self.wrapper = TextWrapper(width=width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2, initial_indent="", subsequent_indent=" " * indent, term=term)
+        self.title = title
         self.overfull_mode = overfull_mode
         self.scroll_pos = 0
         self.current_line = 0
+        self.empty_lines = 0
+        self.allow_cursor_on_title = False
 
     def draw(self):
         max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height)
@@ -53,6 +55,7 @@ class TextWindow(Window):
             if self.scroll_pos != self.max_scroll:
                 draw_args["bottom_line"] = "╴"
         super().draw(**draw_args)
+
         if content_height > max_inner_height:
             max_scroll = content_height - max_inner_height
             self.printAt((self.width-WINDOW_PADDING,int(self.scroll_pos/max_scroll*(max_inner_height-1))), term.yellow("┃") if self.active else "┃")
@@ -69,8 +72,6 @@ class TextWindow(Window):
         if val.code == term.KEY_UP or val == 'k':
             if self.current_line == 0:
                 return
-            elif self.current_line is None:
-                term.cursor.moveTo(self.content_lines[self.current_line])
 
             self.current_line -= 1
             focus_on = self.content_lines[self.current_line]
@@ -80,8 +81,6 @@ class TextWindow(Window):
         elif val.code == term.KEY_DOWN or val == 'j':
             if self.current_line == len(self.content_lines) - 1:
                 return
-            elif self.current_line is None:
-                term.cursor.moveTo(self.content_lines[self.current_line])
 
             self.current_line += 1
             focus_on = self.content_lines[self.current_line]
@@ -123,6 +122,7 @@ class TextWindow(Window):
         self.content_lines.append(elem)
 
     def add_emptyline(self):
+        self.empty_lines += 1
         self.add_line("")
 
     def onFocus(self):

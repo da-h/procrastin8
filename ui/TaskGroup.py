@@ -25,28 +25,26 @@ class TaskGroup(TaskLine, AbstractTaskGroup):
 
         TaskLine.__init__(self, *args, text=task, **kwargs)
         AbstractTaskGroup.__init__(self, taskline_container=self.parent)
+        self.line_style = term.cyan
 
     def typeset(self):
-        if self.edit_mode:
+        super().typeset()
 
-            super().typeset()
-
-        else:
-            if TODO_STYLE == 1:
-                self._typeset_text = [term.cyan(str(self.text))]
-            elif TODO_STYLE == 2:
-                self._typeset_text = ["",term.cyan(str(self.text))]
+        if TODO_STYLE == 1:
+            self._typeset_text = [str(self.text)]
+        elif TODO_STYLE == 2:
+            self._typeset_text = ["",str(self.text)]
 
     def draw(self):
         if self.active:
             total_height = self.total_height() - 1
             self.printAt((-WINDOW_PADDING,0), term.blue_bold("┏"*1))
-            self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1,0), term.blue_bold("┓"*1))
+            self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1 + len(self.append),0), term.blue_bold("┓"*1))
             for i in range(1, total_height):
                 self.printAt((-WINDOW_PADDING,i), term.blue_bold("┃"*1))
-                self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1,i), term.blue_bold("┃"*1))
+                self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1 + len(self.append),i), term.blue_bold("┃"*1))
             self.printAt((-WINDOW_PADDING,total_height), term.blue_bold("┗"*1))
-            self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1,total_height), term.blue_bold("┛"*1))
+            self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1 + len(self.append),total_height), term.blue_bold("┛"*1))
 
         if TODO_STYLE == 1:
             super().draw()
@@ -87,6 +85,6 @@ class TaskGroup(TaskLine, AbstractTaskGroup):
         self.common_subtags = set(all_tasks[0]["subtags"])
 
         for task in all_tasks[1:]:
-            self.common_lists.intersection(task["lists"])
-            self.common_tags.intersection(task["tags"])
-            self.common_subtags.intersection(task["subtags"])
+            self.common_lists = self.common_lists.intersection(task["lists"])
+            self.common_tags = self.common_tags.intersection(task["tags"])
+            self.common_subtags = self.common_subtags.intersection(task["subtags"])

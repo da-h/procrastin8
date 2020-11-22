@@ -339,8 +339,9 @@ class Dashboard(UIElement):
     def reinit_modelview(self, line_offset = 0):
 
         # save cursor positions in each window
+        win_title_str = lambda win: str(win.title.task) if isinstance(win.title, TaskLine) else win.title
         current_lines_per_window = {
-            win.title: win.current_line for win in self.windows
+            win_title_str(win): win.current_line for win in self.windows
         }
 
         self.elements = []
@@ -348,7 +349,7 @@ class Dashboard(UIElement):
 
         # restore cursor positions in each window
         for win in self.windows:
-            win.current_line = current_lines_per_window[win.title]
+            win.current_line = current_lines_per_window[win_title_str(win)]
 
         self.draw()
         if len(self.windows) <= self.current_window:
