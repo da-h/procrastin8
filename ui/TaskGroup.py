@@ -2,18 +2,18 @@ from copy import copy
 from blessed.sequences import SequenceTextWrapper as TextWrapper
 from blessed.keyboard import Keystroke
 from ui.lines.TaskLine import TaskLine
+from ui.util.AbstractTaskGroup import AbstractTaskGroup
 from settings import TODO_STYLE, WINDOW_PADDING
 from ui import get_term
 from model import Tag, Subtag, List, re_priority, Task
 term = get_term()
 
-class TaskGroup(TaskLine):
+class TaskGroup(TaskLine, AbstractTaskGroup):
 
     def __init__(self, model, text, *args, **kwargs):
         self.model = model
         self.raw_text = str(text)
         task = Task.from_rawtext(model, str(text))
-        super().__init__(*args, text=task, **kwargs)
         self.hide_taskbullet = True
         if TODO_STYLE == 1:
             self.height = 1
@@ -21,20 +21,10 @@ class TaskGroup(TaskLine):
         elif TODO_STYLE == 2:
             self.height = 3
             self.center = True
-        self.tasklines = []
         self.active = False
 
-    def get_all_tasks(self):
-        tasks = []
-        for taskline in self.tasklines:
-            if isinstance(taskline, TaskGroup):
-                tasks += taskline.get_all_tasks()
-            else:
-                tasks.append(taskline.task)
-        return tasks
-
-    def total_height(self):
-        return self.height + sum(task.total_height() if isinstance(task, TaskGroup) else task.height for task in self.tasklines)
+        TaskLine.__init__(self, *args, text=task, **kwargs)
+        AbstractTaskGroup.__init__(self, taskline_container=self.parent)
 
     def typeset(self):
         if self.edit_mode:
@@ -67,18 +57,8 @@ class TaskGroup(TaskLine):
             super().draw()
             return
 
-    def add_task(self, *args, **kwargs):
-        task = self.parent.add_task(*args, **kwargs)
-        self.tasklines.append(task)
-    def add_taskgroup(self, text, prepend="", model=None):
-        if prepend != "":
-            wrapper = TextWrapper(width=self.parent.width-2-WINDOW_PADDING*2-len(prepend), initial_indent="",subsequent_indent=" "*self.parent.indent, term=term)
-        else:
-            wrapper = self.wrapper
-        taskgroup = TaskGroup(model=model, text=text, prepend=prepend, wrapper=wrapper, parent=self.parent)
-        self.parent.add_line(taskgroup)
-        self.tasklines.append(taskgroup)
-        return taskgroup
+    def make_subgroup(self, *args, **kwargs):
+        return TaskGroup(*args, **kwargs)
 
     def onFocus(self):
         self.active = True

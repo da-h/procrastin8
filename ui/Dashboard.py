@@ -7,7 +7,7 @@ from ui.UIElement import UIElement
 from ui.windows.Sidebar import Sidebar
 from ui.lines.RadioLine import RadioLine
 from ui.lines.TaskLine import TaskLine
-from ui.TaskGroup import TaskGroup
+from ui.util.AbstractTaskGroup import AbstractTaskGroup
 from ui.windows import TaskWindow
 from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE, AUTOADD_CREATIONDATE, WINDOW_PADDING
 from model import Task, Tag, Subtag, List, re_priority
@@ -166,7 +166,7 @@ class Dashboard(UIElement):
         # space to mark task
         elif val == ' ':
             def mark(elem):
-                if isinstance(elem, TaskGroup):
+                if isinstance(elem, AbstractTaskGroup):
                     for e in elem.tasklines:
                         mark(e)
                     return
@@ -179,7 +179,7 @@ class Dashboard(UIElement):
 
         # n to create new task
         elif val == 'n':
-            if isinstance(element, TaskGroup):
+            if isinstance(element, AbstractTaskGroup):
                 element._update_common_tags()
                 initial_text = " ".join([str(t) for t in element.common_subtags] + [str(t) for t in element.common_tags] + [str(t) for t in element.common_lists])
             elif isinstance(element, TaskLine):
@@ -193,7 +193,7 @@ class Dashboard(UIElement):
             if isinstance(element, TaskLine) and element.task["priority"] != "M_":
                 initial_text = "("+element.task["priority"]+") " + initial_text
 
-            pos = element.task if isinstance(element, TaskLine) and not isinstance(element, TaskGroup) else -1
+            pos = element.task if isinstance(element, TaskLine) and not isinstance(element, AbstractTaskGroup) else -1
             task = self.model.new_task(initial_text, pos=pos)
             task["unsaved"] = True
             self.reinit_modelview(line_offset=+1)
@@ -201,7 +201,7 @@ class Dashboard(UIElement):
 
         # d to delete current task
         elif val == 'd':
-            if not isinstance(element, TaskLine) or isinstance(element, TaskGroup):
+            if not isinstance(element, TaskLine) or isinstance(element, AbstractTaskGroup):
                 return
 
             self.model.remove_task(pos=element.task)
@@ -210,7 +210,7 @@ class Dashboard(UIElement):
 
         # Shift + UP/DOWN to swap tasks up/down
         elif val.code == term.KEY_SDOWN:
-            if not isinstance(element, TaskLine) or isinstance(element, TaskGroup):
+            if not isinstance(element, TaskLine) or isinstance(element, AbstractTaskGroup):
                 return
 
             window = self.windows[self.current_window]
@@ -222,7 +222,7 @@ class Dashboard(UIElement):
             self.model.swap_tasks(pos=element.task, pos2=next_line.task)
             self.reinit_modelview(line_offset=1)
         elif val.code == term.KEY_SUP:
-            if not isinstance(element, TaskLine) or isinstance(element, TaskGroup):
+            if not isinstance(element, TaskLine) or isinstance(element, AbstractTaskGroup):
                 return
 
             window = self.windows[self.current_window]
@@ -238,7 +238,7 @@ class Dashboard(UIElement):
         # =================== #
         # cursor on TaskGroup #
         # =================== #
-        elif isinstance(element, TaskGroup):
+        elif isinstance(element, AbstractTaskGroup):
             if element.edit_mode:
 
                 # ESC to exit editmode & restore previous
