@@ -3,13 +3,13 @@
 2020-11-12 window sort order should be adaptive +bug
 2020-11-12 disable sorting between taskgroups +bug
 2020-11-13 ESC on taskgroup does not remove common tasks +bug
+x (A) 2020-11-22 2020-11-13 jump to window title (window should behave just like taskgroup, maybe add a abstract taskgroup) +feature
 x 2020-11-11 2020-11-11 +feature show scroll position
 2020-11-11 dependency tasks id:random p:parentid +feature
 2020-11-14 show tasks as dependency chain +feature
 2020-11-11 h:1 hidden +feature
-x (A) 2020-11-22 2020-11-13 jump to window title (window should behave just like taskgroup, maybe add a abstract taskgroup) +feature
 2020-11-12 enable sorting of taskgroups +feature
-2020-11-22 sort selection +feature
+x 2020-11-22 2020-11-22 sort selection +feature
 2020-11-22 move/paste selection +feature
 2020-11-09 rename tags to projects and modifiers to tags +code
 x 2020-11-22 2020-11-10 make TaskGroup behave like TaskLine +code

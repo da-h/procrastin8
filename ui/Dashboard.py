@@ -163,6 +163,14 @@ class Dashboard(UIElement):
             self.model.save_order(tasks)
             self.init_modelview()
 
+        elif val == term.KEY_CTRL['o']:
+            marked_tasks = [m.task for m in self.marked]
+            sort_by = ["lists", "tags","subtags","priority"]
+            marked_tasks = self.model.query(filter=marked_tasks, sortBy=sort_by)
+            self.marked = []
+            self.model.save_order(marked_tasks)
+            self.init_modelview()
+
         # space to mark task
         elif val == ' ':
             def mark(elem):

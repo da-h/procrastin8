@@ -73,7 +73,8 @@ class WorkitTerminal(Terminal):
             "e": "\x19",
             "y": "\x05",
             "r": "\x12",
-            "p": "\x10"
+            "p": "\x10",
+            "o": "\x0f"
         }
         self.buffered_print = {}
         self.buffered_delete = {}

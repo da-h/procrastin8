@@ -244,7 +244,9 @@ class Model():
                 return x
             return [xi.repr_char+("%i" % xi.line_no)+xi.name for xi in x]
 
-        if filter:
+        if isinstance(filter, list):
+            todo = filter
+        elif filter:
             filter_re = re.compile(".*("+filter+").*")
             todo = []
             for t in self.todo:
