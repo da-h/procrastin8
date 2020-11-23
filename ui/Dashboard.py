@@ -51,6 +51,9 @@ class Dashboard(UIElement):
         self.stackmode = StackMode.KEEP_ORDER
         # self.sortmode = SortMode.GROUP_FULL
         self.sortmode = SortMode.FILE
+        self.task_groups = []
+        self.subtask_groups = []
+        self.tasks = []
         self.init_modelview()
 
         def on_resize(sig, action):
@@ -217,30 +220,36 @@ class Dashboard(UIElement):
 
 
         # Shift + UP/DOWN to swap tasks up/down
-        elif val.code == term.KEY_SDOWN:
-            if not isinstance(element, TaskLine) or isinstance(element, AbstractTaskGroup):
-                return
+        elif val.code == term.KEY_SDOWN or val.code == term.KEY_SUP:
+
+            # check what type of element we are on right now
+            if isinstance(element, AbstractTaskGroup):
+                if element.prepend:
+                    # skip subtask groups
+                    the_list = self.subtask_groups
+                    return
+                else:
+                    the_list = self.task_groups
+            else:
+                the_list = self.tasks
+
+            ind = the_list.index(element)
+
+            if val.code == term.KEY_SDOWN:
+                if ind == len(the_list) - 1:
+                    return
+                dir = 1
+            else: # KEY_SUP
+                if ind == 0:
+                    return
+                ind -= 1
+                dir = -1
+
+            tasks = the_list[ind+1].get_all_tasks() + the_list[ind].get_all_tasks()
+            self.model.save_order(tasks)
 
             window = self.windows[self.current_window]
-            if window.current_line < len(window.content_lines) - 1:
-                next_line = list(filter(lambda l: isinstance(l, TaskLine), window.content_lines[window.current_line + 1:]))
-                if not next_line:
-                    return
-                next_line = next_line[0]
-            self.model.swap_tasks(pos=element.task, pos2=next_line.task)
-            self.reinit_modelview(line_offset=1)
-        elif val.code == term.KEY_SUP:
-            if not isinstance(element, TaskLine) or isinstance(element, AbstractTaskGroup):
-                return
-
-            window = self.windows[self.current_window]
-            if window.current_line >= 0:
-                next_line = list(filter(lambda l: isinstance(l, TaskLine), window.content_lines[window.current_line - 1:]))
-                if not next_line:
-                    return
-                next_line = next_line[0]
-            self.model.swap_tasks(pos=element.task, pos2=next_line.task)
-            self.reinit_modelview(line_offset=-1)
+            self.reinit_modelview(line_offset=dir*(len(tasks)-1))
 
 
         # =================== #
@@ -414,6 +423,7 @@ class Dashboard(UIElement):
                     win.add_emptyline()
                 tag = l["tags"][0]
                 task_group = win.add_taskgroup(tag, model=self.model)
+                self.task_groups.append(task_group)
                 subtask_group = None
             elif not l["tags"]:
                 task_group = None
@@ -426,12 +436,14 @@ class Dashboard(UIElement):
             if l["subtags"] and subtag not in l["subtags"]:
                 subtag = l["subtags"][0] if l["subtags"] else None
                 subtask_group = task_group.add_taskgroup(term.dim+subtag.name, prepend=term.blue("· "), model=self.model)
+                self.subtask_groups.append(subtask_group)
             elif not l["subtags"]:
                 subtag = None
                 subtask_group = None
 
             # actual task
-            (subtask_group if subtask_group else task_group if task_group else win).add_task(l, prepend="   " if l["subtags"] else "")
+            task = (subtask_group if subtask_group else task_group if task_group else win).add_task(l, prepend="   " if l["subtags"] else "")
+            self.tasks.append(task)
 
         # create a window if no entries exist
         if new_window:

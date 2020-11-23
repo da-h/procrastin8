@@ -8,7 +8,7 @@ from ui import get_term
 from model import Tag, Subtag, List, re_priority, Task
 term = get_term()
 
-class TaskGroup(TaskLine, AbstractTaskGroup):
+class TaskGroup(AbstractTaskGroup, TaskLine):
 
     def __init__(self, model, text, *args, **kwargs):
         self.model = model

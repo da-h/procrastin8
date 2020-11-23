@@ -282,14 +282,6 @@ class Model():
         self.todo.remove(pos)
         self.save()
 
-    def swap_tasks(self, pos, pos2):
-        if not isinstance(pos, int):
-            pos = self.todo.index(pos)
-        if not isinstance(pos2, int):
-            pos2 = self.todo.index(pos2)
-        self.todo[pos], self.todo[pos2] = self.todo[pos2], self.todo[pos]
-        self.save()
-
     def save_order(self, tasks):
         task_pos = [self.todo.index(t) for t in tasks]
         task_pos_sorted = sorted(task_pos)

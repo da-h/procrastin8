@@ -9,7 +9,6 @@ class AbstractTaskGroup:
     def __init__(self, taskline_container):
         self.tasklines = []
         self.taskline_container = taskline_container
-        super().__init__()
 
     def total_height(self):
         return self.height + sum(task.total_height() if isinstance(task, AbstractTaskGroup) else task.height for task in self.tasklines)

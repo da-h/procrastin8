@@ -120,3 +120,6 @@ class TaskLine(Line):
     def onEditModeKey(self, val):
         if val.is_sequence:
             return
+
+    def get_all_tasks(self):
+        return [self.task]

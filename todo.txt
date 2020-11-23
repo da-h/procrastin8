@@ -1,27 +1,26 @@
-x 2020-11-23 2020-11-11 some TaskGroup titles are bold unexpectedly +bug
-2020-11-11 cannot swap tasks in between TaskGroups +bug
-2020-11-12 window sort order should be adaptive +bug
-2020-11-12 disable sorting between taskgroups +bug
-2020-11-13 ESC on taskgroup does not remove common tasks +bug
-x (A) 2020-11-22 2020-11-13 jump to window title (window should behave just like taskgroup, maybe add a abstract taskgroup) +feature
-(A) 2020-11-12 enable sorting of taskgroups +feature
-(A) 2020-11-22 move/paste selection +feature
-x 2020-11-11 2020-11-11 +feature show scroll position
-2020-11-11 dependency tasks id:random p:parentid +feature
-2020-11-14 show tasks as dependency chain +feature
-2020-11-11 h:1 hidden +feature
-x 2020-11-22 2020-11-22 sort selection +feature
-2020-11-09 rename tags to projects and modifiers to tags +code
-x 2020-11-22 2020-11-10 make TaskGroup behave like TaskLine +code
-2020-11-09 +kb N for completely new task
-++settings connect settings to ui/model +sidebar
-++settings save/load settings to file +sidebar
-presets +sidebar ++filter
-choose projects / contexts +sidebar ++filter
-and/or filters +sidebar ++filter
-2020-11-09 hide tdate +sidebar ++filter tags
-auto-filter +sidebar ++filter
-filter-sidebar +sidebar
+x 2020-11-23 2020-11-11 some TaskGroup titles are bold unexpectedly +bug @todos
+x 2020-11-23 2020-11-11 cannot swap tasks in between TaskGroups +bug @todos
+2020-11-13 ESC on taskgroup does not remove common tasks +bug @todos
+2020-11-23 some tasks are dimmed unexpectedly +bug @todos
+x (A) 2020-11-22 2020-11-13 jump to window title (window should behave just like taskgroup, maybe add a abstract taskgroup) +feature @todos
+(A) 2020-11-22 move/paste selection +feature @todos
+x (A) 2020-11-23 2020-11-12 enable sorting of taskgroups +feature @todos
+x 2020-11-11 2020-11-11 +feature show scroll position @todos
+2020-11-11 dependency tasks id:random p:parentid +feature @todos
+2020-11-14 show tasks as dependency chain +feature @todos
+2020-11-11 h:1 hidden +feature @todos
+x 2020-11-22 2020-11-22 sort selection +feature @todos
+2020-11-09 rename tags to projects and modifiers to tags +code @todos
+x 2020-11-22 2020-11-10 make TaskGroup behave like TaskLine +code @todos
+++settings connect settings to ui/model +sidebar @todos
+++settings save/load settings to file +sidebar @todos
+presets +sidebar ++filter @todos
+choose projects / contexts +sidebar ++filter @todos
+and/or filters +sidebar ++filter @todos
+2020-11-09 hide tdate +sidebar ++filter tags @todos
+auto-filter +sidebar ++filter @todos
+filter-sidebar +sidebar @todos
+2020-11-09 +kb N for completely new task @todos
 @later tabs +dashboard
 @later allow resize +dashboard
 enable edit of priority/date +dashboard @later
