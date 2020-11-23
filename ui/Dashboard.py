@@ -218,6 +218,20 @@ class Dashboard(UIElement):
             self.model.remove_task(pos=element.task)
             self.reinit_modelview(line_offset=0)
 
+        # d to delete current task
+        elif (val == 'p' or val == 'P') and len(self.marked):
+
+            marked_tasks = [t.task for t in self.marked]
+            cursor_tasks = element.get_all_tasks()
+
+            target_task = cursor_tasks[-1 if val == 'p' else 0]
+            before = val == 'P'
+            if target_task in marked_tasks:
+                return
+
+            self.model.move_to(marked_tasks, target_task, before=before)
+            self.marked = []
+            self.reinit_modelview(line_offset=0)
 
         # Shift + UP/DOWN to swap tasks up/down
         elif val.code == term.KEY_SDOWN or val.code == term.KEY_SUP:

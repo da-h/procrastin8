@@ -3,7 +3,7 @@ x 2020-11-23 2020-11-11 cannot swap tasks in between TaskGroups +bug @todos
 2020-11-13 ESC on taskgroup does not remove common tasks +bug @todos
 2020-11-23 some tasks are dimmed unexpectedly +bug @todos
 x (A) 2020-11-22 2020-11-13 jump to window title (window should behave just like taskgroup, maybe add a abstract taskgroup) +feature @todos
-(A) 2020-11-22 move/paste selection +feature @todos
+x (A) 2020-11-23 2020-11-22 move/paste selection +feature @todos
 x (A) 2020-11-23 2020-11-12 enable sorting of taskgroups +feature @todos
 x 2020-11-11 2020-11-11 +feature show scroll position @todos
 2020-11-11 dependency tasks id:random p:parentid +feature @todos

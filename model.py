@@ -288,3 +288,13 @@ class Model():
         for new_pos, task in zip(task_pos_sorted, tasks):
             self.todo[new_pos] = task
         self.save()
+
+    def move_to(self, tasks, task, before=True):
+        for t in tasks:
+            self.todo.remove(t)
+        pos = self.todo.index(task)
+        if before:
+            self.todo = self.todo[:pos] + tasks + self.todo[pos:]
+        else:
+            self.todo = self.todo[:pos+1] + tasks + self.todo[pos+1:]
+        self.save()
