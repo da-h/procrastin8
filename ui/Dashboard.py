@@ -386,13 +386,13 @@ class Dashboard(UIElement):
             win.current_line = current_lines_per_window[win_title_str(win)]
 
         self.draw()
-        if len(self.windows) <= self.current_window:
+        if len(self.windows) < self.current_window:
             self.current_window = len(self.windows) - 1
             self.window[self.current_window].current_line = 0
         if len(self.windows) > 0:
-            window = self.windows[min(self.current_window, len(self.windows))]
+            window = self.windows[min(self.current_window, len(self.windows)-1)]
         else:
-            window = self.windows[len(self.current_window)-1]
+            window = self.windows[0]
 
         window.current_line += line_offset
         term.cursor.moveTo(window)
