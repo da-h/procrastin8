@@ -70,12 +70,13 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
     def onKeyPress(self, val):
         if not self.edit_mode:
             if val == "e":
+                self.set_editmode(True, firstchar=0)
+
                 self.previous_task = copy(self.task)
                 self._update_common_tags()
                 self.raw_text = " ".join(str(t) for t in self.common_lists.union(self.common_tags).union(self.common_subtags))
 
                 self.task = Task.from_rawtext(self.model, self.raw_text)
-                self.set_editmode(True, firstchar=0)
                 return
         super().onKeyPress(val)
 
