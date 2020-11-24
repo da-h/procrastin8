@@ -233,6 +233,9 @@ class Dashboard(UIElement):
             self.marked = []
             self.reinit_modelview(line_offset=0)
 
+        elif val.code == term.KEY_ESCAPE and len(self.marked):
+            self.marked = []
+
         # Shift + UP/DOWN to swap tasks up/down
         elif val.code == term.KEY_SDOWN or val.code == term.KEY_SUP:
 
