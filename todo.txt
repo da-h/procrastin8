@@ -1,14 +1,9 @@
-x 2020-11-24 2020-11-13 ESC on taskgroup does not remove common tasks +bug @todos
-x 2020-11-24 2020-11-23 some tasks are dimmed unexpectedly +bug @todos
-x 2020-11-24 2020-11-24 new tasks jumps to wrong position sometimes +bug @todos
-x 2020-11-24 2020-11-24 editmode does not change color anymore +bug @todos
 2020-11-11 dependency tasks id:random p:parentid +feature @todos
 2020-11-14 show tasks as dependency chain +feature @todos
 2020-11-11 h:1 hidden +feature @todos
 2020-11-24 async statusbar +feature @todos
 2020-11-09 CTRL+N for completely new task @todos ++kb +feature
 2020-11-24 N for new task above @todos ++kb +feature
-2020-11-24 UP/DOWN should also jump across windows ++kb +feature @todos
 2020-11-09 rename tags to projects and modifiers to tags +code @todos
 ++settings connect settings to ui/model +sidebar @todos
 ++settings save/load settings to file +sidebar @todos

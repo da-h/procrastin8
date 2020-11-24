@@ -112,16 +112,21 @@ class Dashboard(UIElement):
             return
 
         # LEFT/RIGHT to move between windows
-        elif val.code == term.KEY_RIGHT:
+        # UP/DOWN (window catches this event unless first/last task is under cursor) to move to next/previous task 
+        elif val.code == term.KEY_RIGHT or val.code == term.KEY_DOWN or val == 'j':
             last_window = self.current_window
             self.current_window = min(self.current_window + 1, len(self.windows)-1)
             if self.current_window != last_window:
+                if val.code == term.KEY_DOWN or val == 'j':
+                    self.windows[self.current_window].current_line = 0
                 term.cursor.moveTo(self.windows[self.current_window])
             return
-        elif val.code == term.KEY_LEFT:
+        elif val.code == term.KEY_LEFT or val.code == term.KEY_UP or val == 'k':
             last_window = self.current_window
             self.current_window = max(self.current_window - 1, 0)
             if self.current_window != last_window:
+                if val.code == term.KEY_UP or val == 'k':
+                    self.windows[self.current_window].current_line = len(self.windows[self.current_window].lines) - 1
                 term.cursor.moveTo(self.windows[self.current_window])
             return
 

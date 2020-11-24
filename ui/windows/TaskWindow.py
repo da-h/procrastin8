@@ -42,7 +42,10 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
         element = term.cursor.on_element
 
         if val.code == term.KEY_UP or val == 'k':
-            if self.current_line <= 0:
+            if self.current_line == -1:
+                super(TextWindow, self).onKeyPress(val)
+                return
+            elif self.current_line == 0:
                 term.cursor.moveTo(self.title)
                 self.title.line_style = term.bold_black_on_white
                 self.current_line = -1

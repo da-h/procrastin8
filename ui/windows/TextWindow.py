@@ -71,6 +71,7 @@ class TextWindow(Window):
 
         if val.code == term.KEY_UP or val == 'k':
             if self.current_line == 0:
+                super().onKeyPress(val)
                 return
 
             self.current_line -= 1
@@ -80,6 +81,7 @@ class TextWindow(Window):
                 self.scroll_pos = max(self.scroll_pos + focus_on.rel_pos[1] - self.padding[1], 0)
         elif val.code == term.KEY_DOWN or val == 'j':
             if self.current_line == len(self.content_lines) - 1:
+                super().onKeyPress(val)
                 return
 
             self.current_line += 1
