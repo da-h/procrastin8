@@ -14,7 +14,6 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
         self.model = model
         self.raw_text = str(text)
         task = Task.from_rawtext(model, str(text))
-        self.hide_taskbullet = True
         if TODO_STYLE == 1:
             self.height = 1
             self.center = False
@@ -25,10 +24,14 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
 
         TaskLine.__init__(self, *args, text=task, **kwargs)
         AbstractTaskGroup.__init__(self, taskline_container=self.parent)
+        self.hide_taskbullet = True
         self.line_style = term.cyan
 
     def typeset(self):
         super().typeset()
+
+        if self.edit_mode:
+            return
 
         if TODO_STYLE == 1:
             self._typeset_text = [str(self.text)]
