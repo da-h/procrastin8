@@ -268,11 +268,11 @@ class Model():
 
         return sorted(todo, key=sortstr)
 
-    def new_task(self, initial_text="", pos=-1):
+    def new_task(self, initial_text="", pos=-1, offset=1):
         if isinstance(pos, Task):
             pos = self.todo.index(pos)
         task = Task.from_rawtext(self,initial_text)
-        self.todo.insert(pos+1, task)
+        self.todo.insert(pos+offset, task)
         # self.save()
         return task
 

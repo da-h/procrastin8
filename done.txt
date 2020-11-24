@@ -20,3 +20,11 @@ x 2020-11-10 2020-11-09 taskgroup produces bugs for some keyshortcuts +bug
 x 2020-11-10 2020-11-10 new task may place cursor on wrong element +bug
 x 2020-11-10 2020-11-10 escape does not restore previous state +bug
 x 2020-11-09 2020-11-08 make todo-groups editable +dashboard
+x 2020-11-23 2020-11-11 some TaskGroup titles are bold unexpectedly +bug @todos
+x 2020-11-23 2020-11-11 cannot swap tasks in between TaskGroups +bug @todos
+x (A) 2020-11-22 2020-11-13 jump to window title (window should behave just like taskgroup, maybe add a abstract taskgroup) +feature @todos
+x (A) 2020-11-23 2020-11-22 move/paste selection +feature @todos
+x (A) 2020-11-23 2020-11-12 enable sorting of taskgroups +feature @todos
+x 2020-11-11 2020-11-11 +feature show scroll position @todos
+x 2020-11-22 2020-11-22 sort selection +feature @todos
+x 2020-11-22 2020-11-10 make TaskGroup behave like TaskLine +code @todos
