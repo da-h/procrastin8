@@ -48,7 +48,7 @@ class Line(UIElement):
         for i, t in enumerate(self._typeset_text):
             t = Sequence(highlight(t), term)
             t_len = t.length()
-            t = self.prepend+self.last_line_style+t+term.normal+self.append
+            t = self.prepend+term.normal+self.last_line_style+t+term.normal+self.append
             if self.center:
                 self.printAt(((self.wrapper.width-1)//2 - t_len//2 - 1, 1), " "+t+" ")
             else:
