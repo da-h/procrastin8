@@ -70,10 +70,9 @@ class Dashboard(UIElement):
                 if elem != self.overlay:
                     elem.draw()
             for i, elem in enumerate(self.marked):
-                # self.printAt(elem.pos - self.pos + (-2,0), term.yellow("┃"), ignore_padding=True)
-                # self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-1,0), term.yellow("┃"), ignore_padding=True)
-                self.printAt(elem.pos - self.pos + (-1,0), term.yellow("⯈"), ignore_padding=True)
-                self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-2,0), term.yellow(str(i+1)), ignore_padding=True)
+                self.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True)
+                str_num = str(i+1)
+                self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
             if self.overlay:
                 self.overlay.draw()
         redraw()
