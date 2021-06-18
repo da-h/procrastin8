@@ -2,6 +2,7 @@ from blessed import Terminal
 import numpy as np
 from heapq import heappush, heappop, heapify
 from copy import copy
+from time import sleep
 
 
 class Cursor:
@@ -79,6 +80,7 @@ class WorkitTerminal(Terminal):
         self.buffered_print = {}
         self.buffered_delete = {}
         self.current_state = {}
+        self.print_buffer = []
 
         if not self.dim:
             self.dim = self.bright_black
@@ -110,10 +112,18 @@ class WorkitTerminal(Terminal):
             return
         if pos[1] <= 0:
             return
-        print(term.move_xy(pos)+seq, end='', flush=False)
+        self.print_buffer.append(term.move_xy(pos)+seq)
+
+
+    def print_flush(self):
+        print("".join(self.print_buffer))
+        self.print_buffer = []
 
 
     def draw(self):
+
+        # alternatively: clear whole screen
+        # self.print((0,0), term.home + term.clear)
 
         # remove what is not requested again
         for pos, seq in self.buffered_delete.items():
@@ -126,6 +136,7 @@ class WorkitTerminal(Terminal):
                 self.current_state[pos] = seq
 
         # flush & draw cursor
+        self.print_flush()
         self.buffered_print = {}
         self.buffered_delete = copy(self.current_state)
         self.cursor.draw()
