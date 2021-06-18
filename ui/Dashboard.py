@@ -19,6 +19,7 @@ term = get_term()
 class StackMode(Enum):
     MERGE_SMALLEST = 0
     KEEP_ORDER = 1
+    KEEP_ORDER_EQUAL_SIZES = 2
 class SortMode(Enum):
     FILE = 0
     GROUP_FULL = 1
@@ -39,7 +40,7 @@ class Dashboard(UIElement):
     def __init__(self, model, filter=".*"):
         super().__init__((0,0))
         self.width = term.width
-        self.height = term.height - self.pos[1]
+        self.height = term.height - self.pos[1] - 1
         self.filter = filter
         self.model = model
         self.overlay = None
@@ -49,6 +50,7 @@ class Dashboard(UIElement):
         self.current_window = 0
         # self.stackmode = StackMode.MERGE_SMALLEST
         self.stackmode = StackMode.KEEP_ORDER
+        # self.stackmode = StackMode.KEEP_ORDER_EQUAL_SIZES
         # self.sortmode = SortMode.GROUP_FULL
         self.sortmode = SortMode.FILE
         self.task_groups = []
@@ -386,7 +388,9 @@ class Dashboard(UIElement):
 
         # restore cursor positions in each window
         for win in self.windows:
-            win.current_line = current_lines_per_window[win_title_str(win)]
+            win_title = win_title_str(win)
+            if win_title in current_lines_per_window:
+                win.current_line = current_lines_per_window[win_title]
 
         self.draw()
         if len(self.windows) < self.current_window:
@@ -409,6 +413,7 @@ class Dashboard(UIElement):
         self.windows = []
         task_group = None
         subtask_group = None
+        level_change = False
 
         if self.sortmode == SortMode.GROUP_FULL:
             sort_by = ["lists", "tags","subtags","priority"]
@@ -460,6 +465,7 @@ class Dashboard(UIElement):
             elif not l["subtags"]:
                 subtag = None
                 subtask_group = None
+                # level_change = True
 
             # actual task
             task = (subtask_group if subtask_group else task_group if task_group else win).add_task(l, prepend="   " if l["subtags"] else "")
@@ -488,17 +494,30 @@ class Dashboard(UIElement):
                     del win_stacks[second_smallest]
 
             # in this mode, we keep the order of the windows, stacking neighbouring windows by specifying the break positions in the window list
-            elif self.stackmode == StackMode.KEEP_ORDER:
+            elif self.stackmode == StackMode.KEEP_ORDER or self.stackmode == StackMode.KEEP_ORDER_EQUAL_SIZES:
                 win_heights = [w.height for w in self.windows]
                 break_positions = [0]
                 cumsum_heights = np.cumsum([0] + win_heights)
-                target_height =  cumsum_heights[-1] // max_columns
+                if self.stackmode == StackMode.KEEP_ORDER:
+                    target_height =  term.height
+                else:
+                    target_height =  cumsum_heights[-1] // max_columns
+                offset = 0
                 for i, cumsum in enumerate(cumsum_heights):
-                    if cumsum >= cumsum_heights[break_positions[-1]] + target_height:
-                        break_positions.append(i)
+                    if cumsum >= cumsum_heights[break_positions[-1]] + target_height - offset:
+
+                        if self.stackmode == StackMode.KEEP_ORDER_EQUAL_SIZES:
+                            break_positions.append(i)
+                            offset += cumsum - target_height
+                        else:
+                            break_positions.append(i - 1)
+
+                    if self.stackmode == StackMode.KEEP_ORDER and len(break_positions) == max_columns:
+                        break
                 break_positions.append(len(self.windows))
 
                 win_stacks = [list(range(s_start,s_end)) for s_start, s_end in zip(break_positions, break_positions[1:])]
+
 
             # set positions from stacks
             for stack_i, stack in enumerate(win_stacks):
