@@ -110,8 +110,10 @@ class WorkitTerminal(Terminal):
     def print(self, pos, seq):
         if self.height <= pos[1]:
             return
-        if pos[1] <= 0:
-            return
+        if pos[0] < 0:
+            pos = (term.width - pos[0], pos[1])
+        if pos[1] < 0:
+            pos = (pos[0], term.height - pos[1])
         self.print_buffer.append(term.move_xy(pos)+seq)
 
 
