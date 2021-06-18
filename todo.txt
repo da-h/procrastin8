@@ -1,7 +1,24 @@
+2020-11-26 implement +statusbar @todos
+2020-11-24 async log +statusbar @todos
+2020-11-26 debug-mode redraw-time +statusbar @todos
+(A) 2021-03-02 fix slow ui / move to asyncio +bug @todos
+2021-03-06 make saving async task +bug @todos
+2020-11-26 new task may not be chosen correctly +bug @todos
+2020-11-26 scrolling does not scroll completely down if multiline-task is at the bottom  +bug
+2020-11-26 tasks with 3 lines have bug in editmode in lowest line +bug
+2020-12-25 window borders do not reset correctly on size change +bug
+2021-03-06 scrolls 3 times with mouse wheel +bug
+2021-03-06 cannot fill empty list +bug
+2021-03-06 add space after task that is followed by sublist +bug
+2021-06-18 fix renaming headers +bug
 2020-11-11 dependency tasks id:random p:parentid +feature @todos
 2020-11-14 show tasks as dependency chain +feature @todos
 2020-11-11 h:1 hidden +feature @todos
-2020-11-24 async statusbar +feature @todos
+2020-11-26 split overlong window if not in reorder-mode  +feature @todos
+2020-11-26 async save (with option) +feature @todos
+2020-11-30 split windows if in file-order mode +feature @todos
+2021-03-02 paste-mode instead of pasting below/above ? +feature @todos
+2021-03-02 Ctrl+P to paste into card ++kb +feature @todos
 2020-11-09 CTRL+N for completely new task @todos ++kb +feature
 2020-11-24 N for new task above @todos ++kb +feature
 2020-11-09 rename tags to projects and modifiers to tags +code @todos
