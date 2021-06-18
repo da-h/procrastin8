@@ -116,7 +116,7 @@ class WorkitTerminal(Terminal):
 
 
     def print_flush(self):
-        print("".join(self.print_buffer))
+        print("".join(self.print_buffer), end="")
         self.print_buffer = []
 
 
