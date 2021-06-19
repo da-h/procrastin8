@@ -3,6 +3,7 @@ import numpy as np
 from heapq import heappush, heappop, heapify
 from copy import copy
 from time import sleep
+import asyncio
 
 
 class Cursor:
@@ -81,9 +82,21 @@ class WorkitTerminal(Terminal):
         self.buffered_delete = {}
         self.current_state = {}
         self.print_buffer = []
+        self.continue_loop = True
 
         if not self.dim:
             self.dim = self.bright_black
+
+    # listen for keypresses (to be run in a seperate thread)
+    def threaded_inkey(self, queue):
+        stop = False
+        while not stop:
+            with self.cbreak():
+                val = self.inkey(esc_delay=0)
+                queue.put_nowait(val)
+                if val == "q":
+                    stop = True
+            queue._loop._write_to_self()
 
     def move_xy(self, x, y=None):
         if type(x) is np.ndarray or isinstance(x, tuple):

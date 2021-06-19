@@ -13,6 +13,7 @@ from ui.windows import TaskWindow
 from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE, AUTOADD_CREATIONDATE, WINDOW_PADDING
 from model import Task, Tag, Subtag, List, re_priority
 from enum import Enum
+import asyncio
 
 term = get_term()
 
@@ -24,16 +25,6 @@ class StackMode(Enum):
 class SortMode(Enum):
     FILE = 0
     GROUP_FULL = 1
-
-
-draw_calls = 0
-def redraw():
-    return
-    global draw_calls
-    print(term.move_y(term.height - 4) + term.center('draw() calls: %i' % draw_calls).rstrip(), end='', flush=False)
-    print(term.move_y(term.height - 3) + term.center('cursor: '+str(term.cursor.pos)).rstrip(), end='', flush=False)
-    print(term.move_y(term.height - 2) + term.center('element: '+str(term.cursor.on_element) if term.cursor.on_element else "").rstrip(), end='', flush=False)
-    draw_calls += 1
 
 
 class Dashboard(UIElement):
@@ -82,16 +73,19 @@ class Dashboard(UIElement):
 
             # self.statusbar.pos[1] = -1
             self.statusbar.draw()
-        redraw()
         term.draw()
 
-    def loop(self):
-        val = ''
-        while self.continue_loop:
-            val = term.inkey(esc_delay=0)
-            if val and term.cursor.on_element:
-                term.cursor.on_element.onKeyPress(val)
+    async def loop(self, queue):
+        with term.fullscreen():
+            print(term.home + term.clear)
             self.draw()
+            term.cursor.moveTo(self)
+            self.draw()
+            while self.continue_loop:
+                key = await queue.get()
+                if key and term.cursor.on_element:
+                    term.cursor.on_element.onKeyPress(key)
+                    self.draw()
 
     def onFocus(self):
         if len(self.elements):
@@ -149,7 +143,6 @@ class Dashboard(UIElement):
 
 
             old_elem = term.cursor.moveTo(self.overlay.lines[0])
-            redraw()
             return
 
         # X to Archive done tasks

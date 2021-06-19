@@ -3,12 +3,15 @@ from ui import Dashboard
 from model import Model
 import sys
 from os.path import dirname, join
+import asyncio
+from asyncio import Queue
+import threading
 
 term = get_term()
 
-
 def main():
     draw_calls = 0
+    queue = Queue()
 
     # init
     if len(sys.argv) == 1:
@@ -24,12 +27,12 @@ def main():
         filter = ".*"
     model = Model(todofile, donefile)
     dash = Dashboard(model, filter)
+    loop = asyncio.get_event_loop()
 
-    with term.fullscreen(), term.cbreak():#, term.hidden_cursor():
-        dash.draw()
-        term.cursor.moveTo(dash)
-        dash.draw()
-        dash.loop()
+    t = threading.Thread(target=term.threaded_inkey, args=[queue])
+    t.start()
+    loop.run_until_complete(dash.loop(queue))
 
 if __name__ == "__main__":
     main()
+
