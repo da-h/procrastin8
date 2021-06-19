@@ -15,10 +15,12 @@ class Window(UIElement):
 
     async def draw(self, **draw_args):
         await super().draw()
-        if self.draw_style == "basic":
-            self.draw_border(self.pos, (self.width, self.height), self.title, color=term.yellow if self.active else term.dim, **draw_args)
-        elif self.draw_style == "basic-left-edge":
-            self.draw_border2(self.pos, (self.width, self.height), self.title, color=term.normal if self.active else term.dim, **draw_args)
+        if e := self.element("border"):
+            with e:
+                if self.draw_style == "basic":
+                    self.draw_border(self.pos, (self.width, self.height), self.title, color=term.yellow if self.active else term.dim, **draw_args)
+                elif self.draw_style == "basic-left-edge":
+                    self.draw_border2(self.pos, (self.width, self.height), self.title, color=term.normal if self.active else term.dim, **draw_args)
 
     async def close(self):
         await super().close()
@@ -59,6 +61,8 @@ class Window(UIElement):
     async def onEnter(self):
         self.active = True
         await super().onEnter()
+        await self.redraw("border")
     async def onLeave(self):
         self.active = False
         await super().onEnter()
+        await self.redraw("border")

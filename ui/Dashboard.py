@@ -14,6 +14,7 @@ from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE, AUTOADD_CREATIONDA
 from model import Task, Tag, Subtag, List, re_priority
 from enum import Enum
 import asyncio
+import inspect
 
 term = get_term()
 
@@ -50,6 +51,7 @@ class Dashboard(UIElement):
         self.statusbar = StatusBar()
         self.height = term.height - self.pos[1] - self.statusbar.height
         self.inited = False
+        self.registered_redraw = False
 
         def on_resize(sig, action):
             print(term.home + term.clear)
@@ -60,7 +62,17 @@ class Dashboard(UIElement):
             asyncio.create_task(self.init_modelview())
         signal.signal(signal.SIGWINCH, on_resize)
 
+    async def redraw(self):
+        self.registered_redraw = True
+        # await self.draw()
+
     async def draw(self):
+        # self.registered_redraw = False
+
+        # debug
+        curframe = inspect.currentframe()
+        calframe = inspect.getouterframes(curframe, 2)
+        await term.log('caller name:' + calframe[1][3])
 
         if not self.inited:
             self.inited = True
@@ -80,9 +92,15 @@ class Dashboard(UIElement):
                 await self.overlay.draw()
 
             # self.statusbar.pos[1] = -1
+            # await term.log(self.registered_redraw)
             await self.statusbar.draw()
-            await term.log("test")
+
+        # if self.registered_redraw:
+        #     self.registered_redraw = False
+        #     await self.draw()
+            # return
         await term.draw()
+
 
     async def loop(self, queue):
         with term.fullscreen():
@@ -409,7 +427,6 @@ class Dashboard(UIElement):
             window = self.windows[0]
 
         window.current_line += line_offset
-        await term.cursor.moveTo(window)
 
     async def init_modelview(self):
         win_pos = 0

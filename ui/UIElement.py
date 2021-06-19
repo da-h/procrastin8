@@ -4,6 +4,54 @@ from ui import get_term
 
 term = get_term()
 
+
+class UIElementTerminalBridge(object):
+
+    def __init__(self):
+        self.history = []
+        self.elements = {} # low-level drawing units
+
+    @property
+    def name(self):
+        if len(self.history):
+            return self.history[-1]
+        return "main"
+
+    def __call__(self, name):
+        if name in self.elements:
+            return False
+        self.elements[name] = {}
+        self.history.append(name)
+        return self
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        del self.history[-1]
+
+    # tell terminal what to print
+    # (it remembers all calls under the name of the with-statement)
+    def printAt(self, pos, seq):
+        if self.name not in self.elements:
+            self.elements[self.name] = {}
+        self.elements[self.name][(pos[0],pos[1])] = seq
+        term.printAt(pos, seq)
+
+    # tell terminal what element to delete
+    def remove(self, element):
+        if element not in self.elements:
+            return
+        for pos, seq in self.elements[element].items():
+            term.removeAt(pos, seq)
+        del self.elements[element]
+    def removeAll(self):
+        for e in list(self.elements.keys()):
+            self.remove(e)
+
+    def redraw(self, element):
+        if element in self.elements:
+            del self.elements[element]
+
+
 class UIElement:
     def __init__(self, rel_pos=None, parent=None, max_height=-1, padding=(0,0,0,0)):
         if not rel_pos and not parent:
@@ -14,10 +62,10 @@ class UIElement:
         self.padding = padding
         self.max_height = max_height
         self._rel_pos = np.array(rel_pos) if rel_pos else np.array((0,0))
-        self.last_print = {}
+        self.pos_changed = False
 
         self.children = [] # true uielements
-        self.elements = [] # low-level drawing units
+        self.element = UIElementTerminalBridge() # remembers all printed low-level drawing units
 
     @property
     def pos(self):
@@ -30,10 +78,26 @@ class UIElement:
         return self._rel_pos
     @rel_pos.setter
     def rel_pos(self, a):
+        if (a[0], a[1]) != (self._rel_pos[0], self._rel_pos[1]):
+            self.pos_changed = True
         self._rel_pos = np.array(a)
 
+    async def redraw(self, element=None):
+        if element:
+            self.element.redraw(element)
+        if self.parent:
+            await self.parent.redraw()
+
     async def draw(self):
-        pass
+        if self.pos_changed:
+            await self.remove()
+            self.pos_changed = False
+
+    async def remove(self, elements=[]):
+        if len(elements) == 0:
+            self.element.removeAll()
+        for e in elements:
+            self.element.remove(e)
 
     async def close(self):
         if self.parent:
@@ -50,7 +114,7 @@ class UIElement:
         if self.max_height > 0 and (rel_pos[1] if ignore_padding else rel_pos[1] + self.padding[0] + self.padding[2]) >= self.max_height:
             return
 
-        term.printAt(pos, seq)
+        self.element.printAt(pos, seq)
 
     # ------ #
     # Events #

@@ -107,15 +107,19 @@ class WorkitTerminal(Terminal):
             return super().move_xy(x[0],x[1])
         return super().move_xy(x,y)
 
+
+    def removeAt(self, pos, seq):
+        self.buffered_delete[pos] = seq
+
     def printAt(self, pos, seq):
         pos = (pos[0], pos[1])
 
         # unregister removal on window in case
         # - same sequence should be printed at same position
         # - new sequence is at least longer
-        if pos in self.current_state and (self.current_state[pos] == seq or self.current_state[pos].length() <= seq.length()):
-            if pos in self.buffered_delete:
-                del self.buffered_delete[pos]
+        # if pos in self.current_state and (self.current_state[pos] == seq or self.current_state[pos].length() <= seq.length()):
+        #     if pos in self.buffered_delete:
+        #         del self.buffered_delete[pos]
 
         # register print of new sequence
         if pos in self.buffered_print:
@@ -157,7 +161,7 @@ class WorkitTerminal(Terminal):
         # flush & draw cursor
         self.print_flush()
         self.buffered_print = {}
-        self.buffered_delete = copy(self.current_state)
+        self.buffered_delete = {}
         await self.cursor.draw()
 
 term = None
