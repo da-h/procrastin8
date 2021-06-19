@@ -7,11 +7,11 @@ class Window(UIElement):
 
     def __init__(self, rel_pos, width=1, height=1, title="", parent=None, max_height=-1, padding=(1,1,1,1)):
         super().__init__(rel_pos=rel_pos, parent=parent, padding=padding, max_height=max_height)
-        self.width = width
-        self.height = height
-        self.title = title
+        self.registerProperty("width", width, ["border"])
+        self.registerProperty("height", height, ["border"])
+        self.registerProperty("title", title, ["border"])
+        self.registerProperty("active", False, ["border"])
         self.draw_style = "basic"
-        self.active = False
 
     async def draw(self, **draw_args):
         await super().draw()
@@ -61,8 +61,6 @@ class Window(UIElement):
     async def onEnter(self):
         self.active = True
         await super().onEnter()
-        await self.redraw("border")
     async def onLeave(self):
         self.active = False
-        await super().onEnter()
-        await self.redraw("border")
+        await super().onLeave()

@@ -20,7 +20,7 @@ class UIElementTerminalBridge(object):
     def __call__(self, name):
         if name in self.elements:
             return False
-        self.elements[name] = {}
+        self.elements[name] = []
         self.history.append(name)
         return self
     def __enter__(self):
@@ -32,15 +32,15 @@ class UIElementTerminalBridge(object):
     # (it remembers all calls under the name of the with-statement)
     def printAt(self, pos, seq):
         if self.name not in self.elements:
-            self.elements[self.name] = {}
-        self.elements[self.name][(pos[0],pos[1])] = seq
+            self.elements[self.name] = []
+        self.elements[self.name].append(((pos[0],pos[1]), seq))
         term.printAt(pos, seq)
 
     # tell terminal what element to delete
     def remove(self, element):
         if element not in self.elements:
             return
-        for pos, seq in self.elements[element].items():
+        for pos, seq in self.elements[element]:
             term.removeAt(pos, seq)
         del self.elements[element]
     def removeAll(self):
@@ -52,7 +52,8 @@ class UIElementTerminalBridge(object):
             del self.elements[element]
 
 
-class UIElement:
+class UIElement(object):
+    __initialized = False
     def __init__(self, rel_pos=None, parent=None, max_height=-1, padding=(0,0,0,0)):
         if not rel_pos and not parent:
             raise ValueError("Either position or parent have to be specified")
@@ -66,6 +67,30 @@ class UIElement:
 
         self.children = [] # true uielements
         self.element = UIElementTerminalBridge() # remembers all printed low-level drawing units
+
+        self._prop_elem_connections = {}
+        self._prop_vals = {}
+        self.__initialized = True
+
+    def registerProperty(self, name, value, elements):
+        self._prop_elem_connections[name] = elements
+        self._prop_vals[name] = value
+
+    def __getattr__(self, name):
+        if name in self._prop_vals.keys():
+            return self._prop_vals[name]
+        return self.__dict__[name]
+    def __setattr__(self, name, value):
+        if self.__initialized and name in self._prop_vals.keys():
+            els = self._prop_elem_connections[name]
+            if len(els) == 0:
+                self.element.removeAll()
+            else:
+                for el in els:
+                    self.element.remove(el)
+            self._prop_vals[name] = value
+            return
+        object.__setattr__(self, name, value)
 
     @property
     def pos(self):
@@ -90,10 +115,10 @@ class UIElement:
 
     async def draw(self):
         if self.pos_changed:
-            await self.remove()
+            self.clear()
             self.pos_changed = False
 
-    async def remove(self, elements=[]):
+    def clear(self, elements=[]):
         if len(elements) == 0:
             self.element.removeAll()
         for e in elements:
@@ -106,8 +131,6 @@ class UIElement:
     def printAt(self, rel_pos, *args, ignore_padding=False):
         seq = Sequence(*args,term)
         pos = self.pos + rel_pos + (0 if ignore_padding else (self.padding[0],self.padding[2]))
-        if pos[1] == term.cursor.pos[1] and pos[0] <= term.cursor.pos[0] and term.cursor.pos[0] < pos[0] + len(seq):
-            term.cursor.on_element_current = self
 
         if self.max_height == 0:
             return
@@ -115,6 +138,15 @@ class UIElement:
             return
 
         self.element.printAt(pos, seq)
+
+    def get_parents(self):
+        parents = []
+        n = self
+        while n.parent:
+            n = n.parent
+            parents.append(n)
+        return parents
+
 
     # ------ #
     # Events #
@@ -129,12 +161,20 @@ class UIElement:
     async def onUnfocus(self):
         pass
 
-    async def onEnter(self):
+    async def onSizeChange(self, child_src=None, el_changed=[]):
         if self.parent:
+            await self.parent.onSizeChange(self, el_changed + [self])
+
+    async def onContentChange(self, child_src=None, el_changed=None):
+        if self.parent:
+            await self.parent.onContentChange(self, el_changed)
+
+    async def onEnter(self):
+        if self.parent and self.parent not in term.cursor.elements_under_cursor_after:
             await self.parent.onEnter()
 
     async def onLeave(self):
-        if self.parent:
+        if self.parent and self.parent in term.cursor.elements_under_cursor_before:
             await self.parent.onLeave()
 
     async def onElementClosed(self, elem):

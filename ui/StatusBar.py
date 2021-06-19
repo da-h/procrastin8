@@ -34,6 +34,6 @@ class StatusBar(UIElement):
 
         if self.height > 2:
             self.printAt((0,1), term.dim + "─"*self.width+term.normal)
-        for i, l in enumerate(term._log_msgs):
+        for i, l in enumerate(term._log_msgs[-self.height+3:]):
             self.printAt((0,i+2), term.dim + "   "+str(l)+term.normal)
         self._redraw_start = cur_time

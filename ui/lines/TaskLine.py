@@ -92,23 +92,27 @@ class TaskLine(Line):
                 if self.task["completion-date"] and not self.task["complete"]:
                     self.task["completion-date"] = None
                 self.task.save()
+                await self.onContentChange()
                 return
             elif val == "i" or val == "e":
                 self.set_editmode(True)
                 return
             elif val == "I":
                 self.set_editmode(True)
+                await self.onContentChange()
                 return
             elif val == "A":
                 self.set_editmode(True, charpos=len(self.task["raw_text"]) - 1, firstchar=2)
+                await self.onContentChange()
                 return
         await UIElement.onKeyPress(self, val)
 
-    def _updateText(self, raw_text):
+    async def _updateText(self, raw_text):
         text_optionals = self.task.__str__(print_description=False)
         leading_spaces = len(raw_text) - len(raw_text.lstrip())
         raw_text = (text_optionals + " " if text_optionals else "") + raw_text
         self.task.update( Task.from_rawtext(self.task.model, raw_text, leading_spaces=leading_spaces ) )
+        await self.onContentChange(self, self)
 
     def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
         if mode:
@@ -116,10 +120,6 @@ class TaskLine(Line):
         else:
             self.previous_task = None
         super().set_editmode(mode, charpos, firstchar)
-
-    async def onEditModeKey(self, val):
-        if val.is_sequence:
-            return
 
     def get_all_tasks(self):
         return [self.task]

@@ -10,9 +10,9 @@ class Cursor:
 
     def __init__(self):
         self.pos = np.array((3,2))
-        self.on_element = None
         self.last_position = (-1,-1)
         self.visible = False
+        self.elements_under_cursor = []
 
     def show(self):
         self.visible = True
@@ -20,25 +20,38 @@ class Cursor:
     def hide(self):
         self.visible = False
 
+    @property
+    def on_element(self):
+        if len(self.elements_under_cursor) == 0:
+            return None
+        return self.elements_under_cursor[0]
+
     async def moveTo(self, on_element):
 
         # children are equal -> no change/events
         if self.on_element == on_element:
             return
 
-        # Event: onUnfocus
-        if self.on_element is not None:
-            await self.on_element.onLeave()
-            await self.on_element.onUnfocus()
+        parents_source = [self.on_element] + self.on_element.get_parents() if self.on_element else [None]
+        parents_target = [     on_element] +      on_element.get_parents() if      on_element else [None]
 
-        self.on_element = self.on_element_current = on_element
+        self.elements_under_cursor_before = parents_source
+        self.elements_under_cursor_after = parents_target
+
+        # Event: onUnfocus
+        if parents_source[0] is not None and parents_source[0] not in parents_target:
+            await parents_source[0].onLeave()
+            await parents_source[0].onUnfocus()
+
+        self.elements_under_cursor = parents_target
         self.pos = self.on_element.pos
         # term.location(self.pos[0], self.pos[1])
 
         # Event: onFocus
-        if self.on_element is not None:
-            await self.on_element.onEnter()
-            await self.on_element.onFocus()
+        if parents_target[0] is not None and parents_target[0] not in parents_source:
+            # await term.log("ent"+str(on_element))
+            await on_element.onEnter()
+            await on_element.onFocus()
 
     def clear(self):
         self.on_element = None
@@ -79,7 +92,7 @@ class WorkitTerminal(Terminal):
             "o": "\x0f"
         }
         self.buffered_print = {}
-        self.buffered_delete = {}
+        self.buffered_delete = []
         self.current_state = {}
         self.print_buffer = []
         self.continue_loop = True
@@ -109,7 +122,7 @@ class WorkitTerminal(Terminal):
 
 
     def removeAt(self, pos, seq):
-        self.buffered_delete[pos] = seq
+        self.buffered_delete.append((pos, seq))
 
     def printAt(self, pos, seq):
         pos = (pos[0], pos[1])
@@ -149,7 +162,7 @@ class WorkitTerminal(Terminal):
         # self.print((0,0), term.home + term.clear)
 
         # remove what is not requested again
-        for pos, seq in self.buffered_delete.items():
+        for pos, seq in self.buffered_delete:
             self.print(pos," "*seq.length())
 
         # print all new sequences
@@ -161,7 +174,7 @@ class WorkitTerminal(Terminal):
         # flush & draw cursor
         self.print_flush()
         self.buffered_print = {}
-        self.buffered_delete = {}
+        self.buffered_delete = []
         await self.cursor.draw()
 
 term = None

@@ -70,9 +70,9 @@ class Dashboard(UIElement):
         # self.registered_redraw = False
 
         # debug
-        curframe = inspect.currentframe()
-        calframe = inspect.getouterframes(curframe, 2)
-        await term.log('caller name:' + calframe[1][3])
+        # curframe = inspect.currentframe()
+        # calframe = inspect.getouterframes(curframe, 2)
+        # await term.log('caller name:' + calframe[1][3])
 
         if not self.inited:
             self.inited = True
@@ -142,6 +142,7 @@ class Dashboard(UIElement):
         # LEFT/RIGHT to move between windows
         # UP/DOWN (window catches this event unless first/last task is under cursor) to move to next/previous task 
         elif val.code == term.KEY_RIGHT or val.code == term.KEY_DOWN or val == 'j':
+            await self.draw()
             last_window = self.current_window
             self.current_window = min(self.current_window + 1, len(self.windows)-1)
             if self.current_window != last_window:
