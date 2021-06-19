@@ -55,7 +55,7 @@ class Dashboard(UIElement):
             print(term.home + term.clear)
             self.width = term.width
             self.height = term.height - self.pos[1] - 1
-            self.elements = []
+            self.children = []
             # asyncio.get_event_loop().run_until_complete()
             asyncio.create_task(self.init_modelview())
         signal.signal(signal.SIGWINCH, on_resize)
@@ -69,7 +69,7 @@ class Dashboard(UIElement):
         with term.location():
             self.statusbar.log_draw_start()
 
-            for elem in self.elements:
+            for elem in self.children:
                 if elem != self.overlay:
                     await elem.draw()
             for i, elem in enumerate(self.marked):
@@ -97,16 +97,16 @@ class Dashboard(UIElement):
                     await self.draw()
 
     async def onFocus(self):
-        if len(self.elements):
-            await term.cursor.moveTo(self.elements[0])
+        if len(self.children):
+            await term.cursor.moveTo(self.children[0])
 
     async def onElementClosed(self, elem):
-        self.elements.remove(elem)
+        self.children.remove(elem)
         if elem == self.overlay:
             self.overlay = None
         await self.draw()
         if term.cursor.isOnElement(elem):
-            await term.cursor.moveTo(self.elements[0])
+            await term.cursor.moveTo(self.children[0])
 
     async def onKeyPress(self, val):
         element = term.cursor.on_element
@@ -157,10 +157,10 @@ class Dashboard(UIElement):
         # X to Archive done tasks
         elif val == 'X':
             self.model.archive()
-            self.elements = []
+            self.children = []
             await self.init_modelview()
             await self.draw()
-            await term.cursor.moveTo(self.elements[0])
+            await term.cursor.moveTo(self.children[0])
 
         # Ctrl+r to save order of current view
         elif self.sortmode != SortMode.FILE and val == term.KEY_CTRL['r']:
@@ -168,7 +168,7 @@ class Dashboard(UIElement):
             self.model.save_order(tasks)
             await self.init_modelview()
 
-        # Ctrl+r to move marked elements to the top
+        # Ctrl+r to move marked children to the top
         elif self.sortmode == SortMode.FILE and val == term.KEY_CTRL['r']:
             all_tasks = list(chain.from_iterable([win.get_all_tasks() for win in self.windows]))
             marked_tasks = [m.task for m in self.marked]
@@ -390,7 +390,7 @@ class Dashboard(UIElement):
             win_title_str(win): win.current_line for win in self.windows
         }
 
-        self.elements = []
+        self.children = []
         await self.init_modelview()
 
         # restore cursor positions in each window

@@ -9,13 +9,15 @@ class UIElement:
         if not rel_pos and not parent:
             raise ValueError("Either position or parent have to be specified")
         if parent:
-            parent.elements.append(self)
+            parent.children.append(self)
         self.parent = parent
         self.padding = padding
         self.max_height = max_height
-        self.elements = []
         self._rel_pos = np.array(rel_pos) if rel_pos else np.array((0,0))
         self.last_print = {}
+
+        self.children = [] # true uielements
+        self.elements = [] # low-level drawing units
 
     @property
     def pos(self):

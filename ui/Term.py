@@ -22,7 +22,7 @@ class Cursor:
 
     async def moveTo(self, on_element):
 
-        # elements are equal -> no change/events
+        # children are equal -> no change/events
         if self.on_element == on_element:
             return
 
