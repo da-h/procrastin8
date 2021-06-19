@@ -81,6 +81,7 @@ class Dashboard(UIElement):
 
             # self.statusbar.pos[1] = -1
             await self.statusbar.draw()
+            await term.log("test")
         await term.draw()
 
     async def loop(self, queue):

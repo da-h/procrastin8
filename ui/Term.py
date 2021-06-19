@@ -83,9 +83,13 @@ class WorkitTerminal(Terminal):
         self.current_state = {}
         self.print_buffer = []
         self.continue_loop = True
+        self._log_msgs = []
 
         if not self.dim:
             self.dim = self.bright_black
+
+    async def log(self, msg):
+        self._log_msgs = self._log_msgs[-99:] + [msg]
 
     # listen for keypresses (to be run in a seperate thread)
     def threaded_inkey(self, queue):
