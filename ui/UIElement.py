@@ -30,12 +30,12 @@ class UIElement:
     def rel_pos(self, a):
         self._rel_pos = np.array(a)
 
-    def draw(self):
+    async def draw(self):
         pass
 
-    def close(self):
+    async def close(self):
         if self.parent:
-            self.parent.onElementClosed(self)
+            await self.parent.onElementClosed(self)
 
     def printAt(self, rel_pos, *args, ignore_padding=False):
         seq = Sequence(*args,term)
@@ -53,24 +53,24 @@ class UIElement:
     # ------ #
     # Events #
     # ------ #
-    def onKeyPress(self, val):
+    async def onKeyPress(self, val):
         if self.parent is not None:
-            self.parent.onKeyPress(val)
+            await self.parent.onKeyPress(val)
 
-    def onFocus(self):
+    async def onFocus(self):
         pass
 
-    def onUnfocus(self):
+    async def onUnfocus(self):
         pass
 
-    def onEnter(self):
+    async def onEnter(self):
         if self.parent:
-            self.parent.onEnter()
+            await self.parent.onEnter()
 
-    def onLeave(self):
+    async def onLeave(self):
         if self.parent:
-            self.parent.onLeave()
+            await self.parent.onLeave()
 
-    def onElementClosed(self, elem):
+    async def onElementClosed(self, elem):
         if self.parent is not None:
-            self.parent.onElementClosed(elem)
+            await self.parent.onElementClosed(elem)

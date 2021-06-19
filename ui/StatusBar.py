@@ -24,8 +24,8 @@ class StatusBar(UIElement):
     def log_draw_start(self):
         self._redraw_start = current_milli_time()
 
-    def draw(self, **draw_args):
-        super().draw()
+    async def draw(self, **draw_args):
+        await super().draw()
         self.draw_calls += 1
         if self.status:
             msg_l = term.dim + "Status " + term.green + self.status + term.normal

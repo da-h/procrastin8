@@ -20,7 +20,7 @@ class Cursor:
     def hide(self):
         self.visible = False
 
-    def moveTo(self, on_element):
+    async def moveTo(self, on_element):
 
         # elements are equal -> no change/events
         if self.on_element == on_element:
@@ -28,8 +28,8 @@ class Cursor:
 
         # Event: onUnfocus
         if self.on_element is not None:
-            self.on_element.onLeave()
-            self.on_element.onUnfocus()
+            await self.on_element.onLeave()
+            await self.on_element.onUnfocus()
 
         self.on_element = self.on_element_current = on_element
         self.pos = self.on_element.pos
@@ -37,8 +37,8 @@ class Cursor:
 
         # Event: onFocus
         if self.on_element is not None:
-            self.on_element.onEnter()
-            self.on_element.onFocus()
+            await self.on_element.onEnter()
+            await self.on_element.onFocus()
 
     def clear(self):
         self.on_element = None
@@ -59,7 +59,7 @@ class Cursor:
 
         return self.pos - self.on_element.pos
 
-    def draw(self):
+    async def draw(self):
         if self.visible:
             print(term.move_xy(*self.pos)+term.normal_cursor, end='', flush=True)
         else:
@@ -135,7 +135,7 @@ class WorkitTerminal(Terminal):
         self.print_buffer = []
 
 
-    def draw(self):
+    async def draw(self):
 
         # alternatively: clear whole screen
         # self.print((0,0), term.home + term.clear)
@@ -154,7 +154,7 @@ class WorkitTerminal(Terminal):
         self.print_flush()
         self.buffered_print = {}
         self.buffered_delete = copy(self.current_state)
-        self.cursor.draw()
+        await self.cursor.draw()
 
 term = None
 def get_term():

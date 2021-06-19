@@ -38,7 +38,7 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
         elif TODO_STYLE == 2:
             self._typeset_text = ["",str(self.text)]
 
-    def draw(self):
+    async def draw(self):
         if self.active:
             total_height = self.total_height() - 1
             self.printAt((-WINDOW_PADDING,0), term.blue_bold("┏"*1))
@@ -50,24 +50,24 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
             self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1 + len(self.append),total_height), term.blue_bold("┛"*1))
 
         if TODO_STYLE == 1:
-            super().draw()
+            await super().draw()
             return
         if TODO_STYLE == 2:
             self.printAt((0,0),          " "*self.wrapper.width)
             self.printAt((0,1), term.dim+"─"*self.wrapper.width+term.normal)
-            super().draw()
+            await super().draw()
             return
 
     def make_subgroup(self, *args, **kwargs):
         return TaskGroup(*args, **kwargs)
 
-    def onFocus(self):
+    async def onFocus(self):
         self.active = True
-        return super().onFocus()
-    def onLeave(self):
+        return await super().onFocus()
+    async def onLeave(self):
         self.active = False
-        return super().onLeave()
-    def onKeyPress(self, val):
+        return await super().onLeave()
+    async def onKeyPress(self, val):
         if not self.edit_mode:
             if val == "e":
                 self.set_editmode(True, firstchar=0)
@@ -78,7 +78,7 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
 
                 self.task = Task.from_rawtext(self.model, self.raw_text)
                 return
-        super().onKeyPress(val)
+        await super().onKeyPress(val)
 
     def _update_common_tags(self):
         all_tasks = self.get_all_tasks()

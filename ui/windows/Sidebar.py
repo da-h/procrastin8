@@ -15,11 +15,11 @@ class Sidebar(TextWindow):
         # self.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.wrapper, parent=self))
         # self.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.wrapper, parent=self))
 
-    def onKeyPress(self, val):
+    async def onKeyPress(self, val):
 
         if val == "s":
             self.parent.rel_pos = (0,0)
-            self.close()
+            await self.close()
             return
 
-        return super().onKeyPress(val)
+        return await super().onKeyPress(val)

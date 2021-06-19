@@ -49,59 +49,65 @@ class Dashboard(UIElement):
         self.tasks = []
         self.statusbar = StatusBar()
         self.height = term.height - self.pos[1] - self.statusbar.height
-        self.init_modelview()
+        self.inited = False
 
         def on_resize(sig, action):
             print(term.home + term.clear)
             self.width = term.width
             self.height = term.height - self.pos[1] - 1
             self.elements = []
-            self.init_modelview()
+            # asyncio.get_event_loop().run_until_complete()
+            asyncio.create_task(self.init_modelview())
         signal.signal(signal.SIGWINCH, on_resize)
 
-    def draw(self):
+    async def draw(self):
+
+        if not self.inited:
+            self.inited = True
+            await self.init_modelview()
+
         with term.location():
             self.statusbar.log_draw_start()
 
             for elem in self.elements:
                 if elem != self.overlay:
-                    elem.draw()
+                    await elem.draw()
             for i, elem in enumerate(self.marked):
                 self.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True)
                 str_num = str(i+1)
                 self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
             if self.overlay:
-                self.overlay.draw()
+                await self.overlay.draw()
 
             # self.statusbar.pos[1] = -1
-            self.statusbar.draw()
-        term.draw()
+            await self.statusbar.draw()
+        await term.draw()
 
     async def loop(self, queue):
         with term.fullscreen():
             print(term.home + term.clear)
-            self.draw()
-            term.cursor.moveTo(self)
-            self.draw()
+            await self.draw()
+            await term.cursor.moveTo(self)
+            await self.draw()
             while self.continue_loop:
                 key = await queue.get()
                 if key and term.cursor.on_element:
-                    term.cursor.on_element.onKeyPress(key)
-                    self.draw()
+                    await term.cursor.on_element.onKeyPress(key)
+                    await self.draw()
 
-    def onFocus(self):
+    async def onFocus(self):
         if len(self.elements):
-            term.cursor.moveTo(self.elements[0])
+            await term.cursor.moveTo(self.elements[0])
 
-    def onElementClosed(self, elem):
+    async def onElementClosed(self, elem):
         self.elements.remove(elem)
         if elem == self.overlay:
             self.overlay = None
-        self.draw()
+        await self.draw()
         if term.cursor.isOnElement(elem):
-            term.cursor.moveTo(self.elements[0])
+            await term.cursor.moveTo(self.elements[0])
 
-    def onKeyPress(self, val):
+    async def onKeyPress(self, val):
         element = term.cursor.on_element
 
         # =============== #
@@ -122,7 +128,7 @@ class Dashboard(UIElement):
             if self.current_window != last_window:
                 if val.code == term.KEY_DOWN or val == 'j':
                     self.windows[self.current_window].current_line = 0
-                term.cursor.moveTo(self.windows[self.current_window])
+                await term.cursor.moveTo(self.windows[self.current_window])
             return
         elif val.code == term.KEY_LEFT or val.code == term.KEY_UP or val == 'k':
             last_window = self.current_window
@@ -130,36 +136,36 @@ class Dashboard(UIElement):
             if self.current_window != last_window:
                 if val.code == term.KEY_UP or val == 'k':
                     self.windows[self.current_window].current_line = len(self.windows[self.current_window].lines) - 1
-                term.cursor.moveTo(self.windows[self.current_window])
+                await term.cursor.moveTo(self.windows[self.current_window])
             return
 
         # s to open settings window
         elif val == "s" and self.overlay is None:
             # self.overlay = Prompt(COLUMN_WIDTH, parent=self)
             self.overlay = Sidebar(COLUMN_WIDTH, parent=self)
-            self.overlay.draw()
+            await self.overlay.draw()
             self.rel_pos = (COLUMN_WIDTH,0)
             self.overlay.rel_pos = (-COLUMN_WIDTH,0)
             self.overlay.add_emptyline()
             self.overlay.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.overlay.wrapper, parent=self.overlay))
 
 
-            old_elem = term.cursor.moveTo(self.overlay.lines[0])
+            old_elem = await term.cursor.moveTo(self.overlay.lines[0])
             return
 
         # X to Archive done tasks
         elif val == 'X':
             self.model.archive()
             self.elements = []
-            self.init_modelview()
-            self.draw()
-            term.cursor.moveTo(self.elements[0])
+            await self.init_modelview()
+            await self.draw()
+            await term.cursor.moveTo(self.elements[0])
 
         # Ctrl+r to save order of current view
         elif self.sortmode != SortMode.FILE and val == term.KEY_CTRL['r']:
             tasks = list(chain.from_iterable([win.get_all_tasks() for win in self.windows]))
             self.model.save_order(tasks)
-            self.init_modelview()
+            await self.init_modelview()
 
         # Ctrl+r to move marked elements to the top
         elif self.sortmode == SortMode.FILE and val == term.KEY_CTRL['r']:
@@ -170,7 +176,7 @@ class Dashboard(UIElement):
             tasks = marked_tasks + all_tasks
             self.marked = []
             self.model.save_order(tasks)
-            self.init_modelview()
+            await self.init_modelview()
 
         elif val == term.KEY_CTRL['o']:
             marked_tasks = [m.task for m in self.marked]
@@ -178,7 +184,7 @@ class Dashboard(UIElement):
             marked_tasks = self.model.query(filter=marked_tasks, sortBy=sort_by)
             self.marked = []
             self.model.save_order(marked_tasks)
-            self.init_modelview()
+            await self.init_modelview()
 
         # space to mark task
         elif val == ' ':
@@ -212,7 +218,7 @@ class Dashboard(UIElement):
             offset = 0 if isinstance(element, AbstractTaskGroup) else 1
             task = self.model.new_task(initial_text, pos=pos, offset=offset)
             task["unsaved"] = True
-            self.reinit_modelview(line_offset=+1)
+            await self.reinit_modelview(line_offset=+1)
             term.cursor.on_element.set_editmode(True)
 
         # d to delete current task
@@ -221,7 +227,7 @@ class Dashboard(UIElement):
                 return
 
             self.model.remove_task(pos=element.task)
-            self.reinit_modelview(line_offset=0)
+            await self.reinit_modelview(line_offset=0)
 
         # d to delete current task
         elif (val == 'p' or val == 'P') and len(self.marked):
@@ -236,7 +242,7 @@ class Dashboard(UIElement):
 
             self.model.move_to(marked_tasks, target_task, before=before)
             self.marked = []
-            self.reinit_modelview(line_offset=0)
+            await self.reinit_modelview(line_offset=0)
 
         elif val.code == term.KEY_ESCAPE and len(self.marked):
             self.marked = []
@@ -271,7 +277,7 @@ class Dashboard(UIElement):
             self.model.save_order(tasks)
 
             window = self.windows[self.current_window]
-            self.reinit_modelview(line_offset=dir*(len(tasks)-1))
+            await self.reinit_modelview(line_offset=dir*(len(tasks)-1))
 
 
         # =================== #
@@ -323,7 +329,7 @@ class Dashboard(UIElement):
                         # update text-representation
                         task.update_rawtext()
                     self.model.save()
-                    self.reinit_modelview(line_offset=-1)
+                    await self.reinit_modelview(line_offset=-1)
 
         # ================== #
         # cursor on TaskLine #
@@ -342,8 +348,8 @@ class Dashboard(UIElement):
                         window = self.windows[self.current_window]
                         window.lines.remove(element)
                         window.current_line -= 1
-                        term.cursor.moveTo(window)
-                        self.reinit_modelview(line_offset=0)
+                        await term.cursor.moveTo(window)
+                        await self.reinit_modelview(line_offset=0)
                     return
 
                 # ENTER to exit editmode & save
@@ -353,7 +359,7 @@ class Dashboard(UIElement):
                         del element.task["unsaved"]
                     element.task.model.save()
 
-                    self.reinit_modelview(line_offset=0)
+                    await self.reinit_modelview(line_offset=0)
                     return
 
             else:
@@ -362,7 +368,7 @@ class Dashboard(UIElement):
                 if val == term.KEY_CTRL['p']:
                     element.set_editmode(True, charpos=0)
                     term.cursor.pos = element.pos + (len(element.prepend),0)
-                    term.cursor.draw()
+                    await term.cursor.draw()
                     new_val = term.inkey()
                     if new_val.code == term.KEY_BACKSPACE:
                         element.task["priority"] = "M_"
@@ -373,9 +379,9 @@ class Dashboard(UIElement):
                     element.set_editmode(False)
                     element.task.model.save()
                     return
-        return super().onKeyPress(val)
+        return await super().onKeyPress(val)
 
-    def reinit_modelview(self, line_offset = 0):
+    async def reinit_modelview(self, line_offset = 0):
 
         # save cursor positions in each window
         win_title_str = lambda win: str(win.title.task) if isinstance(win.title, TaskLine) else win.title
@@ -384,7 +390,7 @@ class Dashboard(UIElement):
         }
 
         self.elements = []
-        self.init_modelview()
+        await self.init_modelview()
 
         # restore cursor positions in each window
         for win in self.windows:
@@ -392,7 +398,7 @@ class Dashboard(UIElement):
             if win_title in current_lines_per_window:
                 win.current_line = current_lines_per_window[win_title]
 
-        self.draw()
+        await self.draw()
         if len(self.windows) < self.current_window:
             self.current_window = len(self.windows) - 1
             self.window[self.current_window].current_line = 0
@@ -402,9 +408,9 @@ class Dashboard(UIElement):
             window = self.windows[0]
 
         window.current_line += line_offset
-        term.cursor.moveTo(window)
+        await term.cursor.moveTo(window)
 
-    def init_modelview(self):
+    async def init_modelview(self):
         win_pos = 0
         listtag = None
         tag = None
@@ -481,7 +487,7 @@ class Dashboard(UIElement):
 
         # pack windows if space is not sufficient
         if term.width < win_pos:
-            self.draw()
+            await self.draw()
             max_columns = term.width//(COLUMN_WIDTH+WINDOW_MARGIN)
             wins_to_stack = len(self.windows) - max_columns
             win_stacks = [[i] for i in range(len(self.windows))]
@@ -554,5 +560,5 @@ class Dashboard(UIElement):
                         new_window_order.append(self.windows[win_i])
                 self.windows = new_window_order
 
-            self.draw()
+            await self.draw()
 

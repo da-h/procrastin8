@@ -37,7 +37,7 @@ class Line(UIElement):
         if len(self._typeset_text) == 0:
             self._typeset_text = [""]
 
-    def draw(self):
+    async def draw(self):
 
         # check what highlight it is
         highlight = lambda x: x
@@ -81,7 +81,7 @@ class Line(UIElement):
         else:
             term.cursor.hide()
 
-    def onKeyPress(self, val):
+    async def onKeyPress(self, val):
         if self.edit_mode:
             if val.code == term.KEY_RIGHT:
                 self.edit_charpos = min(self.edit_charpos + 1, len(self.text))
@@ -132,10 +132,10 @@ class Line(UIElement):
                 self._updateText(self.text[:self.edit_charpos] + str(val) + self.text[self.edit_charpos:])
                 self.edit_charpos += 1
                 return
-        return super().onKeyPress(val)
+        return await super().onKeyPress(val)
 
     def _updateText(self, raw_text):
         self.text = raw_text
 
-    def onEditModeKey(self, val):
+    async def onEditModeKey(self, val):
         pass

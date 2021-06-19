@@ -15,8 +15,8 @@ class RadioLine(UIElement):
     def typeset(self):
         pass
 
-    def draw(self):
-        super().draw()
+    async def draw(self):
+        await super().draw()
         # check what highlight it is
         highlight = lambda x: term.ljust(x,width=self.wrapper.width)
         if term.cursor.on_element == self:
@@ -34,11 +34,11 @@ class RadioLine(UIElement):
             choice_text += " "
         self.printAt((3,1), choice_text)
 
-    def onKeyPress(self, val):
+    async def onKeyPress(self, val):
         if val.code == term.KEY_LEFT:
             self.active = (self.active - 1) % len(self.choices)
             return
         elif val.code == term.KEY_RIGHT:
             self.active = (self.active + 1) % len(self.choices)
             return
-        return super().onKeyPress(val)
+        return await super().onKeyPress(val)

@@ -76,13 +76,13 @@ class TaskLine(Line):
         self.last_line_style = default
         return " ".join([str(s) for s in S])+term.normal
 
-    def onKeyPress(self, val):
+    async def onKeyPress(self, val):
         if self.edit_mode:
             # if val.code == term.KEY_ESCAPE:
             #     self.task = Task.from_rawtext(self.task.model, self.previous_text)
             #     self.set_editmode(False)
             #     return
-            super().onKeyPress(val)
+            await super().onKeyPress(val)
             return
         else:
             if val == "x":
@@ -102,7 +102,7 @@ class TaskLine(Line):
             elif val == "A":
                 self.set_editmode(True, charpos=len(self.task["raw_text"]) - 1, firstchar=2)
                 return
-        UIElement.onKeyPress(self, val)
+        await UIElement.onKeyPress(self, val)
 
     def _updateText(self, raw_text):
         text_optionals = self.task.__str__(print_description=False)
@@ -117,7 +117,7 @@ class TaskLine(Line):
             self.previous_task = None
         super().set_editmode(mode, charpos, firstchar)
 
-    def onEditModeKey(self, val):
+    async def onEditModeKey(self, val):
         if val.is_sequence:
             return
 

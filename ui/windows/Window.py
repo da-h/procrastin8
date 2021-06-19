@@ -13,15 +13,15 @@ class Window(UIElement):
         self.draw_style = "basic"
         self.active = False
 
-    def draw(self, **draw_args):
-        super().draw()
+    async def draw(self, **draw_args):
+        await super().draw()
         if self.draw_style == "basic":
             self.draw_border(self.pos, (self.width, self.height), self.title, color=term.yellow if self.active else term.dim, **draw_args)
         elif self.draw_style == "basic-left-edge":
             self.draw_border2(self.pos, (self.width, self.height), self.title, color=term.normal if self.active else term.dim, **draw_args)
 
-    def close(self):
-        super().close()
+    async def close(self):
+        await super().close()
 
     def draw_border(self, pos, dim, title=None, color=term.normal, top_line="─", bottom_line="─"):
         pos = np.array(pos)
@@ -56,9 +56,9 @@ class Window(UIElement):
         if title is not None:
             self.printAt((1+0,0), color+" %s " % term.bold(term.white(title)), ignore_padding=True)
 
-    def onEnter(self):
+    async def onEnter(self):
         self.active = True
-        super().onEnter()
-    def onLeave(self):
+        await super().onEnter()
+    async def onLeave(self):
         self.active = False
-        super().onEnter()
+        await super().onEnter()

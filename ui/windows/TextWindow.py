@@ -29,7 +29,7 @@ class TextWindow(Window):
         self.empty_lines = 0
         self.allow_cursor_on_title = False
 
-    def draw(self):
+    async def draw(self):
         max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height)
         max_inner_height = max_height - self.padding[0] - self.padding[2]
 
@@ -54,7 +54,7 @@ class TextWindow(Window):
                 draw_args["top_line"] = "╴"
             if self.scroll_pos != self.max_scroll:
                 draw_args["bottom_line"] = "╴"
-        super().draw(**draw_args)
+        await super().draw(**draw_args)
 
         if content_height > max_inner_height:
             max_scroll = content_height - max_inner_height
@@ -62,40 +62,40 @@ class TextWindow(Window):
 
         # draw text
         for line in self.lines:
-            line.draw()
+            await line.draw()
 
-    def onKeyPress(self, val):
+    async def onKeyPress(self, val):
         element = term.cursor.on_element
         max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height)
         max_inner_height = max_height - self.padding[0] - self.padding[2]
 
         if val.code == term.KEY_UP or val == 'k':
             if self.current_line == 0:
-                super().onKeyPress(val)
+                await super().onKeyPress(val)
                 return
 
             self.current_line -= 1
             focus_on = self.content_lines[self.current_line]
-            term.cursor.moveTo(focus_on)
+            await term.cursor.moveTo(focus_on)
             if focus_on.rel_pos[1] < self.padding[1]:
                 self.scroll_pos = max(self.scroll_pos + focus_on.rel_pos[1] - self.padding[1], 0)
         elif val.code == term.KEY_DOWN or val == 'j':
             if self.current_line == len(self.content_lines) - 1:
-                super().onKeyPress(val)
+                await super().onKeyPress(val)
                 return
 
             self.current_line += 1
             focus_on = self.content_lines[self.current_line]
-            term.cursor.moveTo(focus_on)
+            await term.cursor.moveTo(focus_on)
             if focus_on.rel_pos[1] > max_inner_height:# - focus_on.height:
                 self.scroll_pos += focus_on.rel_pos[1] - element.rel_pos[1] + focus_on.height - 1
         elif val.code == term.KEY_HOME:
             self.current_line = 0
-            term.cursor.moveTo(self.content_lines[self.current_line])
+            await term.cursor.moveTo(self.content_lines[self.current_line])
             return
         elif val.code == term.KEY_END:
             self.current_line = len(self.content_lines)-1
-            term.cursor.moveTo(self.content_lines[self.current_line])
+            await term.cursor.moveTo(self.content_lines[self.current_line])
             return
         elif val == term.KEY_CTRL['e']:
             self.scroll_pos = max(self.scroll_pos - 1, 0)
@@ -103,7 +103,7 @@ class TextWindow(Window):
             if self.content_lines[-1].rel_pos[1] > max_inner_height:
                 self.scroll_pos = self.scroll_pos + 1
         else:
-            super().onKeyPress(val)
+            await super().onKeyPress(val)
 
     def add_line(self, text, prepend=""):
         if isinstance(text, str):
@@ -127,7 +127,7 @@ class TextWindow(Window):
         self.empty_lines += 1
         self.add_line("")
 
-    def onFocus(self):
+    async def onFocus(self):
         if len(self.content_lines):
             self.current_line = max(min(len(self.content_lines)-1, self.current_line),0)
-            term.cursor.moveTo(self.content_lines[self.current_line])
+            await term.cursor.moveTo(self.content_lines[self.current_line])

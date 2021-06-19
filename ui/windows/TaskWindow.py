@@ -27,35 +27,35 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
     def total_height(self):
         return self.height
 
-    def draw(self):
-        super().draw()
+    async def draw(self):
+        await super().draw()
 
         # title
         if isinstance(self.title, TaskLine):
             self.title.typeset()
             self.title.rel_pos = (2,0)
             self.title.height = 2 + self.empty_lines
-            self.title.draw()
+            await self.title.draw()
 
 
-    def onKeyPress(self, val):
+    async def onKeyPress(self, val):
         element = term.cursor.on_element
 
         if val.code == term.KEY_UP or val == 'k':
             if self.current_line == -1:
-                super(TextWindow, self).onKeyPress(val)
+                await super(TextWindow, self).onKeyPress(val)
                 return
             elif self.current_line == 0:
-                term.cursor.moveTo(self.title)
+                await term.cursor.moveTo(self.title)
                 self.title.line_style = term.bold_black_on_white
                 self.current_line = -1
                 return
         if val.code == term.KEY_DOWN or val == 'j':
             if self.current_line == -1:
                 self.title.line_style = term.bold_white
-        super().onKeyPress(val)
+        await super().onKeyPress(val)
 
 
-    def onLeave(self):
+    async def onLeave(self):
         self.title.line_style = term.bold_white
-        super().onLeave()
+        await super().onLeave()
