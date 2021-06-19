@@ -54,7 +54,7 @@ class Dashboard(UIElement):
         def on_resize(sig, action):
             print(term.home + term.clear)
             self.width = term.width
-            self.height = term.height
+            self.height = term.height - self.pos[1] - 1
             self.elements = []
             self.init_modelview()
         signal.signal(signal.SIGWINCH, on_resize)
@@ -499,7 +499,7 @@ class Dashboard(UIElement):
                 break_positions = [0]
                 cumsum_heights = np.cumsum([0] + win_heights)
                 if self.stackmode == StackMode.KEEP_ORDER:
-                    target_height =  term.height
+                    target_height =  self.height
                 else:
                     target_height =  cumsum_heights[-1] // max_columns
                 offset = 0
@@ -526,12 +526,12 @@ class Dashboard(UIElement):
                     self.windows[win_i].rel_pos = (1+(COLUMN_WIDTH+WINDOW_MARGIN)*stack_i, 1+current_height)
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
-                if 1 + current_height < term.height:
+                if 1 + current_height < self.height:
                     continue
 
                 # set max-height if height exceeds terminal height
                 win_heights = np.array([self.windows[i].height for i in stack])
-                while 1 + win_heights.sum() > term.height:
+                while 1 + win_heights.sum() > self.height:
                     win_heights[win_heights == np.max(win_heights)] -= 1
                 for win_i, max_height in zip(stack, win_heights):
                     self.windows[win_i].max_height = max_height
