@@ -32,7 +32,6 @@ class Dashboard(UIElement):
     def __init__(self, model, filter=".*"):
         super().__init__((0,0))
         self.width = term.width
-        self.height = term.height - self.pos[1] - 1
         self.filter = filter
         self.model = model
         self.overlay = None
@@ -49,6 +48,7 @@ class Dashboard(UIElement):
         self.subtask_groups = []
         self.tasks = []
         self.statusbar = StatusBar()
+        self.height = term.height - self.pos[1] - self.statusbar.height
         self.init_modelview()
 
         def on_resize(sig, action):
@@ -61,6 +61,8 @@ class Dashboard(UIElement):
 
     def draw(self):
         with term.location():
+            self.statusbar.log_draw_start()
+
             for elem in self.elements:
                 if elem != self.overlay:
                     elem.draw()
