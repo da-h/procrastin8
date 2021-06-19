@@ -70,7 +70,7 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
     async def onKeyPress(self, val):
         if not self.edit_mode:
             if val == "e":
-                self.set_editmode(True, firstchar=0)
+                await self.set_editmode(True, firstchar=0)
 
                 self.previous_task = copy(self.task)
                 self._update_common_tags()

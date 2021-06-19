@@ -1,7 +1,9 @@
 x 2021-06-19 2021-06-19 @todos rewrite drawing routinges
 x (A) 2021-06-19 2021-03-02 fix slow ui / move to asyncio +bug @todos
-2021-06-19 new task +asyncbug @todos
-2021-06-19 mark +asyncbug @todos
+x 2021-06-19 2021-06-19 editmode +asyncbug @todos
+2021-06-19 new task +asyncbug
+2021-06-19 mark +asyncbug
+2021-06-19 TaskGroup change does not work +bug
 2021-03-06 make saving async task +bug @todos
 2020-11-26 scrolling does not scroll completely down if multiline-task is at the bottom  +bug
 2020-11-26 tasks with 3 lines have bug in editmode in lowest line (see this one) +bug

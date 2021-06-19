@@ -78,7 +78,7 @@ class Line(UIElement):
             total_chars += t_len + 1
         return (0,0)
 
-    def set_editmode(self, mode: bool, charpos: int=0, firstchar: int=0):
+    async def set_editmode(self, mode: bool, charpos: int=0, firstchar: int=0):
         self.edit_mode = mode
         self.edit_charpos = charpos
         self.edit_firstchar = firstchar
@@ -86,6 +86,7 @@ class Line(UIElement):
             term.cursor.show()
         else:
             term.cursor.hide()
+        await self.onContentChange()
 
     async def onKeyPress(self, val):
         if self.edit_mode:

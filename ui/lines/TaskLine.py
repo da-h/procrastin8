@@ -78,10 +78,6 @@ class TaskLine(Line):
 
     async def onKeyPress(self, val):
         if self.edit_mode:
-            # if val.code == term.KEY_ESCAPE:
-            #     self.task = Task.from_rawtext(self.task.model, self.previous_text)
-            #     self.set_editmode(False)
-            #     return
             await super().onKeyPress(val)
             return
         else:
@@ -95,15 +91,13 @@ class TaskLine(Line):
                 await self.onContentChange()
                 return
             elif val == "i" or val == "e":
-                self.set_editmode(True)
+                await self.set_editmode(True)
                 return
             elif val == "I":
-                self.set_editmode(True)
-                await self.onContentChange()
+                await self.set_editmode(True)
                 return
             elif val == "A":
-                self.set_editmode(True, charpos=len(self.task["raw_text"]) - 1, firstchar=2)
-                await self.onContentChange()
+                await self.set_editmode(True, charpos=len(self.task["raw_text"]) - 1, firstchar=2)
                 return
         await UIElement.onKeyPress(self, val)
 
@@ -114,12 +108,12 @@ class TaskLine(Line):
         self.task.update( Task.from_rawtext(self.task.model, raw_text, leading_spaces=leading_spaces ) )
         await self.onContentChange(self, self)
 
-    def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
+    async def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
         if mode:
             self.previous_task = copy(self.task)
         else:
             self.previous_task = None
-        super().set_editmode(mode, charpos, firstchar)
+        await super().set_editmode(mode, charpos, firstchar)
 
     def get_all_tasks(self):
         return [self.task]

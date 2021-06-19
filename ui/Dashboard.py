@@ -239,7 +239,7 @@ class Dashboard(UIElement):
             task = self.model.new_task(initial_text, pos=pos, offset=offset)
             task["unsaved"] = True
             await self.reinit_modelview(line_offset=+1)
-            term.cursor.on_element.set_editmode(True)
+            await term.cursor.on_element.set_editmode(True)
 
         # d to delete current task
         elif val == 'd':
@@ -310,12 +310,12 @@ class Dashboard(UIElement):
                 if val.code == term.KEY_ESCAPE:
                     element.task = element.previous_task
                     element.previous_task = None
-                    element.set_editmode(False)
+                    await element.set_editmode(False)
                     return
 
                 # ENTER to exit editmode & save for all tasks in group
                 elif val.code == term.KEY_ENTER:
-                    element.set_editmode(False)
+                    await element.set_editmode(False)
                     new_common_lists = set(element.task["lists"])
                     new_common_tags = set(element.task["tags"])
                     new_common_subtags = set(element.task["subtags"])
@@ -362,7 +362,7 @@ class Dashboard(UIElement):
 
                     element.task = element.previous_task
                     element.previous_task = None
-                    element.set_editmode(False)
+                    await element.set_editmode(False)
                     if "unsaved" in element.task:
                         element.task.model.remove_task(element.task)
                         window = self.windows[self.current_window]
@@ -374,7 +374,7 @@ class Dashboard(UIElement):
 
                 # ENTER to exit editmode & save
                 elif val.code == term.KEY_ENTER:
-                    element.set_editmode(False)
+                    await element.set_editmode(False)
                     if "unsaved" in element.task:
                         del element.task["unsaved"]
                     element.task.model.save()
@@ -386,7 +386,7 @@ class Dashboard(UIElement):
 
                 # CTRL + p to set priority
                 if val == term.KEY_CTRL['p']:
-                    element.set_editmode(True, charpos=0)
+                    await element.set_editmode(True, charpos=0)
                     term.cursor.pos = element.pos + (len(element.prepend),0)
                     await term.cursor.draw()
                     new_val = term.inkey()
@@ -396,7 +396,7 @@ class Dashboard(UIElement):
                         new_priority = str(new_val).upper()
                         if re_priority.match(new_priority):
                             element.task["priority"] = new_priority
-                    element.set_editmode(False)
+                    await element.set_editmode(False)
                     element.task.model.save()
                     return
         return await super().onKeyPress(val)
