@@ -170,11 +170,13 @@ class UIElement(object):
             await self.parent.onContentChange(self, el_changed)
 
     async def onEnter(self):
-        if self.parent and self.parent not in term.cursor.elements_under_cursor_after:
+        # await term.log("enter"+str(self))
+        if self.parent and self.parent not in term.cursor.elements_under_cursor_before:
             await self.parent.onEnter()
 
     async def onLeave(self):
-        if self.parent and self.parent in term.cursor.elements_under_cursor_before:
+        # await term.log("leave"+str(self))
+        if self.parent and self.parent not in term.cursor.elements_under_cursor_after:
             await self.parent.onLeave()
 
     async def onElementClosed(self, elem):
