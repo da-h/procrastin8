@@ -1,6 +1,4 @@
-x 2021-06-19 2020-11-26 implement +statusbar @todos
-x 2021-06-19 2020-11-24 async log +statusbar @todos
-x 2021-06-19 2020-11-26 debug-mode redraw-time +statusbar @todos
+2021-06-19 @todos rewrite drawing routinges
 (A) 2021-03-02 fix slow ui / move to asyncio +bug @todos
 2021-03-06 make saving async task +bug @todos
 2020-11-26 new task may not be chosen correctly +bug @todos

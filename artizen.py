@@ -10,8 +10,6 @@ import threading
 term = get_term()
 
 def main():
-    draw_calls = 0
-    queue = Queue()
 
     # init
     if len(sys.argv) == 1:
@@ -27,8 +25,10 @@ def main():
         filter = ".*"
     model = Model(todofile, donefile)
     dash = Dashboard(model, filter)
+
     loop = asyncio.get_event_loop()
 
+    queue = Queue()
     t = threading.Thread(target=term.threaded_inkey, args=[queue])
     t.start()
     loop.run_until_complete(dash.loop(queue))
