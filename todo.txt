@@ -4,8 +4,12 @@ x 2021-06-19 2021-06-19 editmode +asyncbug @todos
 x 2021-06-20 2021-06-19 new task drawing bug +asyncbug
 x 2021-06-20 2021-06-20 new task cursor bug +asyncbug
 x 2021-06-20 2021-06-19 mark +asyncbug
-2021-06-19 window resize +asyncbug
+x 2021-06-20 2021-06-20 window title refresh +asyncbug
+x 2021-06-20 2021-06-20 edit refresh +asyncbug
+x 2021-06-20 2021-06-20 taskgroup highlight too long +asyncbug
+x 2021-06-20 2021-06-20 taskgroup highlight removes border +asyncbug
 2021-06-20 title text hides on hover +asyncbug
+2021-06-19 window resize +asyncbug
 2021-06-19 TaskGroup change does not work +bug
 2021-03-06 make saving async task +bug @todos
 2020-11-26 scrolling does not scroll completely down if multiline-task is at the bottom  +bug
