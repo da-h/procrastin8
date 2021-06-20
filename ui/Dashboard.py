@@ -53,14 +53,22 @@ class Dashboard(UIElement):
         self.inited = False
         self.registered_redraw = False
 
-        def on_resize(sig, action):
-            print(term.home + term.clear)
+        # signal: resize
+        # - ensures that this function is not called on every resize-event
+        self.resize_timer = None
+        async def resize_finished():
+            await asyncio.sleep(0.1)
             self.width = term.width
             self.height = term.height - self.pos[1] - 1
-            self.children = []
-            # asyncio.get_event_loop().run_until_complete()
-            asyncio.create_task(self.init_modelview())
-        signal.signal(signal.SIGWINCH, on_resize)
+            await self.reinit_modelview()
+            await self.draw()
+        async def on_resize():
+            if self.resize_timer is not None:
+                self.resize_timer.cancel()
+            self.resize_timer = asyncio.create_task(resize_finished())
+            await self.resize_timer
+        loop = asyncio.get_event_loop()
+        loop.add_signal_handler(signal.SIGWINCH, lambda: asyncio.ensure_future(on_resize()))
 
     async def redraw(self):
         self.registered_redraw = True
