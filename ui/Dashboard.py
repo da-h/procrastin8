@@ -60,6 +60,7 @@ class Dashboard(UIElement):
             await asyncio.sleep(0.1)
             self.width = term.width
             self.height = term.height - self.pos[1] - 1
+            self.statusbar.clear()
             await self.reinit_modelview()
             await self.draw()
         async def on_resize():
