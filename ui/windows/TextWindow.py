@@ -27,7 +27,7 @@ class TextWindow(Window):
         self.current_line = 0
         self.empty_lines = 0
         self.allow_cursor_on_title = False
-        self.registerProperty("scroll_pos", 0, ["content"])
+        self.registerProperty("scroll_pos", 0, ["content", "border"])
         self.registerProperty("content_height", 0, ["window"])
         self.registerProperty("height", self.height, ["content"])
         self._el_changed = []
@@ -43,6 +43,7 @@ class TextWindow(Window):
             el.typeset()
             if el.height != height:
                 self.element.remove("content")
+                self._el_changed = []
                 break
 
         # calculate dynamic height
@@ -62,7 +63,6 @@ class TextWindow(Window):
                     content_height += line.height
                 self.content_height = content_height
                 self.max_scroll = max(self.content_height - max_inner_height, 0)
-        self._el_changed = []
 
         # draw window
         draw_args = {}
@@ -75,9 +75,12 @@ class TextWindow(Window):
                 draw_args["bottom_line"] = "╴"
         await super().draw(**draw_args)
 
-        if self.content_height > max_inner_height:
-            max_scroll = self.content_height - max_inner_height
-            self.printAt((self.width-WINDOW_PADDING,int(self.scroll_pos/max_scroll*(max_inner_height-1))), term.yellow("┃") if self.active else "┃")
+        # draw scroll bar
+        if e := self.element("scrollbar", connected_to="border"):
+            with e:
+                if self.content_height > max_inner_height:
+                    max_scroll = self.content_height - max_inner_height
+                    self.printAt((self.width-WINDOW_PADDING,int(self.scroll_pos/max_scroll*(max_inner_height-1))), term.yellow("┃") if self.active else "┃")
 
         # draw text
         for line in self.lines:
