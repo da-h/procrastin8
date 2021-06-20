@@ -122,6 +122,8 @@ class UIElement(object):
             self.pos_changed = False
 
     def clear(self, elements=[]):
+        if isinstance(elements, str):
+            elements = [elements]
         if len(elements) == 0:
             self.element.removeAll()
             for c in self.children:
