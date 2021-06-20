@@ -31,11 +31,12 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
         await super().draw()
 
         # title
-        if isinstance(self.title, TaskLine):
-            self.title.typeset()
-            self.title.rel_pos = (2,0)
-            self.title.height = 2 + self.empty_lines
-            await self.title.draw()
+        if e := self.element.drawn_recently["border"]:
+            if isinstance(self.title, TaskLine):
+                self.title.typeset()
+                self.title.rel_pos = (2,0)
+                self.title.overwrite_height = self.height - 1
+                await self.title.draw()
 
 
     async def onContentChange(self, child_src=None, el_changed=None):
