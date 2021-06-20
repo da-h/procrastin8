@@ -73,7 +73,10 @@ class UIElement(object):
         self.__initialized = True
 
     def registerProperty(self, name, value, elements):
-        self._prop_elem_connections[name] = elements
+        if name in self._prop_vals:
+            self._prop_elem_connections[name] += elements
+        else:
+            self._prop_elem_connections[name] = elements
         self._prop_vals[name] = value
 
     def __getattr__(self, name):
