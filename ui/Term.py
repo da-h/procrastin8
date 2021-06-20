@@ -1,6 +1,5 @@
 from blessed import Terminal
 import numpy as np
-from heapq import heappush, heappop, heapify
 from copy import copy
 from time import sleep
 import asyncio
@@ -91,8 +90,7 @@ class WorkitTerminal(Terminal):
             "o": "\x0f"
         }
         self.buffered_print = {}
-        self.buffered_delete = []
-        self.current_state = {}
+        self.buffered_delete = {}
         self.print_buffer = []
         self.continue_loop = True
         self._log_msgs = []
@@ -121,17 +119,17 @@ class WorkitTerminal(Terminal):
 
 
     def removeAt(self, pos, seq):
-        self.buffered_delete.append((pos, seq))
+        pos = (pos[0], pos[1])
+
+        # register deletion of new sequence
+        if pos in self.buffered_delete:
+            self.buffered_delete[pos] = max(self.buffered_delete[pos], seq.length())
+        else:
+            self.buffered_delete[pos] = seq.length()
+
 
     def printAt(self, pos, seq):
         pos = (pos[0], pos[1])
-
-        # unregister removal on window in case
-        # - same sequence should be printed at same position
-        # - new sequence is at least longer
-        # if pos in self.current_state and (self.current_state[pos] == seq or self.current_state[pos].length() <= seq.length()):
-        #     if pos in self.buffered_delete:
-        #         del self.buffered_delete[pos]
 
         # register print of new sequence
         if pos in self.buffered_print:
@@ -140,7 +138,7 @@ class WorkitTerminal(Terminal):
             self.buffered_print[pos] = [seq]
 
     # secure print
-    def print(self, pos, seq):
+    def _print(self, pos, seq):
         if self.height <= pos[1]:
             return
         if pos[0] < 0:
@@ -153,27 +151,22 @@ class WorkitTerminal(Terminal):
     def print_flush(self):
         print("".join(self.print_buffer), end="")
         self.print_buffer = []
-
+        self.buffered_print = {}
+        self.buffered_delete = {}
 
     async def draw(self):
 
-        # alternatively: clear whole screen
-        # self.print((0,0), term.home + term.clear)
-
         # remove what is not requested again
-        for pos, seq in self.buffered_delete:
-            self.print(pos," "*seq.length())
+        for pos, len in self.buffered_delete.items():
+            self._print(pos," "*len)
 
         # print all new sequences
         for pos, seq_list in self.buffered_print.items():
             for seq in seq_list:
-                self.print(pos, seq)
-                self.current_state[pos] = seq
+                self._print(pos, seq)
 
         # flush & draw cursor
         self.print_flush()
-        self.buffered_print = {}
-        self.buffered_delete = []
         await self.cursor.draw()
 
 term = None
