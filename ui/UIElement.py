@@ -124,6 +124,8 @@ class UIElement(object):
     def clear(self, elements=[]):
         if len(elements) == 0:
             self.element.removeAll()
+            for c in self.children:
+                c.clear()
         for e in elements:
             self.element.remove(e)
 
