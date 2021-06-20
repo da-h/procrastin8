@@ -33,7 +33,7 @@ class Window(UIElement):
         # draw border
         self.printAt((0,0), color+"┌" + top_line * (width-2) + "┐", ignore_padding=True)
         for i in range(height-2):
-            self.printAt((0,i+1), color+"│  ", ignore_padding=True)
+            self.printAt((0,i+1), color+"│ ", ignore_padding=True)
             self.printAt((width-2,i+1), color+" │", ignore_padding=True)
         self.printAt((0,height-1), color+"└" + bottom_line * (width-2) + "┘", ignore_padding=True)
 
