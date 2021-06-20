@@ -26,6 +26,9 @@ class StatusBar(UIElement):
         if self.status:
             msg_l = term.dim + "Status " + term.green + self.status + term.normal
             msg_r = term.dim + "Draws: " + term.green + str(self.draw_calls) + term.normal
+            msg_r += term.dim + " (" + \
+                        term.green + "+"+str(len(term.buffered_print)) + term.normal + "/" + \
+                        term.red + "-"+str(len(term.buffered_delete)) + term.normal + ")"
             cur_time = current_milli_time()
             msg_r += "  " + term.dim + "Redraw Time: " + term.green + str(cur_time - self._redraw_start) + "ms" + term.normal
             msg_r = Sequence(msg_r, term)
