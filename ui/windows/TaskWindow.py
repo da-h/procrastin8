@@ -38,6 +38,13 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
             await self.title.draw()
 
 
+    async def onContentChange(self, child_src=None, el_changed=None):
+        if el_changed == self.title:
+            self.element.redraw("border")
+        if isinstance(child_src, TaskGroup):
+            child_src.element.redraw("grouptitle")
+        await super().onContentChange(child_src, el_changed)
+
     async def onKeyPress(self, val):
         element = term.cursor.on_element
 

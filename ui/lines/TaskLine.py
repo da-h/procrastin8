@@ -106,7 +106,7 @@ class TaskLine(Line):
         leading_spaces = len(raw_text) - len(raw_text.lstrip())
         raw_text = (text_optionals + " " if text_optionals else "") + raw_text
         self.task.update( Task.from_rawtext(self.task.model, raw_text, leading_spaces=leading_spaces ) )
-        await self.onContentChange(self, self)
+        await self.onContentChange()
 
     async def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
         if mode:

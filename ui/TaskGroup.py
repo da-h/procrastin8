@@ -66,9 +66,11 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
 
     async def onFocus(self):
         self.active = True
+        await self.onContentChange()
         return await super().onFocus()
     async def onLeave(self):
         self.active = False
+        await self.onContentChange()
         return await super().onLeave()
     async def onKeyPress(self, val):
         if not self.edit_mode:

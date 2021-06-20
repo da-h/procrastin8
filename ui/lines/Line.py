@@ -142,7 +142,7 @@ class Line(UIElement):
 
     async def _updateText(self, raw_text):
         self.text = raw_text
-        await self.onContentChange(self, self)
+        await self.onContentChange()
 
     async def onEnter(self):
         await super().onEnter()

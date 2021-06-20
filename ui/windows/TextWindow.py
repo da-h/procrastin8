@@ -149,7 +149,8 @@ class TextWindow(Window):
         self.add_line("")
 
     async def onContentChange(self, child_src, el_changed):
-        self._el_changed.append(child_src)
+        if isinstance(child_src, Line):
+            self._el_changed.append(child_src)
         await super().onContentChange(child_src, el_changed)
     async def onSizeChange(self, child_src, el_changed):
         self._size_changed.append(child_src)

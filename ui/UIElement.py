@@ -180,6 +180,8 @@ class UIElement(object):
             await self.parent.onSizeChange(self, el_changed + [self])
 
     async def onContentChange(self, child_src=None, el_changed=None):
+        if el_changed is None:
+            el_changed = self
         if self.parent:
             await self.parent.onContentChange(self, el_changed)
 
