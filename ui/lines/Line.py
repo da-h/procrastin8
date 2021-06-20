@@ -28,7 +28,7 @@ class Line(UIElement):
 
     # ensure lines have correct width
     def typeset(self):
-        self.element.remove("main")
+        self.element.redraw("main")
         if self.wrapper is None:
             self._typeset_text = self.formatText()
             self.height = 1
