@@ -54,12 +54,12 @@ class TextWindow(Window):
                 redraw_content = True
                 content_height = 0
                 for line in self.lines:
+                    line.clear()
                     line.rel_pos = np.array((self.padding[3] + WINDOW_PADDING, content_height - self.scroll_pos + self.padding[0]))
                     line.typeset()
                     line.max_height = max(max_inner_height - content_height + self.scroll_pos, 0)
                     if line.rel_pos[1] < self.padding[1]:
                         line.max_height = 0
-                        line.clear()
                     content_height += line.height
                 self.content_height = content_height
                 self.max_scroll = max(self.content_height - max_inner_height, 0)
