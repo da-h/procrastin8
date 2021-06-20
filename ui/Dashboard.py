@@ -144,7 +144,6 @@ class Dashboard(UIElement):
         # LEFT/RIGHT to move between windows
         # UP/DOWN (window catches this event unless first/last task is under cursor) to move to next/previous task 
         elif val.code == term.KEY_RIGHT or val.code == term.KEY_DOWN or val == 'j':
-            await self.draw()
             last_window = self.current_window
             self.current_window = min(self.current_window + 1, len(self.windows)-1)
             if self.current_window != last_window:
@@ -179,7 +178,6 @@ class Dashboard(UIElement):
         elif val == 'X':
             self.model.archive()
             await self.reinit_modelview()
-            await self.draw()
             await term.cursor.moveTo(self.children[0])
 
         # Ctrl+r to save order of current view

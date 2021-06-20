@@ -102,6 +102,8 @@ class UIElement(object):
         return self.__dict__[name]
     def __setattr__(self, name, value):
         if self.__initialized and name in self._prop_vals.keys():
+            if self._prop_vals[name] == value:
+                return
             els = self._prop_elem_connections[name]
             if len(els) == 0:
                 self.element.removeAll()
