@@ -29,6 +29,7 @@ class TextWindow(Window):
         self.allow_cursor_on_title = False
         self.registerProperty("scroll_pos", 0, ["content"])
         self.registerProperty("content_height", 0, ["window"])
+        self.registerProperty("height", self.height, ["content"])
         self._el_changed = []
         self._size_changed = []
 
@@ -64,19 +65,14 @@ class TextWindow(Window):
         self._el_changed = []
 
         # draw window
-        # if e := self.element("window"):
-        #     with e:
         draw_args = {}
-        if e := self.element("window"):
-            with e:
-                draw_args = {}
-                if self.overfull_mode == OverfullMode.SCROLL:
-                    self.height = min(self.content_height + self.padding[0] + self.padding[2], max_height)
-                if self.max_scroll != 0:
-                    if self.scroll_pos != 0:
-                        draw_args["top_line"] = "╴"
-                    if self.scroll_pos != self.max_scroll:
-                        draw_args["bottom_line"] = "╴"
+        if self.overfull_mode == OverfullMode.SCROLL:
+            self.height = min(self.content_height + self.padding[0] + self.padding[2], max_height)
+        if self.max_scroll != 0:
+            if self.scroll_pos != 0:
+                draw_args["top_line"] = "╴"
+            if self.scroll_pos != self.max_scroll:
+                draw_args["bottom_line"] = "╴"
         await super().draw(**draw_args)
 
         if self.content_height > max_inner_height:
