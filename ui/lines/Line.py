@@ -39,11 +39,8 @@ class Line(UIElement):
             self._typeset_text = [""]
 
     async def draw(self):
-
         if e := self.element("main"):
             with e:
-                await term.log("print"+str(self.text))
-                await term.log("print"+str(self._typeset_text))
 
                 # check what highlight it is
                 highlight = lambda x: x

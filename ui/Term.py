@@ -49,7 +49,6 @@ class Cursor:
 
         # Event: onFocus
         if parents_target[0] is not None and parents_target[0] not in parents_source:
-            # await term.log("ent"+str(on_element))
             await on_element.onEnter()
             await on_element.onFocus()
 
