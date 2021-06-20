@@ -409,6 +409,7 @@ class Dashboard(UIElement):
             win_title_str(win): win.current_line for win in self.windows
         }
 
+        self.clear()
         self.children = []
         await self.init_modelview()
 
@@ -428,6 +429,7 @@ class Dashboard(UIElement):
             window = self.windows[0]
 
         window.current_line += line_offset
+        await term.cursor.moveTo(window)
 
     async def init_modelview(self):
         win_pos = 0
