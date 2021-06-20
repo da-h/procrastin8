@@ -84,15 +84,17 @@ class Dashboard(UIElement):
             for elem in self.children:
                 if elem != self.overlay:
                     await elem.draw()
-            for i, elem in enumerate(self.marked):
-                self.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True)
-                str_num = str(i+1)
-                self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
+
+            if e := self.element("marked"):
+                with e:
+                    for i, elem in enumerate(self.marked):
+                        self.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True)
+                        str_num = str(i+1)
+                        self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
             if self.overlay:
                 await self.overlay.draw()
 
             # self.statusbar.pos[1] = -1
-            # await term.log(self.registered_redraw)
             await self.statusbar.draw()
 
         # if self.registered_redraw:
@@ -176,8 +178,7 @@ class Dashboard(UIElement):
         # X to Archive done tasks
         elif val == 'X':
             self.model.archive()
-            self.children = []
-            await self.init_modelview()
+            await self.reinit_modelview()
             await self.draw()
             await term.cursor.moveTo(self.children[0])
 
@@ -185,7 +186,7 @@ class Dashboard(UIElement):
         elif self.sortmode != SortMode.FILE and val == term.KEY_CTRL['r']:
             tasks = list(chain.from_iterable([win.get_all_tasks() for win in self.windows]))
             self.model.save_order(tasks)
-            await self.init_modelview()
+            await self.reinit_modelview()
 
         # Ctrl+r to move marked children to the top
         elif self.sortmode == SortMode.FILE and val == term.KEY_CTRL['r']:
@@ -195,16 +196,18 @@ class Dashboard(UIElement):
                 all_tasks.remove(t)
             tasks = marked_tasks + all_tasks
             self.marked = []
+            self.clear("marked")
             self.model.save_order(tasks)
-            await self.init_modelview()
+            await self.reinit_modelview()
 
         elif val == term.KEY_CTRL['o']:
             marked_tasks = [m.task for m in self.marked]
             sort_by = ["lists", "tags","subtags","priority"]
             marked_tasks = self.model.query(filter=marked_tasks, sortBy=sort_by)
             self.marked = []
+            self.clear("marked")
             self.model.save_order(marked_tasks)
-            await self.init_modelview()
+            await self.reinit_modelview()
 
         # space to mark task
         elif val == ' ':
@@ -219,6 +222,7 @@ class Dashboard(UIElement):
                 else:
                     self.marked.append(elem)
             mark(element)
+            self.clear("marked")
 
         # n to create new task
         elif val == 'n':
@@ -262,10 +266,12 @@ class Dashboard(UIElement):
 
             self.model.move_to(marked_tasks, target_task, before=before)
             self.marked = []
+            self.clear("marked")
             await self.reinit_modelview(line_offset=0)
 
         elif val.code == term.KEY_ESCAPE and len(self.marked):
             self.marked = []
+            self.clear("marked")
 
         # Shift + UP/DOWN to swap tasks up/down
         elif val.code == term.KEY_SDOWN or val.code == term.KEY_SUP:
