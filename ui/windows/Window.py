@@ -38,9 +38,8 @@ class Window(UIElement):
         self.printAt((0,height-1), color+"└" + bottom_line * (width-2) + "┘", ignore_padding=True)
 
         # set title
-        if title is not None:
-            if isinstance(title, str):
-                self.printAt((1+0,0), color+" %s " % term.bold(term.white(title)), ignore_padding=True)
+        if title is not None and isinstance(title, str):
+            self.printAt((1+0,0), color+" %s " % term.bold(term.white(title)), ignore_padding=True)
 
     def draw_border2(self, pos, dim, title=None, color=term.normal):
         pos = np.array(pos)

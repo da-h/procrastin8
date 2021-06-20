@@ -76,11 +76,10 @@ class TextWindow(Window):
         await super().draw(**draw_args)
 
         # draw scroll bar
-        if e := self.element("scrollbar", connected_to="border"):
-            with e:
-                if self.content_height > max_inner_height:
-                    max_scroll = self.content_height - max_inner_height
-                    self.printAt((self.width-WINDOW_PADDING,int(self.scroll_pos/max_scroll*(max_inner_height-1))), term.yellow("┃") if self.active else "┃")
+        if e := self.element.drawn_recently["border"]:
+            if self.content_height > max_inner_height:
+                max_scroll = self.content_height - max_inner_height
+                self.printAt((self.width-WINDOW_PADDING,int(self.scroll_pos/max_scroll*(max_inner_height-1))), term.yellow("┃") if self.active else "┃")
 
         # draw text
         for line in self.lines:

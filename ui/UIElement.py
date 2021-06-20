@@ -10,7 +10,7 @@ class UIElementTerminalBridge(object):
     def __init__(self):
         self.history = []
         self.elements = {} # low-level drawing units
-        self.element_connections = {} # when one gets removed, remove the list as well
+        self.drawn_recently = {} # determines if this has been redrawn recently
 
     @property
     def name(self):
@@ -18,14 +18,11 @@ class UIElementTerminalBridge(object):
             return self.history[-1]
         return "main"
 
-    def __call__(self, name, connected_to=None):
+    def __call__(self, name):
         if name in self.elements:
+            self.drawn_recently[name] = False
             return False
-        if connected_to:
-            if connected_to in self.element_connections:
-                self.element_connections[connected_to].append(name)
-            else:
-                self.element_connections[connected_to] = [name]
+        self.drawn_recently[name] = True
         self.elements[name] = []
         self.history.append(name)
         return self
@@ -48,11 +45,6 @@ class UIElementTerminalBridge(object):
             return
         for pos, seq in self.elements[element]:
             term.removeAt(pos, seq)
-
-        if element in self.element_connections:
-            for e in self.element_connections[element]:
-                self.remove(e)
-            del self.element_connections[element]
         del self.elements[element]
     def removeAll(self):
         for e in list(self.elements.keys()):
@@ -60,10 +52,6 @@ class UIElementTerminalBridge(object):
 
     def redraw(self, element):
         if element in self.elements:
-            if element in self.element_connections:
-                for e in self.element_connections[element]:
-                    del self.elements[e]
-                del self.element_connections[element]
             del self.elements[element]
 
 
