@@ -14,6 +14,8 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
         self.model = model
         self.raw_text = str(text)
         task = Task.from_rawtext(model, str(text))
+        TaskLine.__init__(self, *args, text=task, **kwargs)
+        AbstractTaskGroup.__init__(self, taskline_container=self.parent)
         if TODO_STYLE == 1:
             self.height = 1
             self.center = False
@@ -21,11 +23,10 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
             self.height = 3
             self.center = True
 
-        TaskLine.__init__(self, *args, text=task, **kwargs)
-        AbstractTaskGroup.__init__(self, taskline_container=self.parent)
         self.hide_taskbullet = True
         self.line_style = term.cyan
-        self.registerProperty("active", False, "highlightborder")
+        self.registerProperty("active", False, ["highlightborder", "grouptitle", "main"])
+        self.registerProperty("overwrite_height", 0, "highlightborder")
 
     def typeset(self):
         super().typeset()
@@ -43,7 +44,7 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
         if e := self.element("highlightborder"):
             with e:
                 if self.active:
-                    total_height = self.total_height() - 1
+                    total_height = self.total_height() - 1 if self.overwrite_height == 0 else self.overwrite_height
                     self.printAt((-WINDOW_PADDING,0), term.blue_bold("┏"*1))
                     self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1 + len(self.append),0), term.blue_bold("┓"*1))
                     for i in range(1, total_height):
@@ -52,14 +53,18 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
                     self.printAt((-WINDOW_PADDING,total_height), term.blue_bold("┗"*1))
                     self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1 + len(self.append),total_height), term.blue_bold("┛"*1))
 
-        if TODO_STYLE == 1:
-            await super().draw()
-            return
-        if TODO_STYLE == 2:
-            self.printAt((0,0),          " "*self.wrapper.width)
-            self.printAt((0,1), term.dim+"─"*self.wrapper.width+term.normal)
-            await super().draw()
-            return
+        if e := self.element("grouptitle"):
+            with e:
+                if TODO_STYLE == 1:
+                    await super().draw()
+                    return
+                if TODO_STYLE == 2:
+                    self.printAt((0,0),          " "*self.wrapper.width)
+                    self.printAt((0,1), term.dim+"─"*self.wrapper.width+term.normal)
+                    await super().draw()
+                    return
+
+        await super().draw()
 
     def make_subgroup(self, *args, **kwargs):
         return TaskGroup(*args, **kwargs)
