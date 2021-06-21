@@ -117,6 +117,8 @@ class TaskLine(Line):
         text_optionals = self.task.__str__(print_description=False)
         leading_spaces = len(raw_text) - len(raw_text.lstrip())
         raw_text = (text_optionals + " " if text_optionals else "") + raw_text
+        if self.text != raw_text:
+            self.text_changed = True
         self.task.update( Task.from_rawtext(self.task.model, raw_text, leading_spaces=leading_spaces ) )
         await self.onContentChange()
 

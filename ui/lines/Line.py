@@ -22,13 +22,18 @@ class Line(UIElement):
         self.line_style = ""
         self.last_line_style = ""
         self.center = center
+        self.text_changed = False
 
     def formatText(self):
         return str(self.text)
 
     # ensure lines have correct width
     def typeset(self):
-        self.element.redraw("main")
+        if self.text_changed:
+            self.clear("main")
+            self.text_changed = False
+        else:
+            self.element.redraw("main")
         if self.wrapper is None:
             self._typeset_text = self.formatText()
             self.height = 1
@@ -151,6 +156,8 @@ class Line(UIElement):
         return await super().onKeyPress(val)
 
     async def _updateText(self, raw_text):
+        if self.text != raw_text:
+            self.text_changed = True
         self.text = raw_text
         await self.onContentChange()
 
