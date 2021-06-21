@@ -129,6 +129,12 @@ class Dashboard(UIElement):
         if len(self.children):
             await term.cursor.moveTo(self.children[0])
 
+    async def onContentChange(self, child_src=None, el_changed=None):
+        await term.log(child_src)
+        if isinstance(child_src, TaskWindow):
+            self.clear("marked")
+        await super().onContentChange(child_src, el_changed)
+
     async def onElementClosed(self, elem):
         self.children.remove(elem)
         if elem == self.overlay:
@@ -604,4 +610,6 @@ class Dashboard(UIElement):
                 self.windows = new_window_order
 
             await self.draw()
+
+
 
