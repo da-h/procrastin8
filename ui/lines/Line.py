@@ -39,6 +39,8 @@ class Line(UIElement):
             self._typeset_text = [""]
 
     async def draw(self):
+        await super().draw()
+
         if e := self.element("main"):
             with e:
 

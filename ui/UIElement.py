@@ -11,6 +11,7 @@ class UIElementTerminalBridge(object):
         self.history = []
         self.elements = {} # low-level drawing units
         self.drawn_recently = {} # determines if this has been redrawn recently
+        self.allow_redraw = {}
 
     @property
     def name(self):
@@ -19,9 +20,12 @@ class UIElementTerminalBridge(object):
         return "main"
 
     def __call__(self, name):
-        if name in self.elements:
-            self.drawn_recently[name] = False
-            return False
+        if name not in self.allow_redraw:
+            if name in self.elements:
+                self.drawn_recently[name] = False
+                return False
+        else:
+            del self.allow_redraw[name]
         self.drawn_recently[name] = True
         self.elements[name] = []
         self.history.append(name)
@@ -51,8 +55,7 @@ class UIElementTerminalBridge(object):
             self.remove(e)
 
     def redraw(self, element):
-        if element in self.elements:
-            del self.elements[element]
+        self.allow_redraw[element] = True
 
 
 class UIElement(object):
