@@ -37,3 +37,24 @@ x 2020-11-26 2020-11-24 adding to new list does not work +bug @todos
 x 2021-06-19 2020-11-26 implement +statusbar @todos
 x 2021-06-19 2020-11-24 async log +statusbar @todos
 x 2021-06-19 2020-11-26 debug-mode redraw-time +statusbar @todos
+x 2021-06-19 2021-06-19 @todos rewrite drawing routines
+x (A) 2021-06-19 2021-03-02 fix slow ui / move to asyncio +bug @todos
+x 2021-06-19 2021-06-19 editmode +asyncbug @todos
+x 2021-06-20 2021-06-19 new task drawing bug +asyncbug
+x 2021-06-20 2021-06-20 new task cursor bug +asyncbug
+x 2021-06-20 2021-06-19 mark +asyncbug
+x 2021-06-20 2021-06-20 window title refresh +asyncbug
+x 2021-06-20 2021-06-20 edit refresh +asyncbug
+x 2021-06-20 2021-06-20 taskgroup highlight too long +asyncbug
+x 2021-06-20 2021-06-20 taskgroup highlight removes border +asyncbug
+x 2021-06-20 2021-06-20 title text hides on hover +asyncbug
+x 2021-06-20 2021-06-19 window resize +asyncbug
+x 2021-06-20 2021-06-20 resize does not remove window +bug
+x 2021-06-20 2021-06-20 statusbar does not remove itself +bug
+x 2021-06-21 2020-11-26 tasks with 3 lines have bug in editmode in lowest line (see this one) check also even more lines for that bug +bug
+x 2021-06-21 2021-06-21 focusing element at the end / jumping to end of window does not scroll +bug
+x 2021-06-21 2020-11-26 scrolling does not scroll completely down if multiline-task is at the bottom  +bug
+x 2021-06-21 2020-11-26 new task may not be chosen correctly +bug @todos
+x 2021-06-21 2020-12-25 window borders do not reset correctly on size change +bug
+x 2021-06-21 2021-03-06 scrolls 3 times with mouse wheel +bug
+x 2021-06-21 2021-03-06 add space after task that is followed by sublist +bug

@@ -1,32 +1,8 @@
-x 2021-06-19 2021-06-19 @todos rewrite drawing routinges
-x (A) 2021-06-19 2021-03-02 fix slow ui / move to asyncio +bug @todos
-x 2021-06-19 2021-06-19 editmode +asyncbug @todos
-x 2021-06-20 2021-06-19 new task drawing bug +asyncbug
-x 2021-06-20 2021-06-20 new task cursor bug +asyncbug
-x 2021-06-20 2021-06-19 mark +asyncbug
-x 2021-06-20 2021-06-20 window title refresh +asyncbug
-x 2021-06-20 2021-06-20 edit refresh +asyncbug
-x 2021-06-20 2021-06-20 taskgroup highlight too long +asyncbug
-x 2021-06-20 2021-06-20 taskgroup highlight removes border +asyncbug
-x 2021-06-20 2021-06-20 title text hides on hover +asyncbug
-2021-06-19 window resize +asyncbug
-2021-06-19 TaskGroup change does not work +bug
-2021-03-06 make saving async task +bug @todos
-2020-11-26 scrolling does not scroll completely down if multiline-task is at the bottom  +bug
-2020-11-26 tasks with 3 lines have bug in editmode in lowest line (see this one) +bug
-2020-11-26 new task may not be chosen correctly +bug @todos
-2020-12-25 window borders do not reset correctly on size change +bug
-2021-03-06 scrolls 3 times with mouse wheel +bug
-2021-03-06 cannot fill empty list +bug
-2021-03-06 add space after task that is followed by sublist +bug
-2021-06-18 fix renaming headers +bug
-2020-11-11 dependency tasks id:random p:parentid +feature @todos
-2020-11-14 show tasks as dependency chain +feature @todos
-2020-11-11 h:1 hidden +feature @todos
-2020-11-26 split overlong window if not in reorder-mode  +feature @todos
-2020-11-26 async save (with option) +feature @todos
-2020-11-30 split windows if in file-order mode +feature @todos
-2021-03-02 paste-mode instead of pasting below/above ? +feature @todos
+2021-06-19 TaskGroup change does not work (fix renaming headers) +bug @todos
+x 2021-06-21 2021-06-21 removing in editmode does not delete completely +bug @todos
+2021-06-21 update marker after scroll +bug @todos
+2021-06-21 taskgroup + e vs taskgroup + i differs in functionality +bug @todos
+2021-03-02 paste-mode instead of pasting below/above? (now we are doing moving. better use keys m/M) +feature @todos
 2021-03-02 Ctrl+P to paste into card ++kb +feature @todos
 2020-11-09 CTRL+N for completely new task @todos ++kb +feature
 2020-11-24 N for new task above @todos ++kb +feature
@@ -44,6 +20,12 @@ filter-sidebar +sidebar @todos
 enable edit of priority/date +dashboard @later
 prompt to edit raw todo text +dashboard @later
 2020-11-10 scroll when too much windows to be shown +dashboard @later
+2021-03-06 make saving async task +feature @later
+2020-11-11 dependency tasks id:random p:parentid +feature @later
+2020-11-14 show tasks as dependency chain +feature @later
+2020-11-11 h:1 hidden +feature @later
+2020-11-30 split windows if in file-order mode +feature @later
+2020-11-26 split overlong window if not in reorder-mode  +feature @later
 @later +kb p to paste below
 @later +kb P to paste above
 @later +kb strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
