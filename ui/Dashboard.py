@@ -486,7 +486,7 @@ class Dashboard(UIElement):
 
             # tag-line
             if l["tags"] and tag not in l["tags"]:
-                if tag and TODO_STYLE==1:
+                if len(win.lines) > 0 and TODO_STYLE==1:
                     win.add_emptyline()
                 tag = l["tags"][0]
                 task_group = win.add_taskgroup(tag, model=self.model)
