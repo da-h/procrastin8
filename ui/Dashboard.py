@@ -261,17 +261,26 @@ class Dashboard(UIElement):
             await self.reinit_modelview(line_offset=0)
 
         # d to delete current task
-        elif (val == 'p' or val == 'P') and len(self.marked):
+        elif (val == 'm' or val == 'M' or val == 'p' or val == 'P') and len(self.marked):
 
             marked_tasks = [t.task for t in self.marked]
             cursor_tasks = element.get_all_tasks()
 
-            target_task = cursor_tasks[-1 if val == 'p' else 0]
-            before = val == 'P'
+            target_task = cursor_tasks[-1 if val == 'p' or val == 'm' else 0]
+            before = val == 'P' or val == 'M'
             if target_task in marked_tasks:
                 return
 
+            # in case we are pasting into another group (and not moving)
+            if val == 'p' or val == 'P':
+                for task in marked_tasks:
+                    task["lists"] = target_task["lists"][:]
+                    task["tags"] = target_task["tags"][:]
+                    task["subtags"] = target_task["subtags"][:]
+                    task.update_rawtext()
+
             self.model.move_to(marked_tasks, target_task, before=before)
+            self.model.save()
             self.marked = []
             self.clear("marked")
             await self.reinit_modelview(line_offset=0)
