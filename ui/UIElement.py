@@ -173,7 +173,13 @@ class UIElement(object):
             await self.parent.onKeyPress(val)
 
     async def onFocus(self):
-        pass
+        await self.onChildFocused()
+
+    async def onChildFocused(self, child_src=None, el_focused=None):
+        if el_focused is None:
+            el_focused = self
+        if self.parent:
+            await self.parent.onChildFocused(self, el_focused)
 
     async def onUnfocus(self):
         pass
