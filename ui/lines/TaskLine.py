@@ -30,10 +30,13 @@ class TaskLine(Line):
     def typeset(self):
         super().typeset()
 
-        # fix wrong typeset in case line was to long
-        if Sequence(self._typeset_text[0], term).length() == 1 and len(self._typeset_text) > 1:
-            self._typeset_text[0] += self._typeset_text[1][1:]
-            del self._typeset_text[1]
+        # fix wrong typeset in case first line was to long
+        if len(self._typeset_text) > 1:
+            indent_len = len(self.wrapper.initial_indent)# if i != 1 else len(self.wrapper.subsequent_indent)
+            if Sequence(self._typeset_text[0], term).length() == self.edit_firstchar:
+                self._typeset_text[0] += self._typeset_text[1][self.edit_firstchar:]
+                del self._typeset_text[1]
+                self.height -= 1
 
     def formatText(self):
         S = []
