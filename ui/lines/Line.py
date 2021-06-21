@@ -58,7 +58,6 @@ class Line(UIElement):
                         self.printAt((0, i), t)
 
                 if self.edit_mode:
-                    # self.edit_charpos = 34
                     prepend = Sequence(self.prepend, term)
                     prepend_len = prepend.length()
                     term.cursor.pos = self.pos + (prepend_len, 0) + self._get_pos_in_line()
@@ -69,10 +68,10 @@ class Line(UIElement):
         for i, t in enumerate(self._typeset_text):
             t = Sequence(t, term).lstrip()
             t_len = len(t)
-            if total_chars <= self.edit_charpos + self.edit_firstchar and self.edit_charpos  + self.edit_firstchar < total_chars + t_len + 1:
+            if self.edit_charpos + self.edit_firstchar < total_chars + t_len:
                 indent_len = len(self.wrapper.initial_indent) if i == 0 else len(self.wrapper.subsequent_indent)
                 return (self.edit_charpos + self.edit_firstchar - total_chars + indent_len, i)
-            total_chars += t_len + 1
+            total_chars += t_len
         return (0,0)
 
     async def set_editmode(self, mode: bool, charpos: int=0, firstchar: int=0):
@@ -87,7 +86,6 @@ class Line(UIElement):
 
     async def onKeyPress(self, val):
         if self.edit_mode:
-            # await self.remove("main")
 
             if val.code == term.KEY_RIGHT:
                 self.edit_charpos = min(self.edit_charpos + 1, len(self.text))
@@ -96,18 +94,28 @@ class Line(UIElement):
                 self.edit_charpos = max(self.edit_charpos - 1, 0)
                 return
             elif val.code == term.KEY_DOWN:
-                i, j = self._get_pos_in_line()
-                if j < len(self._typeset_text) - 1:
-                    self.edit_charpos += len(Sequence(self._typeset_text[j], term).strip_seqs()[i:]) + i - 1
-                    self.edit_charpos = min(self.edit_charpos , len(self.text))
+                j, i = self._get_pos_in_line()
+
+                # there is no down in last line
+                if i == len(self._typeset_text) - 1:
+                    return
+
+                # all but first line skip need to ignore the initial indent
+                indent_len = len(self.wrapper.initial_indent) if i != 0 else len(self.wrapper.subsequent_indent)
+                self.edit_charpos += len(Sequence(self._typeset_text[i], term).lstrip()) - indent_len
+                self.edit_charpos = min(self.edit_charpos , len(self.text))
                 return
             elif val.code == term.KEY_UP:
-                i, j = self._get_pos_in_line()
-                if j > 0:
-                    indent_len = len(self.wrapper.initial_indent) if j == 0 else len(self.wrapper.subsequent_indent)
-                    self.edit_charpos -= len(Sequence(self._typeset_text[j], term).strip_seqs()[:i]) - indent_len + 1
-                    self.edit_charpos -= len(Sequence(self._typeset_text[j-1], term).strip_seqs()[i:])
-                    self.edit_charpos = max(self.edit_charpos , 0)
+                j, i = self._get_pos_in_line()
+
+                # there is no up in first line
+                if i == 0:
+                    return
+
+                # all but first line skip need to ignore the initial indent
+                indent_len = len(self.wrapper.initial_indent) if i != 1 else len(self.wrapper.subsequent_indent)
+                self.edit_charpos -= len(Sequence(self._typeset_text[i-1], term).lstrip()) - indent_len
+                self.edit_charpos = max(self.edit_charpos , 0)
                 return
             elif val.code == term.KEY_HOME:
                 self.edit_charpos = 0
@@ -136,7 +144,7 @@ class Line(UIElement):
                 return
             elif not val.is_sequence:
                 await self._updateText(self.text[:self.edit_charpos] + str(val) + self.text[self.edit_charpos:])
-                self.edit_charpos += 1
+                self.edit_charpos += len(val)
                 return
         return await super().onKeyPress(val)
 

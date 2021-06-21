@@ -21,7 +21,7 @@ class TextWindow(Window):
         self.indent = indent
         self.lines = []
         self.content_lines = []
-        self.wrapper = TextWrapper(width=width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2, initial_indent="", subsequent_indent=" " * indent, term=term)
+        self.wrapper = TextWrapper(width=width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2, initial_indent="", subsequent_indent=" " * indent, drop_whitespace=False, term=term)
         self.title = title
         self.overfull_mode = overfull_mode
         self.current_line = 0
@@ -129,7 +129,7 @@ class TextWindow(Window):
     def add_line(self, text, prepend=""):
         if isinstance(text, str):
             if prepend != "":
-                wrapper = TextWrapper(width=self.width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2 - len(prepend), initial_indent="", subsequent_indent=" " * self.indent, term=term)
+                wrapper = TextWrapper(width=self.width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2 - len(prepend), initial_indent="", subsequent_indent=" " * self.indent, drop_whitespace=False, term=term)
             else:
                 wrapper = self.wrapper
             elem = Line(text, prepend=prepend, wrapper=wrapper, parent=self)

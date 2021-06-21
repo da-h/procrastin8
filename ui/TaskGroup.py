@@ -1,5 +1,4 @@
 from copy import copy
-from blessed.sequences import SequenceTextWrapper as TextWrapper
 from blessed.keyboard import Keystroke
 from ui.lines.TaskLine import TaskLine
 from ui.util.AbstractTaskGroup import AbstractTaskGroup

@@ -26,6 +26,15 @@ class TaskLine(Line):
     def text(self):
         return self.task["raw_text"]
 
+    # ensure lines have correct width
+    def typeset(self):
+        super().typeset()
+
+        # fix wrong typeset in case line was to long
+        if Sequence(self._typeset_text[0], term).length() == 1 and len(self._typeset_text) > 1:
+            self._typeset_text[0] += self._typeset_text[1][1:]
+            del self._typeset_text[1]
+
     def formatText(self):
         S = []
         default = self.line_style
