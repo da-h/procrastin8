@@ -78,7 +78,7 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
         return await super().onLeave()
     async def onKeyPress(self, val):
         if not self.edit_mode:
-            if val == "e":
+            if val == 'i' or val == 'e':
                 await self.set_editmode(True, firstchar=0)
 
                 self.previous_task = copy(self.task)
