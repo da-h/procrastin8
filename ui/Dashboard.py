@@ -71,6 +71,9 @@ class Dashboard(UIElement):
         loop = asyncio.get_event_loop()
         loop.add_signal_handler(signal.SIGWINCH, lambda: asyncio.ensure_future(on_resize()))
 
+        # registers itself as main window
+        term.main_window = self
+
     async def redraw(self):
         self.registered_redraw = True
         # await self.draw()
