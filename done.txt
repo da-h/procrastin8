@@ -58,3 +58,9 @@ x 2021-06-21 2020-11-26 new task may not be chosen correctly +bug @todos
 x 2021-06-21 2020-12-25 window borders do not reset correctly on size change +bug
 x 2021-06-21 2021-03-06 scrolls 3 times with mouse wheel +bug
 x 2021-06-21 2021-03-06 add space after task that is followed by sublist +bug
+x 2021-06-21 2021-06-21 removing in editmode does not delete completely +bug @todos
+x 2021-06-21 2021-06-21 update marker after scroll +bug @todos
+x 2021-06-21 2021-03-02 paste-mode instead of pasting below/above? (now we are doing moving. better use keys m/M) +feature @todos
+x 2021-06-21 2021-06-19 TaskGroup change does not work (fix renaming headers) +bug @todos
+x 2021-06-21 2021-06-21 taskgroup + e vs taskgroup + i differs in functionality +bug @todos
+x 2021-06-23 2020-11-24 N for new task above @todos ++kb +feature

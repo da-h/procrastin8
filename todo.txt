@@ -1,12 +1,5 @@
-2021-06-19 TaskGroup change does not work (fix renaming headers) +bug @todos
-x 2021-06-21 2021-06-21 removing in editmode does not delete completely +bug @todos
-2021-06-21 update marker after scroll +bug @todos
-2021-06-21 taskgroup + e vs taskgroup + i differs in functionality +bug @todos
-2021-03-02 paste-mode instead of pasting below/above? (now we are doing moving. better use keys m/M) +feature @todos
-2021-03-02 Ctrl+P to paste into card ++kb +feature @todos
+2021-06-21 cannot move task after escaped edit +bug @todos
 2020-11-09 CTRL+N for completely new task @todos ++kb +feature
-2020-11-24 N for new task above @todos ++kb +feature
-2020-11-09 rename tags to projects and modifiers to tags +code @todos
 ++settings connect settings to ui/model +sidebar @todos
 ++settings save/load settings to file +sidebar @todos
 presets +sidebar ++filter @todos
