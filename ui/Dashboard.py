@@ -130,7 +130,6 @@ class Dashboard(UIElement):
             await term.cursor.moveTo(self.children[0])
 
     async def onContentChange(self, child_src=None, el_changed=None):
-        await term.log(child_src)
         if isinstance(child_src, TaskWindow):
             self.clear("marked")
         await super().onContentChange(child_src, el_changed)
@@ -238,12 +237,18 @@ class Dashboard(UIElement):
             self.clear("marked")
 
         # n to create new task
-        elif val == 'n':
+        elif val == 'n' or val == 'N':
             if isinstance(element, AbstractTaskGroup):
                 element._update_common_tags()
-                initial_text = " ".join([str(t) for t in element.common_subtags] + [str(t) for t in element.common_tags] + [str(t) for t in element.common_lists])
+                if val == 'N':
+                    initial_text = " ".join([str(t) for t in element.common_lists])
+                else:
+                    initial_text = " ".join([str(t) for t in element.common_subtags] + [str(t) for t in element.common_tags] + [str(t) for t in element.common_lists])
             elif isinstance(element, TaskLine):
-                initial_text = " ".join([str(t) for t in element.task["subtags"]] + [str(t) for t in element.task["tags"]] + [str(t) for t in element.task["lists"]])
+                if val == 'N':
+                    initial_text = " ".join([str(t) for t in element.task["subtags"]] + [str(t) for t in element.task["tags"]] + [str(t) for t in element.task["lists"]])
+                else:
+                    initial_text = " ".join([str(t) for t in element.task["subtags"]] + [str(t) for t in element.task["tags"]] + [str(t) for t in element.task["lists"]])
 
             if AUTOADD_CREATIONDATE:
                 initial_text = datetime.now().strftime("%Y-%m-%d") + " " + initial_text
@@ -251,11 +256,15 @@ class Dashboard(UIElement):
             if isinstance(element, TaskLine) and element.task["priority"] != "M_":
                 initial_text = "("+element.task["priority"]+") " + initial_text
 
+
             pos = element.get_all_tasks()[0] if isinstance(element, AbstractTaskGroup) else element.task
-            offset = 0 if isinstance(element, AbstractTaskGroup) else 1
+            offset = 0 if val == 'N' or isinstance(element, AbstractTaskGroup) else 1
             task = self.model.new_task(initial_text, pos=pos, offset=offset)
             task["unsaved"] = True
-            await self.reinit_modelview(line_offset=+1)
+            if isinstance(element, AbstractTaskGroup) and isinstance(element.taskline_container, TaskWindow):
+                await term.log(element.taskline_container)
+                offset += 1
+            await self.reinit_modelview(line_offset=offset if val == 'N' else 1)
             await term.cursor.on_element.set_editmode(True)
 
         # d to delete current task
