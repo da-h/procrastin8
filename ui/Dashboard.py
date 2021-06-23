@@ -262,7 +262,6 @@ class Dashboard(UIElement):
             task = self.model.new_task(initial_text, pos=pos, offset=offset)
             task["unsaved"] = True
             if isinstance(element, AbstractTaskGroup) and isinstance(element.taskline_container, TaskWindow):
-                await term.log(element.taskline_container)
                 offset += 1
             await self.reinit_modelview(line_offset=offset if val == 'N' else 1)
             await term.cursor.on_element.set_editmode(True)
@@ -288,10 +287,41 @@ class Dashboard(UIElement):
 
             # in case we are pasting into another group (and not moving)
             if val == 'p' or val == 'P':
+
+                # we need to calculate the differences between the old sets and the new sets
+                # to adapt the task["text"]
+                target_lists = set(target_task["lists"])
+                target_tags = set(target_task["tags"])
+                target_subtags = set(target_task["subtags"])
+
                 for task in marked_tasks:
-                    task["lists"] = target_task["lists"][:]
-                    task["tags"] = target_task["tags"][:]
-                    task["subtags"] = target_task["subtags"][:]
+
+                    # save lists/tags/subtags
+                    task_lists = set(task["lists"])
+                    task_tags = set(task["tags"])
+                    task_subtags = set(task["subtags"])
+
+                    # remove differences from text
+                    for t in task_lists.difference(target_lists):
+                        task["text"].remove(t)
+                    for t in task_tags.difference(target_tags):
+                        task["text"].remove(t)
+                    for t in task_subtags.difference(target_subtags):
+                        task["text"].remove(t)
+
+                    # add new to text
+                    for t in target_subtags.difference(task_subtags):
+                        task["text"].append(t)
+                    for t in target_tags.difference(task_tags):
+                        task["text"].append(t)
+                    for t in target_lists.difference(task_lists):
+                        task["text"].append(t)
+
+                    # save new state for easier access
+                    task["lists"] = list(target_lists)
+                    task["tags"] = list(target_tags)
+                    task["subtags"] = list(target_subtags)
+
                     task.update_rawtext()
 
             self.model.move_to(marked_tasks, target_task, before=before)
