@@ -96,9 +96,8 @@ class Dashboard(UIElement):
         with term.location():
             self.debugwindow.log_draw_start()
 
-            for elem in self.children:
-                if elem != self.overlay:
-                    await elem.draw()
+            for elem in self.windows:
+                await elem.draw()
 
             if e := self.element("marked"):
                 with e:
@@ -132,8 +131,8 @@ class Dashboard(UIElement):
                     await self.draw()
 
     async def onFocus(self):
-        if len(self.children):
-            await term.cursor.moveTo(self.children[0])
+        if len(self.windows):
+            await term.cursor.moveTo(self.windows[0])
 
     async def onContentChange(self, child_src=None, el_changed=None):
         if isinstance(child_src, TaskWindow):
@@ -142,11 +141,11 @@ class Dashboard(UIElement):
 
     async def onElementClosed(self, elem):
         self.children.remove(elem)
-        if elem == self.overlay:
-            self.overlay = None
+        if elem in self.windows:
+            self.windows.remove(elem)
         await self.draw()
         if term.cursor.isOnElement(elem):
-            await term.cursor.moveTo(self.children[0])
+            await term.cursor.moveTo(self.windows[0])
 
     async def onKeyPress(self, val):
         element = term.cursor.on_element
@@ -198,7 +197,7 @@ class Dashboard(UIElement):
         elif val == 'X':
             self.model.archive()
             await self.reinit_modelview()
-            await term.cursor.moveTo(self.children[0])
+            await term.cursor.moveTo(self.windows[0])
 
         # Ctrl+r to save order of current view
         elif self.sortmode != SortMode.FILE and val == term.KEY_CTRL['r']:
@@ -483,7 +482,9 @@ class Dashboard(UIElement):
         }
 
         self.clear()
-        self.children = []
+        for w in self.windows:
+            self.children.remove(w)
+        self.windows = []
         await self.init_modelview()
 
         # restore cursor positions in each window
