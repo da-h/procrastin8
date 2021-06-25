@@ -35,7 +35,6 @@ class Dashboard(UIElement):
         self.width = term.width
         self.filter = filter
         self.model = model
-        self.overlay = None
         self.continue_loop = True
         self.windows = []
         self.marked = []
@@ -105,8 +104,6 @@ class Dashboard(UIElement):
                         self.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True)
                         str_num = str(i+1)
                         self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
-            if self.overlay:
-                await self.overlay.draw()
 
             # self.debugwindow.pos[1] = -1
             await self.debugwindow.draw()
@@ -180,18 +177,18 @@ class Dashboard(UIElement):
             return
 
         # s to open settings window
-        elif val == "s" and self.overlay is None:
-            # self.overlay = Prompt(COLUMN_WIDTH, parent=self)
-            self.overlay = Sidebar(COLUMN_WIDTH, parent=self)
-            await self.overlay.draw()
-            self.rel_pos = (COLUMN_WIDTH,0)
-            self.overlay.rel_pos = (-COLUMN_WIDTH,0)
-            self.overlay.add_emptyline()
-            self.overlay.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.overlay.wrapper, parent=self.overlay))
-
-
-            old_elem = await term.cursor.moveTo(self.overlay.lines[0])
-            return
+        # elif val == "s" and self.overlay is None:
+        #     # self.overlay = Prompt(COLUMN_WIDTH, parent=self)
+        #     self.overlay = Sidebar(COLUMN_WIDTH, parent=self)
+        #     await self.overlay.draw()
+        #     self.rel_pos = (COLUMN_WIDTH,0)
+        #     self.overlay.rel_pos = (-COLUMN_WIDTH,0)
+        #     self.overlay.add_emptyline()
+        #     self.overlay.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.overlay.wrapper, parent=self.overlay))
+        #
+        #
+        #     old_elem = await term.cursor.moveTo(self.overlay.lines[0])
+        #     return
 
         # X to Archive done tasks
         elif val == 'X':
