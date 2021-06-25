@@ -4,7 +4,7 @@ from datetime import datetime
 import numpy as np
 from ui import get_term
 from ui.UIElement import UIElement
-from ui.StatusBar import StatusBar
+from ui.DebugWindow import DebugWindow
 from ui.windows.Sidebar import Sidebar
 from ui.lines.RadioLine import RadioLine
 from ui.lines.TaskLine import TaskLine
@@ -48,8 +48,8 @@ class Dashboard(UIElement):
         self.task_groups = []
         self.subtask_groups = []
         self.tasks = []
-        self.statusbar = StatusBar()
-        self.height = term.height - self.pos[1] - self.statusbar.height
+        self.debugwindow = DebugWindow(parent=self, height=10)
+        self.height = term.height - self.pos[1] - self.widgetbar.height
         self.inited = False
         self.registered_redraw = False
 
@@ -60,7 +60,7 @@ class Dashboard(UIElement):
             await asyncio.sleep(0.1)
             self.width = term.width
             self.height = term.height - self.pos[1] - 1
-            self.statusbar.clear()
+            self.debugwindow.clear()
             await self.reinit_modelview()
             await self.draw()
         async def on_resize():
@@ -90,8 +90,11 @@ class Dashboard(UIElement):
             self.inited = True
             await self.init_modelview()
 
+        # check what will be redrawn
+        # print(term.clear)
+
         with term.location():
-            self.statusbar.log_draw_start()
+            self.debugwindow.log_draw_start()
 
             for elem in self.children:
                 if elem != self.overlay:
@@ -106,8 +109,8 @@ class Dashboard(UIElement):
             if self.overlay:
                 await self.overlay.draw()
 
-            # self.statusbar.pos[1] = -1
-            await self.statusbar.draw()
+            # self.debugwindow.pos[1] = -1
+            await self.debugwindow.draw()
 
         # if self.registered_redraw:
         #     self.registered_redraw = False
@@ -512,8 +515,6 @@ class Dashboard(UIElement):
         subtask_group = None
         level_change = False
 
-        self.statusbar.pos[1] = term.height - self.statusbar.height
-
         if self.sortmode == SortMode.GROUP_FULL:
             sort_by = ["lists", "tags","subtags","priority"]
         elif self.sortmode == SortMode.FILE:
@@ -532,7 +533,7 @@ class Dashboard(UIElement):
 
             if new_window:
                 win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, listtag.name if listtag else "Todos", parent=self)
-                win.max_height = self.height - self.statusbar.height
+                win.max_height = self.height - self.debugwindow.height
                 win_pos += COLUMN_WIDTH + WINDOW_MARGIN
                 self.windows.append(win)
                 new_window = False

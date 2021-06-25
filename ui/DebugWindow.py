@@ -8,11 +8,12 @@ term = get_term()
 def current_milli_time():
     return round(time() * 1000)
 
-class StatusBar(UIElement):
+class DebugWindow(UIElement):
 
-    def __init__(self):
-        super().__init__((0,0))
-        self.height = 1
+    def __init__(self, height=0, parent=None):
+        pos = (0, term.height - height)
+        super().__init__(pos, parent=parent)
+        self.height = height
         self.width = term.width
         self.status = ""
         self.redraw_info = True
@@ -44,6 +45,8 @@ class StatusBar(UIElement):
 
     async def draw(self, **draw_args):
         await super().draw()
+        if self.height == 0:
+            return
         self.draw_calls += 1
         cur_time = current_milli_time()
 
@@ -69,8 +72,8 @@ class StatusBar(UIElement):
 
         if self.height > 2:
             self.printAt((0,1), term.dim + "─"*self.width+term.normal)
-        for i in range(self.height):
-            self.printAt((0,i+2), " "*term.width)
+            for i in range(self.height):
+                self.printAt((0,i+2), " "*term.width)
         for i, l in enumerate(term._log_msgs[-self.height+3:]):
         # for i, l in enumerate(list(term.buffered_print.values())[-2*self.height:-3-self.height]):
             self.printAt((0,i+2), term.dim + "   "+str(l)[:self.width-5]+term.normal)
