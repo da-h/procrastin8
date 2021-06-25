@@ -4,6 +4,7 @@ from datetime import datetime
 import numpy as np
 from ui import get_term
 from ui.UIElement import UIElement
+from ui.WidgetBar import WidgetBar
 from ui.DebugWindow import DebugWindow
 from ui.windows.Sidebar import Sidebar
 from ui.lines.RadioLine import RadioLine
@@ -47,7 +48,9 @@ class Dashboard(UIElement):
         self.task_groups = []
         self.subtask_groups = []
         self.tasks = []
+        self.widgetbar = WidgetBar(parent=self)
         self.debugwindow = DebugWindow(parent=self, height=10)
+        # self.pos[1] = self.widgetbar.pos[1] + self.widgetbar.height
         self.height = term.height - self.pos[1] - self.widgetbar.height
         self.inited = False
         self.registered_redraw = False
@@ -106,6 +109,7 @@ class Dashboard(UIElement):
                         self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
 
             # self.debugwindow.pos[1] = -1
+            await self.widgetbar.draw()
             await self.debugwindow.draw()
 
         # if self.registered_redraw:
@@ -530,7 +534,7 @@ class Dashboard(UIElement):
                 new_window = True
 
             if new_window:
-                win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, listtag.name if listtag else "Todos", parent=self)
+                win = TaskWindow((1 + win_pos, self.widgetbar.height),COLUMN_WIDTH, listtag.name if listtag else "Todos", parent=self)
                 win.max_height = self.height - self.debugwindow.height
                 win_pos += COLUMN_WIDTH + WINDOW_MARGIN
                 self.windows.append(win)
@@ -571,7 +575,7 @@ class Dashboard(UIElement):
 
         # create a window if no entries exist
         if new_window:
-            win = TaskWindow((1 + win_pos,1),COLUMN_WIDTH, listtag.name if listtag else "Todos", parent=self)
+            win = TaskWindow((1 + win_pos, self.widgetbar.height),COLUMN_WIDTH, listtag.name if listtag else "Todos", parent=self)
             self.windows.append(win)
 
 
