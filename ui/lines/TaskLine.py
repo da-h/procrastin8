@@ -85,7 +85,7 @@ class TaskLine(Line):
                 S.append(term.green(tstr)+default)
             else:
                 S.append(tstr)
-        self.last_line_style = default
+        self.line_style = default
         return " ".join([str(s) for s in S])+term.normal
 
     async def onKeyPress(self, val):

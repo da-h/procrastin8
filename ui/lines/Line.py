@@ -35,7 +35,7 @@ class Line(UIElement):
         else:
             self.element.redraw("main")
         if self.wrapper is None:
-            self._typeset_text = self.formatText()
+            self._typeset_text = [self.formatText()]
             self.height = 1
         else:
             self._typeset_text = self.wrapper.wrap(self.formatText())
@@ -58,7 +58,7 @@ class Line(UIElement):
                 for i, t in enumerate(self._typeset_text):
                     t = Sequence(highlight(t), term)
                     t_len = t.length()
-                    t = self.prepend+term.normal+self.last_line_style+t+term.normal+self.append
+                    t = self.prepend+term.normal+self.line_style+t+term.normal+self.append
                     if self.center:
                         self.printAt(((self.wrapper.width-1)//2 - t_len//2 - 1, 1), " "+t+" ")
                     else:
@@ -76,7 +76,7 @@ class Line(UIElement):
             t = Sequence(t, term).lstrip()
             t_len = len(t)
             if self.edit_charpos + self.edit_firstchar < total_chars + t_len:
-                indent_len = len(self.wrapper.initial_indent) if i == 0 else len(self.wrapper.subsequent_indent)
+                indent_len = 0 if not self.wrapper else len(self.wrapper.initial_indent) if i == 0 else len(self.wrapper.subsequent_indent)
                 return (self.edit_charpos + self.edit_firstchar - total_chars + indent_len, i)
             total_chars += t_len
         return (0,0)
@@ -155,10 +155,12 @@ class Line(UIElement):
                 return
         return await super().onKeyPress(val)
 
-    async def _updateText(self, raw_text):
+    async def _updateText(self, raw_text, call_onContentChange=True):
         if self.text != raw_text:
             self.text_changed = True
         self.text = raw_text
+        if self.edit_mode:
+            self.edit_charpos = min(self.edit_charpos, len(self.text))
         await self.onContentChange()
 
     async def onEnter(self):
