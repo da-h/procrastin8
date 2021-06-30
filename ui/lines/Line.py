@@ -70,7 +70,7 @@ class Line(UIElement):
                     term.cursor.pos = self.pos + (prepend_len, 0) + self._get_pos_in_line()
 
     def _get_pos_in_line(self):
-        total_chars = 0
+        total_chars, t_len = 0, 0
 
         for i, t in enumerate(self._typeset_text):
             t = Sequence(t, term).lstrip()
@@ -79,7 +79,8 @@ class Line(UIElement):
                 indent_len = 0 if not self.wrapper else len(self.wrapper.initial_indent) if i == 0 else len(self.wrapper.subsequent_indent)
                 return (self.edit_charpos + self.edit_firstchar - total_chars + indent_len, i)
             total_chars += t_len
-        return (0,0)
+        indent_len = 0 if not self.wrapper else len(self.wrapper.initial_indent) if i == 0 else len(self.wrapper.subsequent_indent)
+        return (t_len + indent_len,i)
 
     async def set_editmode(self, mode: bool, charpos: int=0, firstchar: int=0):
         self.edit_mode = mode
