@@ -5,6 +5,7 @@ import numpy as np
 from ui import get_term
 from ui.UIElement import UIElement
 from ui.WidgetBar import WidgetBar
+from ui.widgets.TimeWarriorWidget import TimeWarriorWidget
 from ui.DebugWindow import DebugWindow
 from ui.windows.Sidebar import Sidebar
 from ui.lines.RadioLine import RadioLine
@@ -49,6 +50,8 @@ class Dashboard(UIElement):
         self.subtask_groups = []
         self.tasks = []
         self.widgetbar = WidgetBar(parent=self)
+        self.timewarriorwidget = TimeWarriorWidget(parent=self.widgetbar)
+        self.widgetbar.widgets_left.append(self.timewarriorwidget)
         self.debugwindow = DebugWindow(parent=self, height=10)
         self.height = term.height - self.pos[1] - self.widgetbar.height
         self.inited = False
@@ -278,6 +281,11 @@ class Dashboard(UIElement):
 
             self.model.remove_task(pos=element.task)
             await self.reinit_modelview(line_offset=0)
+
+        # d to delete current task
+        elif val == 't':
+            await self.timewarriorwidget.set_editmode(True)
+            await term.cursor.moveTo(self.timewarriorwidget)
 
         # d to delete current task
         elif (val == 'm' or val == 'M' or val == 'p' or val == 'P') and len(self.marked):
