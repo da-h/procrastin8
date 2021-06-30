@@ -5,39 +5,40 @@ term = get_term()
 class WidgetBar(UIElement):
 
     def __init__(self, parent):
-        super().__init__((1,0), parent=parent)
-        self.height = 1
+        super().__init__((0,0), parent=parent)
+        self.height = 3
         self.width = term.width - 2
-        self.widgets_left = [TextWidget("test", parent=self), TextWidget("test2", parent=self), TextWidget("test500", parent=self)]
-        self.widgets_right = [TextWidget("test", parent=self), TextWidget("test2", parent=self), TextWidget("test500", parent=self)]
+        self.widgets_left = []
+        self.widgets_right = []
 
     async def draw(self, **draw_args):
         await super().draw()
 
-
         if e := self.element("widgets_left"):
             with e:
-                pos = 0
+                pos = 1
                 for w in self.widgets_left:
+                    w.rel_pos[1] = 1
                     w.rel_pos[0] = pos
-                    await w.draw()
+                    w.typeset()
                     pos += w.width + 1
         if e := self.element("widgets_right"):
             with e:
                 pos = self.width
                 for w in self.widgets_right:
+                    w.rel_pos[1] = 1
                     w.rel_pos[0] = pos - w.width
-                    await w.draw()
                     pos -= w.width + 1
 
+        for w in self.widgets_left:
+            await w.draw()
+        for w in self.widgets_right:
+            await w.draw()
 
-class TextWidget(UIElement):
-    def __init__(self, text, parent=None):
-        super().__init__((0,0), parent=parent)
-        self.height = 1
-        self.text = text
-        self.width = len(self.text)
+    async def onContentChange(self, child_src, el_changed):
+        if el_changed in self.widgets_left:
+            self.clear("widgets_left")
+        if el_changed in self.widgets_right:
+            self.clear("widgets_right")
+        await super().onContentChange(child_src, el_changed)
 
-    async def draw(self, **draw_args):
-        await super().draw()
-        self.printAt((0,0), term.dim + self.text + term.normal)
