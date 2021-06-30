@@ -105,6 +105,10 @@ class TaskLine(Line):
             elif val == "i" or val == "e":
                 await self.set_editmode(True)
                 return
+            elif val == "S":
+                await self.set_editmode(True, charpos=0, firstchar=2)
+                await self._updateText("")
+                return
             elif val == "I":
                 await self.set_editmode(True)
                 return

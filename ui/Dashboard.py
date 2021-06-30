@@ -282,10 +282,16 @@ class Dashboard(UIElement):
             self.model.remove_task(pos=element.task)
             await self.reinit_modelview(line_offset=0)
 
-        # d to delete current task
-        elif val == 't':
-            await self.timewarriorwidget.set_editmode(True)
-            await term.cursor.moveTo(self.timewarriorwidget)
+        # t toggles cursor between timewarriorwidget and last window
+        elif val == "T" or val == 't':
+            if val == "T":
+                await self.timewarriorwidget.set_editmode(True)
+                await self.timewarriorwidget._updateText("")
+
+            if term.cursor.on_element == self.timewarriorwidget:
+                await term.cursor.moveTo(self.windows[self.current_window])
+            else:
+                await term.cursor.moveTo(self.timewarriorwidget)
 
         # d to delete current task
         elif (val == 'm' or val == 'M' or val == 'p' or val == 'P') and len(self.marked):

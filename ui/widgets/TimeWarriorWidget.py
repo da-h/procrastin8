@@ -76,7 +76,28 @@ class TimeWarriorWidget(Line):
                 await self.set_editmode(False)
                 await term.cursor.moveTo(self.parent.parent)
                 return
-
+        else:
+            if val == "i" or val == "e":
+                await self.set_editmode(True)
+                return
+            elif val == "I":
+                await self.set_editmode(True)
+                return
+            elif val == "A":
+                await self.set_editmode(True, charpos=len(self.text), firstchar=2)
+                return
+            elif val == "S":
+                await self._updateText("")
+                await self.set_editmode(True, charpos=len(self.text), firstchar=2)
+                return
+            elif val == "x":
+                await self._updateText("")
+                await run("timew stop")
+                return
+            elif val == "d":
+                await self._updateText("")
+                await run("timew delete @1")
+                return
         return await super().onKeyPress(val)
 
     async def set_editmode(self, mode: bool, charpos: int=0, firstchar: int=0):
@@ -92,6 +113,12 @@ class TimeWarriorWidget(Line):
         await super().set_editmode(mode, charpos, firstchar)
 
     async def onFocus(self):
-        # self.text = ""
+        if not self.edit_mode:
+            self.prepend = term.blue("›")+term.normal+" "
+            await self.onContentChange()
+        await super().onFocus()
+
+    async def onUnfocus(self):
+        self.prepend = "  "
         await self.onContentChange()
         await super().onFocus()
