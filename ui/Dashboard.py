@@ -50,7 +50,6 @@ class Dashboard(UIElement):
         self.tasks = []
         self.widgetbar = WidgetBar(parent=self)
         self.debugwindow = DebugWindow(parent=self, height=10)
-        # self.pos[1] = self.widgetbar.pos[1] + self.widgetbar.height
         self.height = term.height - self.pos[1] - self.widgetbar.height
         self.inited = False
         self.registered_redraw = False
@@ -78,7 +77,6 @@ class Dashboard(UIElement):
 
     async def redraw(self):
         self.registered_redraw = True
-        # await self.draw()
 
     async def draw(self):
         # self.registered_redraw = False
@@ -625,7 +623,7 @@ class Dashboard(UIElement):
             for stack_i, stack in enumerate(win_stacks):
                 current_height = 0
                 for win_i in stack:
-                    self.windows[win_i].rel_pos = (1+(COLUMN_WIDTH+WINDOW_MARGIN)*stack_i, 1+current_height)
+                    self.windows[win_i].rel_pos = (1+(COLUMN_WIDTH+WINDOW_MARGIN)*stack_i, self.widgetbar.height+current_height)
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
                 if 1 + current_height < self.height:
@@ -641,7 +639,7 @@ class Dashboard(UIElement):
                 # reposition with new max_height
                 current_height = 0
                 for win_i in stack:
-                    self.windows[win_i].rel_pos = (1+(COLUMN_WIDTH+WINDOW_MARGIN)*stack_i, 1+current_height)
+                    self.windows[win_i].rel_pos = (1+(COLUMN_WIDTH+WINDOW_MARGIN)*stack_i, self.widgetbar.height+current_height)
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
             # re order windows based on stacks
