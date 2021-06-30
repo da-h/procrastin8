@@ -38,8 +38,9 @@ class Cursor:
         self.elements_under_cursor_after = parents_target
 
         # Event: onUnfocus
-        if parents_source[0] is not None and parents_source[0] not in parents_target:
-            await parents_source[0].onLeave()
+        if parents_source[0] is not None:
+            if parents_source[0] not in parents_target:
+                await parents_source[0].onLeave()
             await parents_source[0].onUnfocus()
 
         self.elements_under_cursor = parents_target
@@ -47,8 +48,9 @@ class Cursor:
         # term.location(self.pos[0], self.pos[1])
 
         # Event: onFocus
-        if parents_target[0] is not None and parents_target[0] not in parents_source:
-            await on_element.onEnter()
+        if parents_target[0] is not None:
+            if parents_target[0] not in parents_source:
+                await on_element.onEnter()
             await on_element.onFocus()
 
     def clear(self):
