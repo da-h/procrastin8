@@ -137,6 +137,7 @@ class Dashboard(UIElement):
         if isinstance(child_src, TaskWindow):
             self.clear("marked")
         await super().onContentChange(child_src, el_changed)
+        await self.draw()
 
     async def onElementClosed(self, elem):
         self.children.remove(elem)
