@@ -1,18 +1,24 @@
-2021-06-21 cannot move task after escaped edit +bug @todos
-2020-11-09 CTRL+N for completely new task @todos ++kb +feature
-++settings connect settings to ui/model +sidebar @todos
-++settings save/load settings to file +sidebar @todos
-presets +sidebar ++filter @todos
-choose projects / contexts +sidebar ++filter @todos
-and/or filters +sidebar ++filter @todos
-2020-11-09 hide tdate +sidebar ++filter tags @todos
-auto-filter +sidebar ++filter @todos
-filter-sidebar +sidebar @todos
+x 2021-06-30 2021-06-23 show taskwarrior status in statusbar @todos +timewarrior
+x basic bindings @todos +timewarrior
+x 2021-06-30 2021-06-30 timewarrior cursor position remains at start if cursor pos was at the end @todos +bug
+2021-06-30 window title disappears after hover +bug @todos
+2021-06-25 +code rename pos -> absolute_pos @todos
+2021-06-25 rename rel_pos -> pos +code @todos
+2021-06-25 should automatically draw all children (especially if content Changed) +code @todos
+connect settings to ui/model +dashboard @later
+save/load settings to file +dashboard @later
+presets +dashboard @later
+choose projects / contexts +dashboard @later
+and/or filters +dashboard @later
+2020-11-09 hide tdate tags +dashboard @later
+auto-filter +dashboard @later
+filter-sidebar +dashboard @later
 @later tabs +dashboard
 @later allow resize +dashboard
 enable edit of priority/date +dashboard @later
 prompt to edit raw todo text +dashboard @later
 2020-11-10 scroll when too much windows to be shown +dashboard @later
+2020-11-09 CTRL+N for completely new task +feature @later
 2021-03-06 make saving async task +feature @later
 2020-11-11 dependency tasks id:random p:parentid +feature @later
 2020-11-14 show tasks as dependency chain +feature @later
@@ -27,7 +33,5 @@ tag/subtag/list suggestions +editmode @later
 @later +Archive opens small prompt
 @later +Archive all windows
 @later +Archive only current windows
-add started tag +taskwarrior @later
-@later basic bindings +taskwarrior
 @later key: u to +undo
 escape undos edit +undo @later
