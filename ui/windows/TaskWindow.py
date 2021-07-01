@@ -20,17 +20,20 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
         self.title.hide_taskbullet = True
         self.title.line_style = term.bold_white
 
+
     def make_subgroup(self, *args, **kwargs):
         return TaskGroup(*args, **kwargs)
 
+
     def total_height(self):
         return self.height
+
 
     async def draw(self):
         await super().draw()
 
         # title
-        if e := self.element.drawn_recently["border"]:
+        if (e := self.element.drawn_recently["border"]) or (e2 := self.title.element("main")):
             if isinstance(self.title, TaskLine):
                 self.title.typeset()
                 self.title.rel_pos = (2,0)
@@ -44,6 +47,7 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
         if isinstance(child_src, TaskGroup):
             child_src.element.redraw("grouptitle")
         await super().onContentChange(child_src, el_changed)
+
 
     async def onKeyPress(self, val):
         element = term.cursor.on_element
