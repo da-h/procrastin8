@@ -56,6 +56,7 @@ class Dashboard(UIElement):
         self.height = term.height - self.pos[1] - self.widgetbar.height
         self.inited = False
         self.registered_redraw = False
+        self.will_redraw_soon = False
 
         # signal: resize
         # - ensures that this function is not called on every resize-event
@@ -129,7 +130,9 @@ class Dashboard(UIElement):
             while self.continue_loop:
                 key = await queue.get()
                 if key and term.cursor.on_element:
+                    self.will_redraw_soon = True
                     await term.cursor.on_element.onKeyPress(key)
+                    self.will_redraw_soon = False
                     await self.draw()
 
     async def onFocus(self):
@@ -140,7 +143,8 @@ class Dashboard(UIElement):
         if isinstance(child_src, TaskWindow):
             self.clear("marked")
         await super().onContentChange(child_src, el_changed)
-        await self.draw()
+        if not self.will_redraw_soon:
+            await self.draw()
 
     async def onElementClosed(self, elem):
         self.children.remove(elem)
