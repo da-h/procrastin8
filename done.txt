@@ -64,3 +64,7 @@ x 2021-06-21 2021-03-02 paste-mode instead of pasting below/above? (now we are d
 x 2021-06-21 2021-06-19 TaskGroup change does not work (fix renaming headers) +bug @todos
 x 2021-06-21 2021-06-21 taskgroup + e vs taskgroup + i differs in functionality +bug @todos
 x 2021-06-23 2020-11-24 N for new task above @todos ++kb +feature
+x 2021-06-30 2021-06-23 show taskwarrior status in statusbar @todos +timewarrior
+x basic bindings @todos +timewarrior
+x 2021-06-30 2021-06-30 timewarrior cursor position remains at start if cursor pos was at the end @todos +bug
+x 2021-07-01 2021-06-30 window title disappears after hover +bug @todos

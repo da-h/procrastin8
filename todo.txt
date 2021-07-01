@@ -1,7 +1,3 @@
-x 2021-06-30 2021-06-23 show taskwarrior status in statusbar @todos +timewarrior
-x basic bindings @todos +timewarrior
-x 2021-06-30 2021-06-30 timewarrior cursor position remains at start if cursor pos was at the end @todos +bug
-2021-06-30 window title disappears after hover +bug @todos
 2021-06-25 +code rename pos -> absolute_pos @todos
 2021-06-25 rename rel_pos -> pos +code @todos
 2021-06-25 should automatically draw all children (especially if content Changed) +code @todos
