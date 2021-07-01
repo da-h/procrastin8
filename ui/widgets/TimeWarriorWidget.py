@@ -28,10 +28,12 @@ class TimeWarriorWidget(Line):
         self.height = 1
         self.width = len(self.text)
         self.line_style = term.blue+term.dim
+        self.active = False
         self.prepend = "  "
         self.periodic_check = None
+        self.timer = ""
         async def start_periodic_check():
-            self.periodic_check = asyncio.create_task(self._update_tasks(2))
+            self.periodic_check = asyncio.create_task(self._update_tasks(1))
         asyncio.ensure_future(start_periodic_check())
 
     async def _update_tasks(self, every_seconds):
@@ -49,10 +51,17 @@ class TimeWarriorWidget(Line):
             if stdout == "There is no active time tracking.\n":
                 stdout = ""
             else:
-                stdout = " ".join(stdout.split("\n")[0].split(" ")[1:])
+                stdout_lines = stdout.split("\n")
+                if len(stdout_lines) > 2:
+                    self.timer = stdout_lines[3].split()[-1]
+                    if self.active:
+                        self.append = term.orange+term.dim+" (%s)" % self.timer
+                else:
+                    self.timer = ""
+                stdout = " ".join(stdout_lines[0].split(" ")[1:])
 
             # if the current tasks changed, set the new text
-            if stdout != self.text and not self.edit_mode:
+            if stdout != self.text and not self.edit_mode or len(stdout_lines) > 1 and self.active:
                 await self._updateText(stdout)
                 await self.onContentChange()
 
@@ -113,12 +122,20 @@ class TimeWarriorWidget(Line):
         await super().set_editmode(mode, charpos, firstchar)
 
     async def onFocus(self):
+        self.active = True
+        self.line_style = term.yellow
         if not self.edit_mode:
-            self.prepend = term.blue("›")+term.normal+" "
+            self.prepend = term.orange("›")+term.normal+" "
+            if self.timer:
+                self.append = term.orange+term.dim+" (%s)" % self.timer
             await self.onContentChange()
         await super().onFocus()
 
     async def onUnfocus(self):
+        self.active = False
+        self.line_style = term.blue+term.dim
         self.prepend = "  "
+        self.append = ""
+        self.clear() # removing what has been appended needs a complete refresh
         await self.onContentChange()
         await super().onFocus()
