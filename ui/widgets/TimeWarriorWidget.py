@@ -43,25 +43,33 @@ class TimeWarriorWidget(Line):
             # check this periodically
             await asyncio.sleep(every_seconds)
 
+    def _clear_timer(self):
+        self.timer = ""
+        self.append = ""
+
     async def _update_tasks_now(self):
         if not self.edit_mode:
+            last_append = self.append
 
             # check what tasks are currently worked on
             stdout, stderr = await run("timew")
             if stdout == "There is no active time tracking.\n":
                 stdout = ""
+                self._clear_timer()
             else:
                 stdout_lines = stdout.split("\n")
                 if len(stdout_lines) > 2:
                     self.timer = stdout_lines[3].split()[-1]
                     if self.active:
                         self.append = term.orange+term.dim+" (%s)" % self.timer
+                    else:
+                        self.append = ""
                 else:
-                    self.timer = ""
+                    self._clear_timer()
                 stdout = " ".join(stdout_lines[0].split(" ")[1:])
 
             # if the current tasks changed, set the new text
-            if stdout != self.text and not self.edit_mode or len(stdout_lines) > 1 and self.active:
+            if stdout != self.text and not self.edit_mode or last_append != self.append:
                 await self._updateText(stdout)
                 await self.onContentChange()
 
@@ -87,29 +95,36 @@ class TimeWarriorWidget(Line):
                 return
         else:
             if val == "i" or val == "e":
+                self._clear_timer()
                 await self.set_editmode(True)
                 return
             elif val == "I":
+                self._clear_timer()
                 await self.set_editmode(True)
                 return
             elif val == "A":
+                self._clear_timer()
                 await self.set_editmode(True, charpos=len(self.text), firstchar=2)
                 return
             elif val == "S":
+                self._clear_timer()
                 await self._updateText("")
                 await self.set_editmode(True, charpos=len(self.text), firstchar=2)
                 return
             elif val == "x":
+                self._clear_timer()
                 await self._updateText("")
                 await run("timew stop")
                 return
             elif val == "d":
+                self._clear_timer()
                 await self._updateText("")
                 await run("timew delete @1")
                 return
         return await super().onKeyPress(val)
 
     async def set_editmode(self, mode: bool, charpos: int=0, firstchar: int=0):
+        self.timer = ""
         if mode:
             self.saved_text = self.text
             self.prepend = term.black_on_blue("›")+term.normal+" "
@@ -135,7 +150,7 @@ class TimeWarriorWidget(Line):
         self.active = False
         self.line_style = term.blue+term.dim
         self.prepend = "  "
-        self.append = ""
+        self._clear_timer()
         self.clear() # removing what has been appended needs a complete refresh
         await self.onContentChange()
         await super().onFocus()
