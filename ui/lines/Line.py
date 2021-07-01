@@ -13,8 +13,8 @@ class Line(UIElement):
             self.registerProperty("text", text, ["main"])
         self.height = 1
         self.wrapper = wrapper
-        self.prepend = prepend
-        self.append = append
+        self.registerProperty("prepend", prepend, ["main"])
+        self.registerProperty("append", append, ["main"])
         self.registerProperty("edit_mode", False, ["main"])
         self.registerProperty("edit_charpos", 0, ["main"])
         self.registerProperty("edit_firstchar", 0, ["main"])
