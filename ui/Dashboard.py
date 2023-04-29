@@ -171,6 +171,9 @@ class Dashboard(UIElement):
         elif val == "u":
             self.model.undo_manager.undo()
             await self.reinit_modelview()
+        elif val == "R":
+            self.model.undo_manager.redo()
+            await self.reinit_modelview()
 
         # LEFT/RIGHT to move between windows
         # UP/DOWN (window catches this event unless first/last task is under cursor) to move to next/previous task 
