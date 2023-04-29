@@ -167,6 +167,11 @@ class Dashboard(UIElement):
             self.continue_loop = False
             return
 
+        # u to undo
+        elif val == "u":
+            self.model.undo_manager.undo()
+            await self.reinit_modelview()
+
         # LEFT/RIGHT to move between windows
         # UP/DOWN (window catches this event unless first/last task is under cursor) to move to next/previous task 
         elif val.code == term.KEY_RIGHT or val.code == term.KEY_DOWN or val == 'j':

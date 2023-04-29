@@ -2,6 +2,7 @@ import re
 import os
 from datetime import date
 from pathlib import Path
+from undo import UndoManager
 
 
 rdate = "\d{4}-\d{2}-\d{2}"
@@ -194,6 +195,8 @@ class Model():
     def __init__(self, todofile, donefile):
         self.todofile = todofile
         self.donefile = donefile
+        self.undo_manager = UndoManager(self)
+
         self.lists = {}
         self.tags = {}
         self.subtags = {}
@@ -208,6 +211,7 @@ class Model():
                 self.todo.append(task)
 
     def save(self):
+        self.undo_manager.record_operation()
         try:
             os.rename(self.todofile, self.todofile+"~")
             with open(self.todofile, "w") as f:
@@ -298,3 +302,13 @@ class Model():
         else:
             self.todo = self.todo[:pos+1] + tasks + self.todo[pos+1:]
         self.save()
+
+    def reload(self):
+        self.todo = []
+        with open(self.todofile, "r") as file:
+            for line_no, t in enumerate(file):
+                if not t.strip():
+                    continue
+
+                task = Task.from_rawtext(self, t, line_no=line_no)
+                self.todo.append(task)
