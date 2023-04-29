@@ -1,8 +1,10 @@
+from __future__ import annotations
 import re
 import os
 from datetime import date
 from pathlib import Path
 from undo import UndoManager
+from typing import List, Union
 
 
 rdate = "\d{4}-\d{2}-\d{2}"
@@ -72,6 +74,11 @@ class CreationDateCompletionDate(date):
 
 
 class Task(dict):
+    """
+    A class representing a task in the todo manager.
+
+    Inherits from dict and extends it with methods for manipulating and saving tasks.
+    """
 
     def __init__(self, model, d):
         super().__init__(d)
@@ -99,8 +106,21 @@ class Task(dict):
     def save(self):
         self.model.save()
 
+
     @classmethod
-    def from_rawtext(cls, model, t, line_no=None, leading_spaces=0):
+    def from_rawtext(cls, model, t: str, line_no: int = None, leading_spaces: int = 0) -> 'Task':
+        """
+        Create a Task instance from the raw text of a task entry.
+
+        Args:
+            model (Model): The model instance.
+            t (str): The raw text of the task entry.
+            line_no (int, optional): The line number of the task entry in the file. Defaults to None.
+            leading_spaces (int, optional): The number of leading spaces in the task entry. Defaults to 0.
+
+        Returns:
+            Task: A Task instance created from the raw text.
+        """
         modifiers = {}
         tags = []
         subtags = []
@@ -191,8 +211,15 @@ class Task(dict):
         return task
 
 
-class Model():
-    def __init__(self, todofile, donefile):
+
+class Model:
+    """
+    A class representing the todo manager's model.
+
+    Manages tasks, tags, subtags, and lists, and provides methods for loading, saving, and querying tasks.
+    """
+
+    def __init__(self, todofile: str, donefile: str):
         self.todofile = todofile
         self.donefile = donefile
         self.undo_manager = UndoManager(self)
@@ -201,8 +228,19 @@ class Model():
         self.tags = {}
         self.subtags = {}
 
+        self.load_from_file()
+
+        self.lists = {}
+        self.tags = {}
+        self.subtags = {}
+
+
+    def load_from_file(self) -> None:
+        """
+        Load tasks from the todofile into the model's task list.
+        """
         self.todo = []
-        with open(self.todofile,"r") as file:
+        with open(self.todofile, "r") as file:
             for line_no, t in enumerate(file):
                 if not t.strip():
                     continue
@@ -210,7 +248,10 @@ class Model():
                 task = Task.from_rawtext(self, t, line_no=line_no)
                 self.todo.append(task)
 
-    def save(self):
+    def save(self) -> None:
+        """
+        Save the model's tasks to the todofile.
+        """
         self.undo_manager.record_operation()
         try:
             os.rename(self.todofile, self.todofile+"~")
@@ -222,7 +263,11 @@ class Model():
             print("An exception occured. The original file has been moved before modification to '%s'." % self.todofile+"~")
             print(str(e))
 
-    def archive(self):
+
+    def archive(self) -> None:
+        """
+        Archive completed tasks to the donefile and remove them from the model's task list.
+        """
         todo, done = [], []
 
         for t in self.todo:
@@ -241,7 +286,17 @@ class Model():
 
         self.save()
 
-    def query(self, filter="", sortBy=[]):
+    def query(self, filter: Union[str, List[Task]] = "", sortBy: List[str] = []) -> List[Task]:
+        """
+        Query tasks in the model based on a filter and sort order.
+
+        Args:
+            filter (Union[str, List[Task]], optional): A string or list of tasks to filter the query by. Defaults to "".
+            sortBy (List[str], optional): A list of fields to sort the query results by. Defaults to [].
+
+        Returns:
+            List[Task]: A list of tasks that match the query.
+        """
 
         def sortstr_lineno(x):
             if isinstance(x, str):
@@ -272,18 +327,52 @@ class Model():
 
         return sorted(todo, key=sortstr)
 
-    def new_task(self, initial_text="", pos=-1, offset=1):
+    def new_task(self, initial_text: str = "", pos: Union[int, Task] = -1, offset: int = 1) -> Task:
+        """
+        Create a new task in the model.
+
+        Args:
+            initial_text (str, optional): The initial text of the task. Defaults to "".
+            pos (Union[int, Task], optional): The position or task to insert the new task after. Defaults to -1.
+            offset (int, optional): The offset from the pos to insert the new task. Defaults to 1.
+
+        Returns:
+            Task: A new Task instance.
+        """
         if isinstance(pos, Task):
             pos = self.todo.index(pos)
-        task = Task.from_rawtext(self,initial_text)
-        self.todo.insert(pos+offset, task)
+
+        if pos == -1:
+            pos = len(self.todo) - offset
+
+        task = Task.from_rawtext(self, initial_text)
+        self.todo.insert(pos + offset, task)
         # self.save()
         return task
 
-    def remove_task(self, pos=-1):
-        if isinstance(pos, int):
-            pos = self.todo[pos]
-        self.todo.remove(pos)
+    def remove_task_at_pos(self, pos: int) -> None:
+        task = self.todo[pos]
+        return self.remove_task(task)
+
+    def remove_task(self, task: Task) -> None:
+        """
+        Remove a task from the model.
+
+        Args:
+            task (Task): The task to remove from the model.
+        """
+        self.todo.remove(task)
+        self.save()
+
+    def change_task(self, task: Task, new_text: str) -> None:
+        """
+        Change the text of a task in the model.
+
+        Args:
+            task (Task): The task to change the text of.
+            new_text (str): The new text for the task.
+        """
+        task.update_rawtext(new_text)
         self.save()
 
     def save_order(self, tasks):

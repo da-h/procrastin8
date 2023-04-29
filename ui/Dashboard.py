@@ -291,7 +291,7 @@ class Dashboard(UIElement):
             if not isinstance(element, TaskLine) or isinstance(element, AbstractTaskGroup):
                 return
 
-            self.model.remove_task(pos=element.task)
+            self.model.remove_task(element.task)
             await self.reinit_modelview(line_offset=0)
 
         # t toggles cursor between timewarriorwidget and last window
