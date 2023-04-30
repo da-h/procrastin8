@@ -68,3 +68,5 @@ x 2021-06-30 2021-06-23 show taskwarrior status in statusbar @todos +timewarrior
 x basic bindings @todos +timewarrior
 x 2021-06-30 2021-06-30 timewarrior cursor position remains at start if cursor pos was at the end @todos +bug
 x 2021-07-01 2021-06-30 window title disappears after hover +bug @todos
+x connect settings to ui/model +dashboard @todos
+x save/load settings to file +dashboard @todos
