@@ -82,13 +82,6 @@ class Dashboard(UIElement):
                     self.will_redraw_soon = False
                     await self.draw()
 
-    async def onElementClosed(self, el):
-        if el == self.sidebar:
-            await self.sidebar.clear_area()
-            self.children.remove(el)
-            self.sidebar = None
-            await self.draw()
-
     async def onContentChange(self, child_src=None, el_changed=None):
         await super().onContentChange(child_src, el_changed)
         if not self.will_redraw_soon:
@@ -118,16 +111,17 @@ class Dashboard(UIElement):
 
         # s to open settings window
         elif val == "s":
-            if self.sidebar is not None:
-                self.sidebar.clear()
-                self.sidebar = None
-                await self.draw()
-            else:
-                await self.show_settings_sidebar()
+            await self.toggle_settings()
 
-    async def show_settings_sidebar(self):
-        self.sidebar = Sidebar(Settings.get('COLUMN_WIDTH'), parent=self)
-        await self.sidebar.draw()
+    async def toggle_settings(self):
+        if self.sidebar is not None:
+            self.sidebar.clear()
+            self.sidebar = None
+            await self.draw()
+        else:
+            self.sidebar = Sidebar(Settings.get('COLUMN_WIDTH'), parent=self)
+            await term.cursor.moveTo(self.sidebar)
+            await self.sidebar.draw()
         # await term.cursor.moveTo(self.sidebar.lines[0])
 
     async def reinit_modelview(self, line_offset = 0):
