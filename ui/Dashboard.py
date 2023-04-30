@@ -6,7 +6,7 @@ from ui.widgets.TimeWarriorWidget import TimeWarriorWidget
 from ui.DebugWindow import DebugWindow
 from ui.windows import TaskWindow
 from ui.TaskVisualizer import TaskVisualizer
-from ui.windows.Sidebar import Sidebar
+from ui.windows.SettingsWindow import SettingsWindow
 from ui.lines.RadioLine import RadioLine
 from settings import Settings
 import asyncio
@@ -30,7 +30,8 @@ class Dashboard(UIElement):
         self.task_visualizer = TaskVisualizer((0, self.widgetbar.height), self.height - self.debugwindow.height, model, filter, parent=self)
         self.registered_redraw = False
         self.will_redraw_soon = False
-        self.sidebar = None
+        self.settingswin = SettingsWindow(Settings.get('COLUMN_WIDTH'), parent=self)
+        self.settingswin.visible = False
 
         # signal: resize
         # - ensures that this function is not called on every resize-event
@@ -83,6 +84,8 @@ class Dashboard(UIElement):
                     await self.draw()
 
     async def onContentChange(self, child_src=None, el_changed=None):
+        if child_src == self.settingswin:
+            await self.reinit_modelview()
         await super().onContentChange(child_src, el_changed)
         if not self.will_redraw_soon:
             await self.draw()
@@ -114,15 +117,15 @@ class Dashboard(UIElement):
             await self.toggle_settings()
 
     async def toggle_settings(self):
-        if self.sidebar is not None:
-            self.sidebar.clear()
-            self.sidebar = None
-            await self.draw()
+        self.settingswin.clear()
+        self.settingswin.visible = not self.settingswin.visible
+        if self.settingswin.visible:
+            await term.cursor.moveTo(self.settingswin)
+            await self.settingswin.draw()
         else:
-            self.sidebar = Sidebar(Settings.get('COLUMN_WIDTH'), parent=self)
-            await term.cursor.moveTo(self.sidebar)
-            await self.sidebar.draw()
-        # await term.cursor.moveTo(self.sidebar.lines[0])
+            await term.cursor.moveTo(self)
+        self.clear()
+        await self.draw()
 
     async def reinit_modelview(self, line_offset = 0):
         await self.task_visualizer.reinit_modelview(line_offset)

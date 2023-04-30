@@ -65,6 +65,7 @@ class UIElement(object):
             raise ValueError("Either position or parent have to be specified")
         if parent:
             parent.children.append(self)
+        self.visible = True
         self.parent = parent
         self.padding = padding
         self.max_height = max_height
@@ -127,7 +128,7 @@ class UIElement(object):
             await self.parent.redraw()
 
     async def draw(self):
-        if self.pos_changed:
+        if self.pos_changed or not self.visible:
             self.clear()
             self.pos_changed = False
 
@@ -141,16 +142,17 @@ class UIElement(object):
         for e in elements:
             self.element.remove(e)
 
-    async def clear_area(self):
-        width, height = self.get_size()
-        for i in range(height):
-            term.buffered_delete[self.pos + (0, i)] = width
+    # async def clear_area(self):
+    #     for i in range(self.height):
+    #         term.buffered_print[(self.pos[0], self.pos[1] + i)] = [Sequence(" "*self.width, term)]
 
     async def close(self):
         if self.parent:
             await self.parent.onElementClosed(self)
 
     def printAt(self, rel_pos, *args, ignore_padding=False):
+        if not self.visible:
+            return
         seq = Sequence(*args,term)
         pos = self.pos + rel_pos + (0 if ignore_padding else (self.padding[0],self.padding[2]))
 
