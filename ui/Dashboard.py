@@ -12,7 +12,7 @@ from ui.lines.RadioLine import RadioLine
 from ui.lines.TaskLine import TaskLine
 from ui.util.AbstractTaskGroup import AbstractTaskGroup
 from ui.windows import TaskWindow
-from settings import COLUMN_WIDTH, WINDOW_MARGIN, TODO_STYLE, AUTOADD_CREATIONDATE, WINDOW_PADDING
+from settings import Settings
 from model import Task, Tag, Subtag, List, re_priority
 from enum import Enum
 import asyncio
@@ -108,7 +108,7 @@ class Dashboard(UIElement):
                     for i, elem in enumerate(self.marked):
                         self.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True)
                         str_num = str(i+1)
-                        self.printAt(elem.pos - self.pos + (COLUMN_WIDTH-WINDOW_PADDING*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
+                        self.printAt(elem.pos - self.pos + (Settings.get('COLUMN_WIDTH')-Settings.get('WINDOW_PADDING')*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
 
             # self.debugwindow.pos[1] = -1
             await self.widgetbar.draw()
@@ -196,11 +196,11 @@ class Dashboard(UIElement):
 
         # s to open settings window
         # elif val == "s" and self.overlay is None:
-        #     # self.overlay = Prompt(COLUMN_WIDTH, parent=self)
-        #     self.overlay = Sidebar(COLUMN_WIDTH, parent=self)
+        #     # self.overlay = Prompt(Settings.get('COLUMN_WIDTH'), parent=self)
+        #     self.overlay = Sidebar(Settings.get('COLUMN_WIDTH'), parent=self)
         #     await self.overlay.draw()
-        #     self.rel_pos = (COLUMN_WIDTH,0)
-        #     self.overlay.rel_pos = (-COLUMN_WIDTH,0)
+        #     self.rel_pos = (Settings.get('COLUMN_WIDTH'),0)
+        #     self.overlay.rel_pos = (-Settings.get('COLUMN_WIDTH'),0)
         #     self.overlay.add_emptyline()
         #     self.overlay.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.overlay.wrapper, parent=self.overlay))
         #
@@ -270,7 +270,7 @@ class Dashboard(UIElement):
                 else:
                     initial_text = " ".join([str(t) for t in element.task["subtags"]] + [str(t) for t in element.task["tags"]] + [str(t) for t in element.task["lists"]])
 
-            if AUTOADD_CREATIONDATE:
+            if Settings.get('AUTOADD_CREATIONDATE'):
                 initial_text = datetime.now().strftime("%Y-%m-%d") + " " + initial_text
 
             if isinstance(element, TaskLine) and element.task["priority"] != "M_":
@@ -559,9 +559,9 @@ class Dashboard(UIElement):
                 new_window = True
 
             if new_window:
-                win = TaskWindow((1 + win_pos, self.widgetbar.height),COLUMN_WIDTH, listtag.name if listtag else "Todos", parent=self)
+                win = TaskWindow((1 + win_pos, self.widgetbar.height),Settings.get('COLUMN_WIDTH'), listtag.name if listtag else "Todos", parent=self)
                 win.max_height = self.height - self.debugwindow.height
-                win_pos += COLUMN_WIDTH + WINDOW_MARGIN
+                win_pos += Settings.get('COLUMN_WIDTH') + Settings.get('WINDOW_MARGIN')
                 self.windows.append(win)
                 new_window = False
                 tag = None
@@ -571,7 +571,7 @@ class Dashboard(UIElement):
 
             # tag-line
             if l["tags"] and tag not in l["tags"]:
-                if len(win.lines) > 0 and TODO_STYLE==1:
+                if len(win.lines) > 0 and Settings.get('TODO_STYLE')==1:
                     win.add_emptyline()
                 tag = l["tags"][0]
                 task_group = win.add_taskgroup(tag, model=self.model)
@@ -600,14 +600,14 @@ class Dashboard(UIElement):
 
         # create a window if no entries exist
         if new_window:
-            win = TaskWindow((1 + win_pos, self.widgetbar.height),COLUMN_WIDTH, listtag.name if listtag else "Todos", parent=self)
+            win = TaskWindow((1 + win_pos, self.widgetbar.height),Settings.get('COLUMN_WIDTH'), listtag.name if listtag else "Todos", parent=self)
             self.windows.append(win)
 
 
         # pack windows if space is not sufficient
         if term.width < win_pos:
             await self.draw()
-            max_columns = term.width//(COLUMN_WIDTH+WINDOW_MARGIN)
+            max_columns = term.width//(Settings.get('COLUMN_WIDTH')+Settings.get('WINDOW_MARGIN'))
             wins_to_stack = len(self.windows) - max_columns
             win_stacks = [[i] for i in range(len(self.windows))]
 
@@ -650,7 +650,7 @@ class Dashboard(UIElement):
             for stack_i, stack in enumerate(win_stacks):
                 current_height = 0
                 for win_i in stack:
-                    self.windows[win_i].rel_pos = (1+(COLUMN_WIDTH+WINDOW_MARGIN)*stack_i, self.widgetbar.height+current_height)
+                    self.windows[win_i].rel_pos = (1+(Settings.get('COLUMN_WIDTH')+Settings.get('WINDOW_MARGIN'))*stack_i, self.widgetbar.height+current_height)
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
                 if 1 + current_height < self.height:
@@ -666,7 +666,7 @@ class Dashboard(UIElement):
                 # reposition with new max_height
                 current_height = 0
                 for win_i in stack:
-                    self.windows[win_i].rel_pos = (1+(COLUMN_WIDTH+WINDOW_MARGIN)*stack_i, self.widgetbar.height+current_height)
+                    self.windows[win_i].rel_pos = (1+(Settings.get('COLUMN_WIDTH')+Settings.get('WINDOW_MARGIN'))*stack_i, self.widgetbar.height+current_height)
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
             # re order windows based on stacks

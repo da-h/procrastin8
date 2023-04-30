@@ -2,7 +2,7 @@ from copy import copy
 from blessed.sequences import Sequence
 from datetime import datetime
 from model import Task, Tag, Subtag, List, Modifier, ModifierDate
-from settings import WINDOW_PADDING, COLUMN_WIDTH, LIST_HIDDEN, TAG_HIDDEN, SUBTAG_HIDDEN, DIM_COMPLETE, COMPLETIONDATE_HIDDEN, CREATIONDATE_HIDDEN, AUTOADD_COMPLETIONDATE
+from settings import Settings
 
 from ui import get_term
 from ui.UIElement import UIElement
@@ -42,7 +42,7 @@ class TaskLine(Line):
         S = []
         default = self.line_style
         if self.task["complete"]:
-            default = (term.dim if DIM_COMPLETE else "")
+            default = (term.dim if Settings.get('DIM_COMPLETE') else "")
 
         if self.task["priority"] == "A":
             S.append(term.red(self.task["priority"])+default)
@@ -55,29 +55,27 @@ class TaskLine(Line):
         elif self.task["priority"] == "M_":
             if self.task["complete"]:
                 S.append(term.green("✗")+default)
-            elif self.hide_taskbullet:
-                pass
-            else:
+            elif not self.hide_taskbullet:
                 S.append(term.blue("·"))
         else:
             S.append(term.grey(self.task["priority"])+default)
 
-        if not COMPLETIONDATE_HIDDEN and self.task["completion-date"]:
+        if not Settings.get('COMPLETIONDATE_HIDDEN') and self.task["completion-date"]:
             S.append(term.bright_white(str(self.task["completion-date"])+default))
-        if not CREATIONDATE_HIDDEN and self.task["creation-date"]:
+        if not Settings.get('CREATIONDATE_HIDDEN') and self.task["creation-date"]:
             S.append(term.dim+(str(self.task["creation-date"]))+default)
 
         for t in self.task["text"]:
             tstr = str(t)
 
             if isinstance(t, Tag):
-                if not TAG_HIDDEN or self.edit_mode:
+                if not Settings.get('TAG_HIDDEN') or self.edit_mode:
                     S.append(term.red(tstr)+default)
             elif isinstance(t, Subtag):
-                if not SUBTAG_HIDDEN or self.edit_mode:
+                if not Settings.get('SUBTAG_HIDDEN') or self.edit_mode:
                     S.append(term.red(term.dim+tstr)+default)
             elif isinstance(t, List):
-                if not LIST_HIDDEN or self.edit_mode:
+                if not Settings.get('LIST_HIDDEN') or self.edit_mode:
                     S.append(term.bold(term.blue(tstr))+default)
             elif isinstance(t, Modifier):
                 S.append(term.green(tstr)+default)
@@ -95,7 +93,7 @@ class TaskLine(Line):
         else:
             if val == "x":
                 self.task["complete"] = not self.task["complete"]
-                if AUTOADD_COMPLETIONDATE and self.task["creation-date"]:
+                if Settings.get('AUTOADD_COMPLETIONDATE') and self.task["creation-date"]:
                     self.task["completion-date"] = datetime.now().strftime("%Y-%m-%d")
                 if self.task["completion-date"] and not self.task["complete"]:
                     self.task["completion-date"] = None
@@ -120,17 +118,14 @@ class TaskLine(Line):
     async def _updateText(self, raw_text):
         text_optionals = self.task.__str__(print_description=False)
         leading_spaces = len(raw_text) - len(raw_text.lstrip())
-        raw_text = (text_optionals + " " if text_optionals else "") + raw_text
+        raw_text = (f"{text_optionals} " if text_optionals else "") + raw_text
         if self.text != raw_text:
             self.text_changed = True
         self.task.update( Task.from_rawtext(self.task.model, raw_text, leading_spaces=leading_spaces ) )
         await self.onContentChange()
 
     async def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
-        if mode:
-            self.previous_task = copy(self.task)
-        else:
-            self.previous_task = None
+        self.previous_task = copy(self.task) if mode else None
         await super().set_editmode(mode, charpos, firstchar)
 
     def get_all_tasks(self):

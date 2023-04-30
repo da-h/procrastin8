@@ -2,7 +2,7 @@ from copy import copy
 from blessed.keyboard import Keystroke
 from ui.lines.TaskLine import TaskLine
 from ui.util.AbstractTaskGroup import AbstractTaskGroup
-from settings import TODO_STYLE, WINDOW_PADDING
+from settings import Settings
 from ui import get_term
 from model import Tag, Subtag, List, re_priority, Task
 term = get_term()
@@ -15,10 +15,10 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
         task = Task.from_rawtext(model, str(text))
         TaskLine.__init__(self, *args, text=task, **kwargs)
         AbstractTaskGroup.__init__(self, taskline_container=self.parent)
-        if TODO_STYLE == 1:
+        if Settings.get('TODO_STYLE') == 1:
             self.height = 1
             self.center = False
-        elif TODO_STYLE == 2:
+        elif Settings.get('TODO_STYLE') == 2:
             self.height = 3
             self.center = True
 
@@ -33,9 +33,9 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
         if self.edit_mode:
             return
 
-        if TODO_STYLE == 1:
+        if Settings.get('TODO_STYLE') == 1:
             self._typeset_text = [str(self.text)]
-        elif TODO_STYLE == 2:
+        elif Settings.get('TODO_STYLE') == 2:
             self._typeset_text = ["",str(self.text)]
 
     async def draw(self):
@@ -44,20 +44,20 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
             with e:
                 if self.active:
                     total_height = self.total_height() - 1 if self.overwrite_height == 0 else self.overwrite_height
-                    self.printAt((-WINDOW_PADDING,0), term.blue_bold("┏"*1))
-                    self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1 + len(self.append),0), term.blue_bold("┓"*1))
+                    self.printAt((-Settings.get('WINDOW_PADDING'),0), term.blue_bold("┏"*1))
+                    self.printAt((len(self.prepend) + self.wrapper.width + Settings.get('WINDOW_PADDING') - 1 + len(self.append),0), term.blue_bold("┓"*1))
                     for i in range(1, total_height):
-                        self.printAt((-WINDOW_PADDING,i), term.blue_bold("┃"*1))
-                        self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1 + len(self.append),i), term.blue_bold("┃"*1))
-                    self.printAt((-WINDOW_PADDING,total_height), term.blue_bold("┗"*1))
-                    self.printAt((len(self.prepend) + self.wrapper.width + WINDOW_PADDING - 1 + len(self.append),total_height), term.blue_bold("┛"*1))
+                        self.printAt((-Settings.get('WINDOW_PADDING'),i), term.blue_bold("┃"*1))
+                        self.printAt((len(self.prepend) + self.wrapper.width + Settings.get('WINDOW_PADDING') - 1 + len(self.append),i), term.blue_bold("┃"*1))
+                    self.printAt((-Settings.get('WINDOW_PADDING'),total_height), term.blue_bold("┗"*1))
+                    self.printAt((len(self.prepend) + self.wrapper.width + Settings.get('WINDOW_PADDING') - 1 + len(self.append),total_height), term.blue_bold("┛"*1))
 
         if e := self.element("grouptitle"):
             with e:
-                if TODO_STYLE == 1:
+                if Settings.get('TODO_STYLE') == 1:
                     await super().draw()
                     return
-                if TODO_STYLE == 2:
+                if Settings.get('TODO_STYLE') == 2:
                     self.printAt((0,0),          " "*self.wrapper.width)
                     self.printAt((0,1), term.dim+"─"*self.wrapper.width+term.normal)
                     await super().draw()

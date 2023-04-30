@@ -3,7 +3,7 @@ from ui.windows.Window import Window
 from ui.lines.Line import Line
 from ui.lines.HLine import HLine
 from blessed.sequences import SequenceTextWrapper as TextWrapper
-from settings import WINDOW_PADDING
+from settings import Settings
 from ui import get_term
 from enum import Enum
 term = get_term()
@@ -21,7 +21,7 @@ class TextWindow(Window):
         self.indent = indent
         self.lines = []
         self.content_lines = []
-        self.wrapper = TextWrapper(width=width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2, initial_indent="", subsequent_indent=" " * indent, drop_whitespace=False, term=term)
+        self.wrapper = TextWrapper(width=width - self.padding[1] - self.padding[3] - Settings.get('WINDOW_PADDING') * 2, initial_indent="", subsequent_indent=" " * indent, drop_whitespace=False, term=term)
         self.title = title
         self.overfull_mode = overfull_mode
         self.current_line = 0
@@ -56,7 +56,7 @@ class TextWindow(Window):
                 self.line_cum_heights = []
                 for line in self.lines:
                     line.clear()
-                    line.rel_pos = np.array((self.padding[3] + WINDOW_PADDING, content_height - self.scroll_pos + self.padding[0]))
+                    line.rel_pos = np.array((self.padding[3] + Settings.get('WINDOW_PADDING'), content_height - self.scroll_pos + self.padding[0]))
                     line.typeset()
                     line.max_height = max(self.max_inner_height - content_height + self.scroll_pos, 0)
                     if line.rel_pos[1] < self.padding[1]:
@@ -81,7 +81,7 @@ class TextWindow(Window):
         if e := self.element.drawn_recently["border"]:
             if self.content_height > self.max_inner_height:
                 max_scroll = self.content_height - self.max_inner_height
-                self.printAt((self.width-WINDOW_PADDING,int(self.scroll_pos/max_scroll*(self.max_inner_height-1))), term.yellow("┃") if self.active else "┃")
+                self.printAt((self.width-Settings.get('WINDOW_PADDING'),int(self.scroll_pos/max_scroll*(self.max_inner_height-1))), term.yellow("┃") if self.active else "┃")
 
         # draw text
         for line in self.lines:
@@ -120,7 +120,7 @@ class TextWindow(Window):
     def add_line(self, text, prepend=""):
         if isinstance(text, str):
             if prepend != "":
-                wrapper = TextWrapper(width=self.width - self.padding[1] - self.padding[3] - WINDOW_PADDING * 2 - len(prepend), initial_indent="", subsequent_indent=" " * self.indent, drop_whitespace=False, term=term)
+                wrapper = TextWrapper(width=self.width - self.padding[1] - self.padding[3] - Settings.get('WINDOW_PADDING') * 2 - len(prepend), initial_indent="", subsequent_indent=" " * self.indent, drop_whitespace=False, term=term)
             else:
                 wrapper = self.wrapper
             elem = Line(text, prepend=prepend, wrapper=wrapper, parent=self)

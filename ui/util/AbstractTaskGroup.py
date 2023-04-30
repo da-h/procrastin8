@@ -1,7 +1,7 @@
 from blessed.sequences import SequenceTextWrapper as TextWrapper
 from ui.lines.TaskLine import TaskLine
 from ui import get_term
-from settings import WINDOW_PADDING
+from settings import Settings
 term = get_term()
 
 class AbstractTaskGroup:
@@ -24,7 +24,7 @@ class AbstractTaskGroup:
 
     def add_task(self, task, prepend=""):
         if prepend != "":
-            wrapper = TextWrapper(width=self.taskline_container.width-2-WINDOW_PADDING*2-len(prepend), initial_indent="",subsequent_indent=" "*self.taskline_container.indent, drop_whitespace=False, term=term)
+            wrapper = TextWrapper(width=self.taskline_container.width-2-Settings.get('WINDOW_PADDING')*2-len(prepend), initial_indent="",subsequent_indent=" "*self.taskline_container.indent, drop_whitespace=False, term=term)
         else:
             wrapper = self.taskline_container.wrapper
         elem = TaskLine(task, prepend=prepend, wrapper=wrapper, parent=self.taskline_container)
@@ -34,7 +34,7 @@ class AbstractTaskGroup:
 
     def add_taskgroup(self, task, prepend="", model=None):
         if prepend != "":
-            wrapper = TextWrapper(width=self.taskline_container.width-2-WINDOW_PADDING*2-len(prepend), initial_indent="",subsequent_indent=" "*self.taskline_container.indent, drop_whitespace=False, term=term)
+            wrapper = TextWrapper(width=self.taskline_container.width-2-Settings.get('WINDOW_PADDING')*2-len(prepend), initial_indent="",subsequent_indent=" "*self.taskline_container.indent, drop_whitespace=False, term=term)
         else:
             wrapper = self.taskline_container.wrapper
         taskgroup = self.make_subgroup(model, task, prepend=prepend, wrapper=wrapper, parent=self.taskline_container)
