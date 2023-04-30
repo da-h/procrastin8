@@ -75,3 +75,6 @@ x +kb P to paste above
 x escape to exit editmode (no change) +kb
 x key: u to +undo
 x escape undos edit +undo
+x 2023-04-30 2023-04-30 add layers to term / uielement +ui ++layers
+x 2023-04-30 2023-04-30 by default draw on same layer as parent +ui ++layers
+x 2023-04-30 2023-04-30 adapt settings to use one layer up +ui ++layers
