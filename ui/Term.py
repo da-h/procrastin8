@@ -149,7 +149,6 @@ class WorkitTerminal(Terminal):
             pos = (pos[0], term.height - pos[1])
         self.print_buffer.append(term.move_xy(pos)+seq)
 
-
     def print_flush(self):
         print("".join(self.print_buffer), end="")
         self.print_buffer = []

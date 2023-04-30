@@ -6,8 +6,9 @@ from ui.widgets.TimeWarriorWidget import TimeWarriorWidget
 from ui.DebugWindow import DebugWindow
 from ui.windows import TaskWindow
 from ui.TaskVisualizer import TaskVisualizer
-# from ui.windows.Sidebar import Sidebar
-# from ui.lines.RadioLine import RadioLine
+from ui.windows.Sidebar import Sidebar
+from ui.lines.RadioLine import RadioLine
+from settings import Settings
 import asyncio
 
 term = get_term()
@@ -29,6 +30,7 @@ class Dashboard(UIElement):
         self.task_visualizer = TaskVisualizer((0, self.widgetbar.height), self.height - self.debugwindow.height, model, filter, parent=self)
         self.registered_redraw = False
         self.will_redraw_soon = False
+        self.sidebar = None
 
         # signal: resize
         # - ensures that this function is not called on every resize-event
@@ -67,7 +69,7 @@ class Dashboard(UIElement):
 
             # self.debugwindow.pos[1] = -1
             await self.widgetbar.draw()
-            await self.debugwindow.draw()
+            # await self.debugwindow.draw()
             await self.task_visualizer.draw()
 
         # if self.registered_redraw:
@@ -91,6 +93,13 @@ class Dashboard(UIElement):
                     self.will_redraw_soon = False
                     await self.draw()
 
+    async def onElementClosed(self, el):
+        if el == self.sidebar:
+            await self.sidebar.clear_area()
+            self.children.remove(el)
+            self.sidebar = None
+            await self.draw()
+
     async def onContentChange(self, child_src=None, el_changed=None):
         await super().onContentChange(child_src, el_changed)
         if not self.will_redraw_soon:
@@ -109,31 +118,28 @@ class Dashboard(UIElement):
         if val == "q":
             term.cursor.show()
             self.continue_loop = False
-            return
 
         # u to undo
         elif val == "u":
             self.model.undo_manager.undo()
             await self.reinit_modelview()
-            return
         elif val == "R":
             self.model.undo_manager.redo()
             await self.reinit_modelview()
-            return
 
         # s to open settings window
-        # elif val == "s" and self.overlay is None:
-        #     # self.overlay = Prompt(Settings.get('COLUMN_WIDTH'), parent=self)
-        #     self.overlay = Sidebar(Settings.get('COLUMN_WIDTH'), parent=self)
-        #     await self.overlay.draw()
-        #     self.rel_pos = (Settings.get('COLUMN_WIDTH'),0)
-        #     self.overlay.rel_pos = (-Settings.get('COLUMN_WIDTH'),0)
-        #     self.overlay.add_emptyline()
-        #     self.overlay.lines.append(RadioLine("Verbosity",["Small","Medium","Full"], wrapper=self.overlay.wrapper, parent=self.overlay))
-        #
-        #
-        #     old_elem = await term.cursor.moveTo(self.overlay.lines[0])
-        #     return
+        elif val == "s":
+            if self.sidebar is not None:
+                self.sidebar.clear()
+                self.sidebar = None
+                await self.draw()
+            else:
+                await self.show_settings_sidebar()
+
+    async def show_settings_sidebar(self):
+        self.sidebar = Sidebar(Settings.get('COLUMN_WIDTH'), parent=self)
+        await self.sidebar.draw()
+        # await term.cursor.moveTo(self.sidebar.lines[0])
 
     async def reinit_modelview(self, line_offset = 0):
         await self.task_visualizer.reinit_modelview(line_offset)

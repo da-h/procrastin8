@@ -141,6 +141,11 @@ class UIElement(object):
         for e in elements:
             self.element.remove(e)
 
+    async def clear_area(self):
+        width, height = self.get_size()
+        for i in range(height):
+            term.buffered_delete[self.pos + (0, i)] = width
+
     async def close(self):
         if self.parent:
             await self.parent.onElementClosed(self)
