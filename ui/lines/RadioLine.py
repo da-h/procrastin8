@@ -4,12 +4,12 @@ term = get_term()
 
 
 class RadioLine(UIElement):
-    def __init__(self, text, choices, wrapper, parent=None):
+    def __init__(self, text, choices, wrapper=None, parent=None):
         super().__init__(parent=parent)
         self.height = 2
         self.text = text
         self.choices = choices
-        self.wrapper = wrapper
+        self.wrapper = wrapper if wrapper is not None else parent
         self.active = 0
 
     def typeset(self):

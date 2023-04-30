@@ -54,6 +54,8 @@ class Settings(metaclass=Singleton):
     @classmethod
     def get(cls, key, fallback=None):
         instance = cls()
+        if key == "default_settings":
+            return instance.default_settings
         instance.load_settings()
 
         # Determine the type of the value based on the default settings
@@ -77,3 +79,8 @@ class Settings(metaclass=Singleton):
         instance = cls()
         instance.config.set('DEFAULT', key, str(value))
         instance.save_settings()
+
+    @classmethod
+    def default_settings(cls):
+        return cls().default_settings
+
