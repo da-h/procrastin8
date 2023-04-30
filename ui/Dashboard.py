@@ -117,13 +117,15 @@ class Dashboard(UIElement):
             await self.toggle_settings()
 
     async def toggle_settings(self):
-        self.settingswin.clear()
         self.settingswin.visible = not self.settingswin.visible
         if self.settingswin.visible:
             await term.cursor.moveTo(self.settingswin)
             await self.settingswin.draw()
         else:
+            self.settingswin.clear()
             await term.cursor.moveTo(self)
+            # await self.settingswin.draw()
+            await self.draw()
         self.clear()
         await self.draw()
 

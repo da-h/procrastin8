@@ -81,8 +81,8 @@ class Terminal(BlessedTerminal):
         super().__init__()
         self.cursor = Cursor()
         self.KEY_CTRL = {"e": "\x19", "y": "\x05", "r": "\x12", "p": "\x10", "o": "\x0f"}
-        self.buffered_print = {}
-        self.buffered_delete = {}
+        self.buffered_print = [{}]
+        self.buffered_delete = [{}]
         self.print_buffer = []
         self.continue_loop = True
         self._log_msgs = []
@@ -109,25 +109,33 @@ class Terminal(BlessedTerminal):
             return super().move_xy(x[0],x[1])
         return super().move_xy(x,y)
 
-
-    def removeAt(self, pos, seq):
+    def removeAt(self, pos, seq, layer=0):
         pos = (pos[0], pos[1])
+
+        # ensure correct length
+        for _ in range(len(self.buffered_delete), layer + 1):
+            self.buffered_delete.append({})
+            self.buffered_print.append({})
 
         # register deletion of new sequence
-        if pos in self.buffered_delete:
-            self.buffered_delete[pos] = max(self.buffered_delete[pos], seq.length())
+        if pos in self.buffered_delete[layer]:
+            self.buffered_delete[layer][pos] = max(self.buffered_delete[layer][pos], seq.length())
         else:
-            self.buffered_delete[pos] = seq.length()
+            self.buffered_delete[layer][pos] = seq.length()
 
-
-    def printAt(self, pos, seq):
+    def printAt(self, pos, seq, layer=0):
         pos = (pos[0], pos[1])
 
+        # ensure correct length
+        for _ in range(len(self.buffered_delete), layer + 1):
+            self.buffered_delete.append({})
+            self.buffered_print.append({})
+
         # register print of new sequence
-        if pos in self.buffered_print:
-            self.buffered_print[pos].append(seq)
+        if pos in self.buffered_print[layer]:
+            self.buffered_print[layer][pos].append(seq)
         else:
-            self.buffered_print[pos] = [seq]
+            self.buffered_print[layer][pos] = [seq]
 
     # secure print
     def _print(self, pos, seq):
@@ -137,23 +145,28 @@ class Terminal(BlessedTerminal):
             pos = (self.width - pos[0], pos[1])
         if pos[1] < 0:
             pos = (pos[0], self.height - pos[1])
-        self.print_buffer.append(self.move_xy(*pos) + seq)
+        self.print_buffer.append((pos, seq))
 
     def print_flush(self):
-        print("".join(self.print_buffer), end="")
+        # Flush the print buffer to the screen
+        print("".join([self.move_xy(pos) + seq for pos, seq in self.print_buffer]), end="", flush=True)
+
+        # Reset print_buffer and buffered_print & buffered_delete dictionaries
         self.print_buffer = []
-        self.buffered_print = {}
-        self.buffered_delete = {}
+        self.buffered_print = [{} for _ in range(len(self.buffered_print))]
+        self.buffered_delete = [{} for _ in range(len(self.buffered_delete))]
 
     async def draw(self):
-        # Remove what is not requested again
-        for pos, length in self.buffered_delete.items():
-            self._print(pos, " " * length)
+        for layer in range(len(self.buffered_delete)):
 
-        # Print all new sequences
-        for pos, seq_list in self.buffered_print.items():
-            for seq in seq_list:
-                self._print(pos, seq)
+            # Remove what is not requested again
+            for pos, length in self.buffered_delete[layer].items():
+                self._print(pos, " " * length)
+
+            # Print all new sequences
+            for pos, seq_list in self.buffered_print[layer].items():
+                for seq in seq_list:
+                    self._print(pos, seq)
 
         # Flush & draw cursor
         self.print_flush()

@@ -14,6 +14,12 @@ class Window(UIElement):
         self.draw_style = "basic"
 
     async def draw(self, **draw_args):
+        if self.layer > 0:
+            if e := self.element("clearbg"):
+                with e:
+                    for i in range(self.height):
+                        self.printAt((0,i), " "*self.width, ignore_padding=True)
+
         await super().draw()
         if e := self.element("border"):
             with e:

@@ -37,22 +37,22 @@ class UIElementTerminalBridge(object):
 
     # tell terminal what to print
     # (it remembers all calls under the name of the with-statement)
-    def printAt(self, pos, seq):
+    def printAt(self, pos, seq, layer=0):
         if self.name not in self.elements:
             self.elements[self.name] = []
         self.elements[self.name].append(((pos[0],pos[1]), seq))
-        term.printAt(pos, seq)
+        term.printAt(pos, seq, layer)
 
     # tell terminal what element to delete
-    def remove(self, element):
+    def remove(self, element, layer=0):
         if element not in self.elements:
             return
         for pos, seq in self.elements[element]:
-            term.removeAt(pos, seq)
+            term.removeAt(pos, seq, layer=layer)
         del self.elements[element]
-    def removeAll(self):
+    def removeAll(self, layer=0):
         for e in list(self.elements.keys()):
-            self.remove(e)
+            self.remove(e, layer=layer)
 
     def redraw(self, element):
         self.allow_redraw[element] = True
@@ -60,7 +60,7 @@ class UIElementTerminalBridge(object):
 
 class UIElement(object):
     __initialized = False
-    def __init__(self, rel_pos=None, parent=None, max_height=-1, padding=(0,0,0,0)):
+    def __init__(self, rel_pos=None, parent=None, max_height=-1, padding=(0,0,0,0), layer=None):
         if not rel_pos and not parent:
             raise ValueError("Either position or parent have to be specified")
         if parent:
@@ -71,6 +71,7 @@ class UIElement(object):
         self.max_height = max_height
         self._rel_pos = np.array(rel_pos) if rel_pos else np.array((0,0))
         self.pos_changed = False
+        self.layer = parent.layer if layer is None and parent is not None else 0
 
         self.children = [] # true uielements
         self.element = UIElementTerminalBridge() # remembers all printed low-level drawing units
@@ -98,10 +99,10 @@ class UIElement(object):
                 return
             els = self._prop_elem_connections[name]
             if len(els) == 0:
-                self.element.removeAll()
+                self.element.removeAll(layer=self.layer)
             else:
                 for el in els:
-                    self.element.remove(el)
+                    self.element.remove(el, layer=self.layer)
             self._prop_vals[name] = value
             return
         object.__setattr__(self, name, value)
@@ -136,15 +137,11 @@ class UIElement(object):
         if isinstance(elements, str):
             elements = [elements]
         if len(elements) == 0:
-            self.element.removeAll()
+            self.element.removeAll(layer=self.layer)
             for c in self.children:
                 c.clear()
         for e in elements:
-            self.element.remove(e)
-
-    # async def clear_area(self):
-    #     for i in range(self.height):
-    #         term.buffered_print[(self.pos[0], self.pos[1] + i)] = [Sequence(" "*self.width, term)]
+            self.element.remove(e, layer=self.layer)
 
     async def close(self):
         if self.parent:
@@ -161,7 +158,7 @@ class UIElement(object):
         if self.max_height > 0 and (rel_pos[1] if ignore_padding else rel_pos[1] + self.padding[0] + self.padding[2]) >= self.max_height:
             return
 
-        self.element.printAt(pos, seq)
+        self.element.printAt(pos, seq, self.layer)
 
     def get_parents(self):
         parents = []
