@@ -54,28 +54,17 @@ class Dashboard(UIElement):
         term.main_window = self
 
     async def draw(self):
-        # self.registered_redraw = False
-
         # debug
         # curframe = inspect.currentframe()
         # calframe = inspect.getouterframes(curframe, 2)
         # await term.log('caller name:' + calframe[1][3])
 
-        # check what will be redrawn
-        # print(term.clear)
-
         with term.location():
             self.debugwindow.log_draw_start()
-
-            # self.debugwindow.pos[1] = -1
             await self.widgetbar.draw()
-            # await self.debugwindow.draw()
+            await self.debugwindow.draw()
             await self.task_visualizer.draw()
 
-        # if self.registered_redraw:
-        #     self.registered_redraw = False
-        #     await self.draw()
-            # return
         await term.draw()
 
 
