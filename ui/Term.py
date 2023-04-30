@@ -1,4 +1,4 @@
-from blessed import Terminal
+from blessed import Terminal as BlessedTerminal
 import numpy as np
 from copy import copy
 from time import sleep
@@ -6,11 +6,10 @@ import asyncio
 
 
 class Cursor:
-
     def __init__(self):
-        self.pos = np.array((3,2))
-        self.last_position = (-1,-1)
         self.visible = False
+        self.pos = np.array((3, 2))
+        self.last_position = (-1, -1)
         self.elements_under_cursor = []
 
     def show(self):
@@ -21,18 +20,17 @@ class Cursor:
 
     @property
     def on_element(self):
-        if len(self.elements_under_cursor) == 0:
+        if not self.elements_under_cursor:
             return None
         return self.elements_under_cursor[0]
 
     async def moveTo(self, on_element):
-
-        # children are equal -> no change/events
+        # Children are equal -> no change/events
         if self.on_element == on_element:
             return
 
         parents_source = [self.on_element] + self.on_element.get_parents() if self.on_element else [None]
-        parents_target = [     on_element] +      on_element.get_parents() if      on_element else [None]
+        parents_target = [on_element] + on_element.get_parents() if on_element else [None]
 
         self.elements_under_cursor_before = parents_source
         self.elements_under_cursor_after = parents_target
@@ -45,7 +43,6 @@ class Cursor:
 
         self.elements_under_cursor = parents_target
         self.pos = self.on_element.pos
-        # term.location(self.pos[0], self.pos[1])
 
         # Event: onFocus
         if parents_target[0] is not None:
@@ -72,25 +69,18 @@ class Cursor:
 
         return self.pos - self.on_element.pos
 
-    async def draw(self):
+    async def draw(self, term):
         if self.visible:
-            print(term.move_xy(*self.pos)+term.normal_cursor, end='', flush=True)
+            print(term.move_xy(*self.pos) + term.normal_cursor, end='', flush=True)
         else:
-            print(term.move_xy(*self.pos)+term.hide_cursor, end='', flush=True)
+            print(term.move_xy(*self.pos) + term.hide_cursor, end='', flush=True)
 
 
-class WorkitTerminal(Terminal):
-
+class Terminal(BlessedTerminal):
     def __init__(self):
         super().__init__()
         self.cursor = Cursor()
-        self.KEY_CTRL = {
-            "e": "\x19",
-            "y": "\x05",
-            "r": "\x12",
-            "p": "\x10",
-            "o": "\x0f"
-        }
+        self.KEY_CTRL = {"e": "\x19", "y": "\x05", "r": "\x12", "p": "\x10", "o": "\x0f"}
         self.buffered_print = {}
         self.buffered_delete = {}
         self.print_buffer = []
@@ -144,10 +134,10 @@ class WorkitTerminal(Terminal):
         if self.height <= pos[1]:
             return
         if pos[0] < 0:
-            pos = (term.width - pos[0], pos[1])
+            pos = (self.width - pos[0], pos[1])
         if pos[1] < 0:
-            pos = (pos[0], term.height - pos[1])
-        self.print_buffer.append(term.move_xy(pos)+seq)
+            pos = (pos[0], self.height - pos[1])
+        self.print_buffer.append(self.move_xy(*pos) + seq)
 
     def print_flush(self):
         print("".join(self.print_buffer), end="")
@@ -156,23 +146,23 @@ class WorkitTerminal(Terminal):
         self.buffered_delete = {}
 
     async def draw(self):
+        # Remove what is not requested again
+        for pos, length in self.buffered_delete.items():
+            self._print(pos, " " * length)
 
-        # remove what is not requested again
-        for pos, len in self.buffered_delete.items():
-            self._print(pos," "*len)
-
-        # print all new sequences
+        # Print all new sequences
         for pos, seq_list in self.buffered_print.items():
             for seq in seq_list:
                 self._print(pos, seq)
 
-        # flush & draw cursor
+        # Flush & draw cursor
         self.print_flush()
-        await self.cursor.draw()
+        await self.cursor.draw(self)
 
 term = None
+
 def get_term():
     global term
     if not term:
-        term = globals()["term"] = WorkitTerminal()
+        term = globals()["term"] = Terminal()
     return term
