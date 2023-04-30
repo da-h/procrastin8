@@ -70,3 +70,8 @@ x 2021-06-30 2021-06-30 timewarrior cursor position remains at start if cursor p
 x 2021-07-01 2021-06-30 window title disappears after hover +bug @todos
 x connect settings to ui/model +dashboard @todos
 x save/load settings to file +dashboard @todos
+x +kb p to paste below
+x +kb P to paste above
+x escape to exit editmode (no change) +kb
+x key: u to +undo
+x escape undos edit +undo
