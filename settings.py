@@ -26,7 +26,10 @@ class Settings(metaclass=Singleton):
             'DIM_COMPLETE': True,
             'TODO_STYLE': 1,
             'AUTOADD_CREATIONDATE': True,
-            'AUTOADD_COMPLETIONDATE': True
+            'AUTOADD_COMPLETIONDATE': True,
+            'JIRA_URL': "",
+            'JIRA_USERNAME': "",
+            'JIRA_PASSWORD': ""
         }
 
         # Create the config directory if it does not exist
@@ -44,7 +47,10 @@ class Settings(metaclass=Singleton):
         self.config.read(self.config_file)
 
     def reset_settings(self):
-        self.config['DEFAULT'] = self.default_settings
+        # Set default values for missing keys
+        for key, value in self.default_settings.items():
+            if not self.config.has_option('DEFAULT', key):
+                self.config['DEFAULT'][key] = str(value)
         self.save_settings()
 
     def save_settings(self):

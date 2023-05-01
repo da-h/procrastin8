@@ -31,7 +31,7 @@ class SettingsWindow(TextWindow):
             elif type(init_value) is int or type(init_value) is float:
                 input_el_fn = lambda parent: NumberInput(value, parent=parent)
             else:
-                raise ValueError("Not supported")
+                input_el_fn = lambda parent: Line([str(value)], parent=parent)
             space = " "*(max_len - len(key))
             line = ElemWithLabel(key+space, input_el_fn, parent=self)
             line.key = key

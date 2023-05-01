@@ -54,7 +54,7 @@ class Line(UIElement):
                     highlight = lambda x: term.bold(x)
 
                 # print lines
-                for i, t in enumerate(self._typeset_text):
+                for i, t in enumerate(self._typeset_text if self._typeset_text else self.text):
                     t = Sequence(highlight(t), term)
                     t_len = t.length()
                     t = self.prepend+term.normal+self.line_style+t+term.normal+self.append
