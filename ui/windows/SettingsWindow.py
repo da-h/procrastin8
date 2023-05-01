@@ -20,7 +20,7 @@ class SettingsWindow(TextWindow):
         width = 50
         super().__init__((term.width // 2 - width//2, 0), width=width, title="Settings", parent=parent)
         self.active_line = 0
-        self.layer += 1
+        self.layer = 2
 
         # Dynamically create RadioLines for each setting in Settings.default_settings
         max_len = max(len(key) for key in Settings.default_settings().keys())
@@ -37,16 +37,6 @@ class SettingsWindow(TextWindow):
             line.key = key
             line.type = type(init_value)
             self.lines.append(line)
-
-    async def draw(self):
-        with term.location():
-            await super().draw()
-            v_offset = 1
-            for line in self.children:
-                line.rel_pos[1] = v_offset
-                line.typeset()
-                v_offset += line.height
-                await line.draw()
 
     async def onFocus(self):
         await term.cursor.moveTo(self.lines[self.active_line].elem)

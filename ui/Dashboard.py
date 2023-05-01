@@ -65,6 +65,8 @@ class Dashboard(UIElement):
             await self.widgetbar.draw()
             await self.debugwindow.draw()
             await self.task_visualizer.draw()
+            if self.settingswin.visible:
+                await self.settingswin.draw()
 
         await term.draw()
 
