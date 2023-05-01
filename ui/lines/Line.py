@@ -93,7 +93,6 @@ class Line(UIElement):
 
     async def onKeyPress(self, val):
         if self.edit_mode:
-
             if val.code == term.KEY_RIGHT:
                 self.edit_charpos = min(self.edit_charpos + 1, len(self.text))
                 return
@@ -155,7 +154,7 @@ class Line(UIElement):
                 return
         return await super().onKeyPress(val)
 
-    async def _updateText(self, raw_text, call_onContentChange=True):
+    async def _updateText(self, raw_text):
         if self.text != raw_text:
             self.text_changed = True
         self.text = raw_text
@@ -169,3 +168,4 @@ class Line(UIElement):
     async def onLeave(self):
         await super().onLeave()
         await self.redraw("main")
+

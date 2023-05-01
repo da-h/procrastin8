@@ -1,5 +1,6 @@
 from copy import copy
 from blessed.sequences import Sequence
+from ui.floating.SuggestionPopup import SuggestionPopup
 from datetime import datetime
 from model import Task, Tag, Subtag, List, Modifier, ModifierDate
 from settings import Settings
@@ -21,10 +22,24 @@ class TaskLine(Line):
         self.task = text
         self.hide_taskbullet = False
         super().__init__(*args, text=None, **kwargs)
+        self.suggestion_popup = SuggestionPopup(["one","two","three"], parent=self)
+        self.suggestion_popup.visible = False
 
     @property
     def text(self):
         return self.task["raw_text"]
+
+
+    async def draw(self):
+        await super().draw()
+
+        if e := self.element("suggestion"):
+            with e:
+                if self.suggestion_popup.visible:
+                    await self.suggestion_popup.draw()
+
+
+
 
     # ensure lines have correct width
     def typeset(self):
@@ -88,6 +103,10 @@ class TaskLine(Line):
 
     async def onKeyPress(self, val):
         if self.edit_mode:
+            if self.suggestion_popup.visible:
+                if await self.suggestion_popup.onKeyPress(val):
+                    return
+
             await super().onKeyPress(val)
             return
         else:
@@ -122,6 +141,10 @@ class TaskLine(Line):
         if self.text != raw_text:
             self.text_changed = True
         self.task.update( Task.from_rawtext(self.task.model, raw_text, leading_spaces=leading_spaces ) )
+        # if self.edit_mode:
+        #     words = raw_text[:self.edit_charpos+1].split(' ')
+        #     current_word = words[-1] if len(words) > 0 else None
+        #     await self.update_suggestion_popup(current_word)
         await self.onContentChange()
 
     async def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
@@ -130,3 +153,16 @@ class TaskLine(Line):
 
     def get_all_tasks(self):
         return [self.task]
+
+    async def update_suggestion_popup(self, current_word):
+        if len(current_word.strip()) > 0:
+            # suggestions = [current_word, current_word+"blub", current_word+"yeah"]
+            suggestions = list(self.task.model.lists.keys()) + list(self.task.model.tags.keys()) + list(self.task.model.subtags.keys())
+
+            self.suggestion_popup.visible = True
+            rel_pos = term.cursor.pos - self.pos
+            self.suggestion_popup.rel_pos = rel_pos[0], rel_pos[1] + 1
+            await self.suggestion_popup.update_suggestions(suggestions)
+        else:
+            self.suggestion_popup.visible = False
+        await self.redraw("suggestion")
