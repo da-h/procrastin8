@@ -5,9 +5,9 @@ term = get_term()
 
 
 class HLine(UIElement):
-    def __init__(self, text=None, height=2, wrapper=None, center=False, parent=None):
+    def __init__(self, text=None, height=1, wrapper=None, center=False, parent=None):
         super().__init__(parent=parent)
-        self.wrapper = wrapper if wrapper is not None else parent
+        self.wrapper = wrapper if wrapper is not None else (parent.wrapper if parent is not None and hasattr(parent, 'wrapper') else TextWrapper(width=self.width - self.padding[1] - self.padding[3], initial_indent="", subsequent_indent=" ", drop_whitespace=False, term=term))
         self.height = height
         self.text = text
         self.center = center

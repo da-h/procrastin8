@@ -44,6 +44,7 @@ class Cursor:
         self.elements_under_cursor = parents_target
         self.pos = self.on_element.pos
 
+
         # Event: onFocus
         if parents_target[0] is not None:
             if parents_target[0] not in parents_source:

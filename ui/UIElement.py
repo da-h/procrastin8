@@ -92,7 +92,9 @@ class UIElement(object):
     def __getattr__(self, name):
         if name in self._prop_vals.keys():
             return self._prop_vals[name]
-        return self.__dict__[name]
+        if name in self.__dict__:
+            return self.__dict__[name]
+        return False
     def __setattr__(self, name, value):
         if self.__initialized and name in self._prop_vals.keys():
             if self._prop_vals[name] == value:
@@ -186,7 +188,13 @@ class UIElement(object):
             await self.parent.onChildFocused(self, el_focused)
 
     async def onUnfocus(self):
-        pass
+        await self.onChildUnfocused()
+
+    async def onChildUnfocused(self, child_src=None, el_unfocused=None):
+        if el_unfocused is None:
+            el_unfocused = self
+        if self.parent:
+            await self.parent.onChildUnfocused(self, el_unfocused)
 
     async def onSizeChange(self, child_src=None, el_changed=[]):
         if self.parent:

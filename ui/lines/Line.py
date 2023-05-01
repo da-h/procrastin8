@@ -7,18 +7,18 @@ term = get_term()
 
 class Line(UIElement):
 
-    def __init__(self, text="", rel_pos=None, prepend="", append="", wrapper=None, parent=None, center=False):
+    def __init__(self, text="", rel_pos=None, prepend="", append="", wrapper=None, parent=None, center=False, line_style=""):
         super().__init__(rel_pos=rel_pos, parent=parent)
         if text is not None:
             self.registerProperty("text", text, ["main"])
         self.height = 1
-        self.wrapper = wrapper
+        self.wrapper = wrapper if wrapper is not None else parent.wrapper if parent is not None and hasattr(parent, 'wrapper') else parent
         self.registerProperty("prepend", prepend, ["main"])
         self.registerProperty("append", append, ["main"])
         self.registerProperty("edit_mode", False, ["main"])
         self.registerProperty("edit_charpos", 0, ["main"])
         self.registerProperty("edit_firstchar", 0, ["main"])
-        self.registerProperty("line_style", "", ["main"])
+        self.registerProperty("line_style", line_style, ["main"])
         self._typeset_text = None
         self.center = center
         self.text_changed = False

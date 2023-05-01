@@ -77,7 +77,7 @@ class TaskVisualizer(UIElement):
                     for i, elem in enumerate(self.marked):
                         self.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True)
                         str_num = str(i+1)
-                        self.printAt(elem.pos - self.pos + (Settings.get('COLUMN_WIDTH')-Settings.get('WINDOW_PADDING')*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
+                        self.printAt(elem.pos - self.pos + (Settings.get('appearance.column_width')-Settings.get('appearance.window_padding')*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
 
 
 
@@ -141,9 +141,9 @@ class TaskVisualizer(UIElement):
                 new_window = True
 
             if new_window:
-                win = TaskWindow((1 + win_pos, 0),Settings.get('COLUMN_WIDTH'), listtag.name if listtag else "Todos", parent=self)
+                win = TaskWindow((1 + win_pos, 0),Settings.get('appearance.column_width'), listtag.name if listtag else "Todos", parent=self)
                 win.max_height = self.max_height
-                win_pos += Settings.get('COLUMN_WIDTH') + Settings.get('WINDOW_MARGIN')
+                win_pos += Settings.get('appearance.column_width') + Settings.get('appearance.window_margin')
                 self.windows.append(win)
                 new_window = False
                 tag = None
@@ -153,7 +153,7 @@ class TaskVisualizer(UIElement):
 
             # tag-line
             if l["tags"] and tag not in l["tags"]:
-                if len(win.lines) > 0 and Settings.get('TODO_STYLE')==1:
+                if len(win.lines) > 0 and Settings.get('tasks.todo_style')==1:
                     win.add_emptyline()
                 tag = l["tags"][0]
                 task_group = win.add_taskgroup(tag, model=self.model)
@@ -182,14 +182,14 @@ class TaskVisualizer(UIElement):
 
         # create a window if no entries exist
         if new_window:
-            win = TaskWindow((1 + win_pos, 0),Settings.get('COLUMN_WIDTH'), listtag.name if listtag else "Todos", parent=self)
+            win = TaskWindow((1 + win_pos, 0),Settings.get('appearance.column_width'), listtag.name if listtag else "Todos", parent=self)
             self.windows.append(win)
 
 
         # pack windows if space is not sufficient
         if term.width < win_pos:
             await self.draw()
-            max_columns = term.width//(Settings.get('COLUMN_WIDTH')+Settings.get('WINDOW_MARGIN'))
+            max_columns = term.width//(Settings.get('appearance.column_width')+Settings.get('appearance.window_margin'))
             wins_to_stack = len(self.windows) - max_columns
             win_stacks = [[i] for i in range(len(self.windows))]
 
@@ -232,7 +232,7 @@ class TaskVisualizer(UIElement):
             for stack_i, stack in enumerate(win_stacks):
                 current_height = 0
                 for win_i in stack:
-                    self.windows[win_i].rel_pos = (1+(Settings.get('COLUMN_WIDTH')+Settings.get('WINDOW_MARGIN'))*stack_i, current_height)
+                    self.windows[win_i].rel_pos = (1+(Settings.get('appearance.column_width')+Settings.get('appearance.window_margin'))*stack_i, current_height)
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
                 if 1 + current_height < self.height:
@@ -248,7 +248,7 @@ class TaskVisualizer(UIElement):
                 # reposition with new max_height
                 current_height = 0
                 for win_i in stack:
-                    self.windows[win_i].rel_pos = (1+(Settings.get('COLUMN_WIDTH')+Settings.get('WINDOW_MARGIN'))*stack_i, current_height)
+                    self.windows[win_i].rel_pos = (1+(Settings.get('appearance.column_width')+Settings.get('appearance.window_margin'))*stack_i, current_height)
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
             # re order windows based on stacks
@@ -347,7 +347,7 @@ class TaskVisualizer(UIElement):
                 else:
                     initial_text = " ".join([str(t) for t in element.task["subtags"]] + [str(t) for t in element.task["tags"]] + [str(t) for t in element.task["lists"]])
 
-            if Settings.get('AUTOADD_CREATIONDATE'):
+            if Settings.get('dates.autoadd_creationdate'):
                 initial_text = datetime.now().strftime("%Y-%m-%d") + " " + initial_text
 
             if isinstance(element, TaskLine) and element.task["priority"] != "M_":

@@ -15,21 +15,29 @@ class Settings(metaclass=Singleton):
 
         # Default settings
         self.default_settings = {
-            'COLUMN_WIDTH': 40,
-            'WINDOW_PADDING': 2,
-            'WINDOW_MARGIN': 1,
-            'LIST_HIDDEN': True,
-            'TAG_HIDDEN': True,
-            'SUBTAG_HIDDEN': True,
-            'CREATIONDATE_HIDDEN': True,
-            'COMPLETIONDATE_HIDDEN': True,
-            'DIM_COMPLETE': True,
-            'TODO_STYLE': 1,
-            'AUTOADD_CREATIONDATE': True,
-            'AUTOADD_COMPLETIONDATE': True,
-            'JIRA_URL': "",
-            'JIRA_USERNAME': "",
-            'JIRA_PASSWORD': ""
+            'appearance': {
+                'column_width': 40,
+                'window_padding': 2,
+                'window_margin': 1,
+                'list_hidden': True,
+                'tag_hidden': True,
+                'subtag_hidden': True,
+            },
+            'dates': {
+                'creationdate_hidden': True,
+                'completiondate_hidden': True,
+                'autoadd_creationdate': True,
+                'autoadd_completiondate': True,
+            },
+            'tasks': {
+                'dim_complete': True,
+                'todo_style': 1,
+            },
+            'jira': {
+                'jira_url': "",
+                'jira_username': "",
+                'jira_password': "",
+            }
         }
 
         # Create the config directory if it does not exist
@@ -48,9 +56,12 @@ class Settings(metaclass=Singleton):
 
     def reset_settings(self):
         # Set default values for missing keys
-        for key, value in self.default_settings.items():
-            if not self.config.has_option('DEFAULT', key):
-                self.config['DEFAULT'][key] = str(value)
+        for category, settings in self.default_settings.items():
+            if not self.config.has_section(category):
+                self.config.add_section(category)
+            for key, value in settings.items():
+                if not self.config.has_option(category, key):
+                    self.config.set(category, key, str(value))
         self.save_settings()
 
     def save_settings(self):
@@ -62,28 +73,35 @@ class Settings(metaclass=Singleton):
         instance = cls()
         if key == "default_settings":
             return instance.default_settings
-        instance.load_settings()
+
+        category, _, setting = key.partition('.')
+        if not instance.config.has_section(category):
+            instance.config.add_section(category)
+        if setting not in instance.config.options(category):
+            default_value = fallback
+        else:
+            default_value = instance.default_settings[category][setting]
+        value = instance.config.get(category, setting, fallback=default_value)
 
         # Determine the type of the value based on the default settings
-        if key in instance.default_settings:
-            default_value = instance.default_settings[key]
-            if type(default_value) is bool:
-                value = instance.config.getboolean('DEFAULT', key, fallback=fallback)
-            elif type(default_value) is int:
-                value = instance.config.getint('DEFAULT', key, fallback=fallback)
-            elif type(default_value) is float:
-                value = instance.config.getfloat('DEFAULT', key, fallback=fallback)
-            else:
-                value = instance.config.get('DEFAULT', key, fallback=fallback)
-        else:
-            value = instance.config.get('DEFAULT', key, fallback=fallback)
+        if isinstance(default_value, bool):
+            value = instance.config.getboolean(category, setting, fallback=default_value)
+        elif isinstance(default_value, int):
+            value = instance.config.getint(category, setting, fallback=default_value)
+        elif isinstance(default_value, float):
+            value = instance.config.getfloat(category, setting, fallback=default_value)
 
         return value
 
     @classmethod
     def set(cls, key, value):
         instance = cls()
-        instance.config.set('DEFAULT', key, str(value))
+
+        category, _, setting = key.partition('.')
+        if not instance.config.has_section(category):
+            instance.config.add_section(category)
+        instance.config.set(category, setting, str(value))
+
         instance.save_settings()
 
     @classmethod

@@ -57,7 +57,7 @@ class TaskLine(Line):
         S = []
         default = self.line_style
         if self.task["complete"]:
-            default = (term.dim if Settings.get('DIM_COMPLETE') else "")
+            default = (term.dim if Settings.get('tasks.dim_complete') else "")
 
         if self.task["priority"] == "A":
             S.append(term.red(self.task["priority"])+default)
@@ -75,22 +75,22 @@ class TaskLine(Line):
         else:
             S.append(term.grey(self.task["priority"])+default)
 
-        if not Settings.get('COMPLETIONDATE_HIDDEN') and self.task["completion-date"]:
+        if not Settings.get('dates.completiondate_hidden') and self.task["completion-date"]:
             S.append(term.bright_white(str(self.task["completion-date"])+default))
-        if not Settings.get('CREATIONDATE_HIDDEN') and self.task["creation-date"]:
+        if not Settings.get('dates.creationdate_hidden') and self.task["creation-date"]:
             S.append(term.dim+(str(self.task["creation-date"]))+default)
 
         for t in self.task["text"]:
             tstr = str(t)
 
             if isinstance(t, Tag):
-                if not Settings.get('TAG_HIDDEN') or self.edit_mode:
+                if not Settings.get('appearance.tag_hidden') or self.edit_mode:
                     S.append(term.red(tstr)+default)
             elif isinstance(t, Subtag):
-                if not Settings.get('SUBTAG_HIDDEN') or self.edit_mode:
+                if not Settings.get('appearance.subtag_hidden') or self.edit_mode:
                     S.append(term.red(term.dim+tstr)+default)
             elif isinstance(t, List):
-                if not Settings.get('LIST_HIDDEN') or self.edit_mode:
+                if not Settings.get('appearance.list_hidden') or self.edit_mode:
                     S.append(term.bold(term.blue(tstr))+default)
             elif isinstance(t, Modifier):
                 S.append(term.green(tstr)+default)
@@ -112,7 +112,7 @@ class TaskLine(Line):
         else:
             if val == "x":
                 self.task["complete"] = not self.task["complete"]
-                if Settings.get('AUTOADD_COMPLETIONDATE') and self.task["creation-date"]:
+                if Settings.get('dates.autoadd_completiondate') and self.task["creation-date"]:
                     self.task["completion-date"] = datetime.now().strftime("%Y-%m-%d")
                 if self.task["completion-date"] and not self.task["complete"]:
                     self.task["completion-date"] = None

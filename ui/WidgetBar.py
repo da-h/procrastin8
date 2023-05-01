@@ -1,5 +1,6 @@
 from ui.UIElement import UIElement
 from ui import get_term
+from blessed.sequences import SequenceTextWrapper as TextWrapper
 term = get_term()
 
 class WidgetBar(UIElement):
@@ -8,6 +9,7 @@ class WidgetBar(UIElement):
         super().__init__((0,0), parent=parent)
         self.height = 3
         self.width = term.width - 2
+        self.wrapper = TextWrapper(width=self.width - self.padding[1] - self.padding[3], initial_indent="", subsequent_indent=" ", drop_whitespace=False, term=term)
         self.widgets_left = []
         self.widgets_right = []
 

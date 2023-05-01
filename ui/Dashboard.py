@@ -30,7 +30,7 @@ class Dashboard(UIElement):
         self.task_visualizer = TaskVisualizer((0, self.widgetbar.height), self.height - self.debugwindow.height, model, filter, parent=self)
         self.registered_redraw = False
         self.will_redraw_soon = False
-        self.settingswin = SettingsWindow(Settings.get('COLUMN_WIDTH'), parent=self)
+        self.settingswin = SettingsWindow(Settings.get('appearance.column_width'), parent=self)
         self.settingswin.visible = False
 
         # signal: resize
