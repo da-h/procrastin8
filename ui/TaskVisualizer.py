@@ -1,11 +1,16 @@
+# Standard library imports
+from datetime import datetime
+from enum import Enum
 from itertools import chain
 import inspect
-from datetime import datetime
 import numpy as np
+
+# Third-party imports
 from ui.UIElement import UIElement
-from settings import Settings
+
+# Local application imports
 from model.basemodel import Task, Tag, Subtag, List, re_priority
-from enum import Enum
+from settings import Settings
 from ui import get_term
 from ui.lines.TaskLine import TaskLine
 from ui.util.AbstractTaskGroup import AbstractTaskGroup
@@ -15,14 +20,18 @@ class StackMode(Enum):
     MERGE_SMALLEST = 0
     KEEP_ORDER = 1
     KEEP_ORDER_EQUAL_SIZES = 2
+
 class SortMode(Enum):
     FILE = 0
     GROUP_FULL = 1
 
-
 term = get_term()
 
 class TaskVisualizer(UIElement):
+    """
+    A visualizer class for tasks that handles window creation, layout,
+    and display based on the current model.
+    """
     def __init__(self, rel_pos, max_height, model, filter=".*", parent=None):
         super().__init__(rel_pos, parent=parent)
         self.filter = filter
@@ -38,12 +47,11 @@ class TaskVisualizer(UIElement):
         self.subtask_groups = []
 
         self.current_window = 0
-        # self.stackmode = StackMode.MERGE_SMALLEST
         self.stackmode = StackMode.KEEP_ORDER
-        # self.stackmode = StackMode.KEEP_ORDER_EQUAL_SIZES
-        # self.sortmode = SortMode.GROUP_FULL
         self.sortmode = SortMode.FILE
 
+    # Event handlers
+    # --------------
 
     async def onFocus(self):
         if len(self.windows):
@@ -62,8 +70,10 @@ class TaskVisualizer(UIElement):
             self.clear("marked")
         await super().onContentChange(child_src, el_changed)
 
-    async def draw(self):
+    # Drawing methods
+    # ---------------
 
+    async def draw(self):
         if not self.inited:
             self.inited = True
             await self.init_modelview()
@@ -79,11 +89,11 @@ class TaskVisualizer(UIElement):
                         str_num = str(i+1)
                         self.printAt(elem.pos - self.pos + (Settings.get('appearance.column_width')-Settings.get('appearance.window_padding')*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
 
+    # Model view methods
+    # ------------------
 
-
-    async def reinit_modelview(self, line_offset = 0):
-
-        # save cursor positions in each window
+    async def reinit_modelview(self, line_offset=0):
+        # Save cursor positions in each window
         win_title_str = lambda win: str(win.title.task) if isinstance(win.title, TaskLine) else win.title
         current_lines_per_window = {
             win_title_str(win): win.current_line for win in self.windows
@@ -95,7 +105,7 @@ class TaskVisualizer(UIElement):
         self.windows = []
         await self.init_modelview()
 
-        # restore cursor positions in each window
+        # Restore cursor positions in each window
         for win in self.windows:
             win_title = win_title_str(win)
             if win_title in current_lines_per_window:
@@ -125,23 +135,18 @@ class TaskVisualizer(UIElement):
         level_change = False
 
         if self.sortmode == SortMode.GROUP_FULL:
-            sort_by = ["lists", "tags","subtags","priority"]
+            sort_by = ["lists", "tags", "subtags", "priority"]
         elif self.sortmode == SortMode.FILE:
             sort_by = []
-        for l in self.model.query(filter=self.filter, sortBy=sort_by):
-            # if "filter-sidebar" in l["raw_text"]:
-            #     breakpoint()
 
-            # new listname window
-            # if l["lists"]:
-            # breakpoint()
+        for l in self.model.query(filter=self.filter, sortBy=sort_by):
+            # New listname window
             if l["lists"] and listtag not in l["lists"]:
-                # break
                 listtag = l["lists"][0]
                 new_window = True
 
             if new_window:
-                win = TaskWindow((1 + win_pos, 0),Settings.get('appearance.column_width'), listtag.name if listtag else "Todos", parent=self)
+                win = TaskWindow((1 + win_pos, 0), Settings.get('appearance.column_width'), listtag.name if listtag else "Todos", parent=self)
                 win.max_height = self.max_height
                 win_pos += Settings.get('appearance.column_width') + Settings.get('appearance.window_margin')
                 self.windows.append(win)
@@ -151,9 +156,9 @@ class TaskVisualizer(UIElement):
                 task_group = None
                 subtask_group = None
 
-            # tag-line
+            # Tag-line
             if l["tags"] and tag not in l["tags"]:
-                if len(win.lines) > 0 and Settings.get('tasks.todo_style')==1:
+                if len(win.lines) > 0 and Settings.get('tasks.todo_style') == 1:
                     win.add_emptyline()
                 tag = l["tags"][0]
                 task_group = win.add_taskgroup(tag, model=self.model)
@@ -166,55 +171,51 @@ class TaskVisualizer(UIElement):
                     tag = None
                 subtask_group = None
 
-            # subtag-line
+            # Subtag-line
             if l["subtags"] and subtag not in l["subtags"]:
                 subtag = l["subtags"][0] if l["subtags"] else None
-                subtask_group = task_group.add_taskgroup(term.dim+subtag.name, prepend=term.blue("· "), model=self.model)
+                subtask_group = task_group.add_taskgroup(term.dim + subtag.name, prepend=term.blue("· "), model=self.model)
                 self.subtask_groups.append(subtask_group)
             elif not l["subtags"]:
                 subtag = None
                 subtask_group = None
-                # level_change = True
 
-            # actual task
+            # Actual task
             task = (subtask_group if subtask_group else task_group if task_group else win).add_task(l, prepend="   " if l["subtags"] else "")
             self.tasks.append(task)
 
-        # create a window if no entries exist
+        # Create a window if no entries exist
         if new_window:
-            win = TaskWindow((1 + win_pos, 0),Settings.get('appearance.column_width'), listtag.name if listtag else "Todos", parent=self)
+            win = TaskWindow((1 + win_pos, 0), Settings.get('appearance.column_width'), listtag.name if listtag else "Todos", parent=self)
             self.windows.append(win)
 
-
-        # pack windows if space is not sufficient
+        # Pack windows if space is not sufficient
         if term.width < win_pos:
             await self.draw()
-            max_columns = term.width//(Settings.get('appearance.column_width')+Settings.get('appearance.window_margin'))
+            max_columns = term.width // (Settings.get('appearance.column_width') + Settings.get('appearance.window_margin'))
             wins_to_stack = len(self.windows) - max_columns
             win_stacks = [[i] for i in range(len(self.windows))]
 
-
-            # in this mode, we stack smallest windows until the stack-length equals the maximal number of columns
+            # In this mode, we stack smallest windows until the stack-length equals the maximal number of columns
             if self.stackmode == StackMode.MERGE_SMALLEST:
                 while len(win_stacks) > max_columns:
                     stack_heights = [sum(self.windows[i].height for i in stack) for stack in win_stacks]
-                    smallest, second_smallest = sorted(np.argpartition(stack_heights, 2)[:2]) if len(stack_heights) > 2 else [0,1]
+                    smallest, second_smallest = sorted(np.argpartition(stack_heights, 2)[:2]) if len(stack_heights) > 2 else [0, 1]
                     win_stacks[smallest] += win_stacks[second_smallest]
                     del win_stacks[second_smallest]
 
-            # in this mode, we keep the order of the windows, stacking neighbouring windows by specifying the break positions in the window list
+            # In this mode, we keep the order of the windows, stacking neighbouring windows by specifying the break positions in the window list
             elif self.stackmode == StackMode.KEEP_ORDER or self.stackmode == StackMode.KEEP_ORDER_EQUAL_SIZES:
                 win_heights = [w.height for w in self.windows]
                 break_positions = [0]
                 cumsum_heights = np.cumsum([0] + win_heights)
                 if self.stackmode == StackMode.KEEP_ORDER:
-                    target_height =  self.height
+                    target_height = self.height
                 else:
-                    target_height =  cumsum_heights[-1] // max_columns
+                    target_height = cumsum_heights[-1] // max_columns
                 offset = 0
                 for i, cumsum in enumerate(cumsum_heights):
                     if cumsum >= cumsum_heights[break_positions[-1]] + target_height - offset:
-
                         if self.stackmode == StackMode.KEEP_ORDER_EQUAL_SIZES:
                             break_positions.append(i)
                             offset += cumsum - target_height
@@ -225,33 +226,32 @@ class TaskVisualizer(UIElement):
                         break
                 break_positions.append(len(self.windows))
 
-                win_stacks = [list(range(s_start,s_end)) for s_start, s_end in zip(break_positions, break_positions[1:])]
+                win_stacks = [list(range(s_start, s_end)) for s_start, s_end in zip(break_positions, break_positions[1:])]
 
-
-            # set positions from stacks
+            # Set positions from stacks
             for stack_i, stack in enumerate(win_stacks):
                 current_height = 0
                 for win_i in stack:
-                    self.windows[win_i].rel_pos = (1+(Settings.get('appearance.column_width')+Settings.get('appearance.window_margin'))*stack_i, current_height)
+                    self.windows[win_i].rel_pos = (1 + (Settings.get('appearance.column_width') + Settings.get('appearance.window_margin')) * stack_i, current_height)
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
                 if 1 + current_height < self.height:
                     continue
 
-                # set max-height if height exceeds terminal height
+                # Set max-height if height exceeds terminal height
                 win_heights = np.array([self.windows[i].height for i in stack])
                 while 1 + win_heights.sum() > self.height:
                     win_heights[win_heights == np.max(win_heights)] -= 1
                 for win_i, max_height in zip(stack, win_heights):
                     self.windows[win_i].max_height = max_height
 
-                # reposition with new max_height
+                # Reposition with new max_height
                 current_height = 0
                 for win_i in stack:
-                    self.windows[win_i].rel_pos = (1+(Settings.get('appearance.column_width')+Settings.get('appearance.window_margin'))*stack_i, current_height)
+                    self.windows[win_i].rel_pos = (1 + (Settings.get('appearance.column_width') + Settings.get('appearance.window_margin')) * stack_i, current_height)
                     current_height += min(self.windows[win_i].height, self.windows[win_i].max_height) if self.windows[win_i].max_height >= 0 else self.windows[win_i].height
 
-            # re order windows based on stacks
+            # Reorder windows based on stacks
             if self.stackmode == StackMode.MERGE_SMALLEST:
                 new_window_order = []
                 for stack in win_stacks:
