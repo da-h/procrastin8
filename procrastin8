@@ -2,11 +2,13 @@
 from ui import get_term
 from ui import Dashboard
 from model.todotxt import TodotxtModel
+from model.jira import JiraModel
 import sys
 from os.path import dirname, join
 import asyncio
 from asyncio import Queue
 import threading
+from settings import Settings
 
 term = get_term()
 
@@ -24,7 +26,8 @@ def main():
         filter = sys.argv[-1]
     else:
         filter = ".*"
-    model = TodotxtModel(todofile, donefile)
+    # model = TodotxtModel(todofile, donefile)
+    model = JiraModel(Settings.get("jira.instance"), Settings.get("jira.username"), Settings.get("jira.api_token"), Settings.get("jira.jql"))
     dash = Dashboard(model, filter)
 
     loop = asyncio.get_event_loop()

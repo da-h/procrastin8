@@ -131,7 +131,7 @@ class UIElement(object):
             await self.parent.redraw()
 
     async def draw(self):
-        if self.pos_changed or not self.visible:
+        if self.pos_changed:
             self.clear()
             self.pos_changed = False
 

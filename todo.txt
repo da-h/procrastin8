@@ -1,3 +1,5 @@
+2023-05-01 use registerProperty in all classes to reduce number of redraws +code
+2023-05-01 improve TextWrapper creation +code
 tag/subtag/list suggestions +editmode
 presets +TaskVisualizer
 choose projects / contexts +TaskVisualizer

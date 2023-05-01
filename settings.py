@@ -34,9 +34,10 @@ class Settings(metaclass=Singleton):
                 'todo_style': 1,
             },
             'jira': {
-                'jira_url': "",
-                'jira_username': "",
-                'jira_password': "",
+                'instance': "",
+                'jql': "",
+                'username': "",
+                'api_token': "",
             }
         }
 
