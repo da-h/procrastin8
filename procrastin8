@@ -1,7 +1,7 @@
 #!/bin/python
 from ui import get_term
 from ui import Dashboard
-from model import Model
+from model.todotxt import TodotxtModel
 import sys
 from os.path import dirname, join
 import asyncio
@@ -24,7 +24,7 @@ def main():
         filter = sys.argv[-1]
     else:
         filter = ".*"
-    model = Model(todofile, donefile)
+    model = TodotxtModel(todofile, donefile)
     dash = Dashboard(model, filter)
 
     loop = asyncio.get_event_loop()

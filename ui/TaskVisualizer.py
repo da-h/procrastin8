@@ -4,7 +4,7 @@ from datetime import datetime
 import numpy as np
 from ui.UIElement import UIElement
 from settings import Settings
-from model import Task, Tag, Subtag, List, re_priority
+from model.basemodel import Task, Tag, Subtag, List, re_priority
 from enum import Enum
 from ui import get_term
 from ui.lines.TaskLine import TaskLine

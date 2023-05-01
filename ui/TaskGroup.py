@@ -4,7 +4,7 @@ from ui.lines.TaskLine import TaskLine
 from ui.util.AbstractTaskGroup import AbstractTaskGroup
 from settings import Settings
 from ui import get_term
-from model import Tag, Subtag, List, re_priority, Task
+from model.basemodel import Tag, Subtag, List, re_priority, Task
 term = get_term()
 
 class TaskGroup(AbstractTaskGroup, TaskLine):

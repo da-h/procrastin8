@@ -2,7 +2,7 @@ from copy import copy
 from blessed.sequences import Sequence
 from ui.floating.SuggestionPopup import SuggestionPopup
 from datetime import datetime
-from model import Task, Tag, Subtag, List, Modifier, ModifierDate
+from model.basemodel import Task, Tag, Subtag, List, Modifier, ModifierDate
 from settings import Settings
 
 from ui import get_term

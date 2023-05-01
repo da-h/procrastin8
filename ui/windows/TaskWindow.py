@@ -1,4 +1,4 @@
-from model import Task
+from model.basemodel import Task
 from ui.lines.TaskLine import TaskLine
 from ui.windows.TextWindow import TextWindow
 from ui.util.AbstractTaskGroup import AbstractTaskGroup
