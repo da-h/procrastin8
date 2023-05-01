@@ -88,6 +88,10 @@ class Dashboard(UIElement):
     async def onContentChange(self, child_src=None, el_changed=None):
         if child_src == self.settingswin:
             await self.reinit_modelview()
+            await term.cursor.moveTo(self.settingswin)
+            self.clear()
+            await self.draw()
+
         await super().onContentChange(child_src, el_changed)
         if not self.will_redraw_soon:
             await self.draw()

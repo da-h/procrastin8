@@ -18,7 +18,7 @@ term = get_term()
 class SettingsWindow(TextWindow):
     def __init__(self, width, parent=None):
         width = 50
-        super().__init__((term.width // 2 - width//2, 0), width=width, title="Settings", parent=parent)
+        super().__init__((term.width // 2 - width//2, term.height // 2 - len(Settings.default_settings())), width=width, title="Settings", parent=parent)
         self.active_line = 0
         self.layer = 2
 
