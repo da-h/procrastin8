@@ -13,24 +13,22 @@ class WidgetBar(UIElement):
         self.widgets_left = []
         self.widgets_right = []
 
-    async def draw(self, **draw_args):
-        await super().draw()
+    async def draw(self):
+        draw_args = self.draw_args
 
-        if e := self.element("widgets_left"):
-            with e:
-                pos = 1
-                for w in self.widgets_left:
-                    w.rel_pos[1] = 1
-                    w.rel_pos[0] = pos
-                    w.typeset()
-                    pos += w.width + 1
-        if e := self.element("widgets_right"):
-            with e:
-                pos = self.width
-                for w in self.widgets_right:
-                    w.rel_pos[1] = 1
-                    w.rel_pos[0] = pos - w.width
-                    pos -= w.width + 1
+        if el := self.element("widgets_left"):
+            pos = 1
+            for w in self.widgets_left:
+                w.rel_pos[1] = 1
+                w.rel_pos[0] = pos
+                w.typeset()
+                pos += w.width + 1
+        if el := self.element("widgets_right"):
+            pos = self.width
+            for w in self.widgets_right:
+                w.rel_pos[1] = 1
+                w.rel_pos[0] = pos - w.width
+                pos -= w.width + 1
 
         for w in self.widgets_left:
             await w.draw()

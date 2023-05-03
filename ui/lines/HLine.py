@@ -16,12 +16,12 @@ class HLine(UIElement):
         pass
 
     async def draw(self):
-        await super().draw()
-        for i in range(self.height-1):
-            self.printAt((0,i),          " "*self.wrapper.width)
-        self.printAt((0,self.height-1), term.dim+"─"*self.wrapper.width+term.normal)
-        if self.text:
-            if self.center:
-                self.printAt(((self.wrapper.width-1)//2 - Sequence(self.text, term).length()//2 - 1, self.height - 1), " "+self.text+" ")
-            else:
-                self.printAt((0,self.height-1), self.text+" ")
+        if el := self.element("main"):
+            for i in range(self.height-1):
+                el.printAt((0,i),          " "*self.wrapper.width)
+            el.printAt((0,self.height-1), term.dim+"─"*self.wrapper.width+term.normal)
+            if self.text:
+                if self.center:
+                    el.printAt(((self.wrapper.width-1)//2 - Sequence(self.text, term).length()//2 - 1, self.height - 1), " "+self.text+" ")
+                else:
+                    el.printAt((0,self.height-1), self.text+" ")

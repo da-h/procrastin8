@@ -15,19 +15,17 @@ class RadioLine(UIElement):
         pass
 
     async def draw(self):
-        if e := self.element("main"):
-            with e:
-                await super().draw()
-                is_active = term.cursor.on_element == self
-                choice = [term.black_on_green(" "+c+" ") if i == self.option else " "+c+" " for i, c in enumerate(self.choices)]
-                # choice[self.option] = term.green("◢") + choice[self.option] + term.green("◤")
-                choice[self.option] = term.green("▒") + choice[self.option] + term.green("▒")
-                choice_text = term.green(term.bold("/")).join(choice[:self.option]) + choice[self.option] + term.green(term.bold("/")).join(choice[self.option+1:])
-                if self.option != 0:
-                    choice_text = " "+choice_text
-                if self.option != len(choice):
-                    choice_text += " "
-                self.printAt((0,0), choice_text)
+        if el := self.element("main"):
+            is_active = term.cursor.on_element == self
+            choice = [term.black_on_green(" "+c+" ") if i == self.option else " "+c+" " for i, c in enumerate(self.choices)]
+            # choice[self.option] = term.green("◢") + choice[self.option] + term.green("◤")
+            choice[self.option] = term.green("▒") + choice[self.option] + term.green("▒")
+            choice_text = term.green(term.bold("/")).join(choice[:self.option]) + choice[self.option] + term.green(term.bold("/")).join(choice[self.option+1:])
+            if self.option != 0:
+                choice_text = " "+choice_text
+            if self.option != len(choice):
+                choice_text += " "
+            el.printAt((0,0), choice_text)
 
     async def onKeyPress(self, val):
         if val.code == term.KEY_LEFT:

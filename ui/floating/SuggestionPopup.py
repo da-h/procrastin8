@@ -9,13 +9,10 @@ class SuggestionPopup(UIElement):
         self.registerProperty("selected", 0, ["main"])
 
     async def draw(self):
-        await super().draw()
-
-        if e := self.element("main"):
-            with e:
-                for i, suggestion in enumerate(self.suggestions):
-                    style = term.bold_black_on_white if i == self.selected else term.black_on_white
-                    self.printAt((0, i), f"{style}{suggestion}{term.normal}")
+        if el := self.element("main"):
+            for i, suggestion in enumerate(self.suggestions):
+                style = term.bold_black_on_white if i == self.selected else term.black_on_white
+                el.printAt((0, i), f"{style}{suggestion}{term.normal}")
 
     async def onKeyPress(self, val):
         if val.code == term.KEY_TAB:

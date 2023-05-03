@@ -44,7 +44,6 @@ class Cursor:
         self.elements_under_cursor = parents_target
         self.pos = self.on_element.pos
 
-
         # Event: onFocus
         if parents_target[0] is not None:
             if parents_target[0] not in parents_source:
@@ -178,6 +177,8 @@ class Terminal(BlessedTerminal):
                     self._print(pos, seq)
 
         # Flush & draw cursor
+        # for i in self.buffered_print[0].values():
+        #     await self.log("flush:", i)
         self.print_flush()
         await self.cursor.draw(self)
 

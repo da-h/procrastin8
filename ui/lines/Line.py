@@ -2,6 +2,7 @@ from ui.UIElement import UIElement
 from ui import get_term
 from blessed.sequences import Sequence
 import numpy as np
+import asyncio
 
 term = get_term()
 
@@ -10,63 +11,56 @@ class Line(UIElement):
     def __init__(self, text="", rel_pos=None, prepend="", append="", wrapper=None, parent=None, center=False, line_style=""):
         super().__init__(rel_pos=rel_pos, parent=parent)
         if text is not None:
-            self.registerProperty("text", text, ["main"])
+            self.registerProperty("text", text, ["main", "typeset"])
         self.height = 1
         self.wrapper = wrapper if wrapper is not None else parent.wrapper if parent is not None and hasattr(parent, 'wrapper') else parent
-        self.registerProperty("prepend", prepend, ["main"])
-        self.registerProperty("append", append, ["main"])
+        self.registerProperty("prepend", prepend, ["main", "typeset"])
+        self.registerProperty("append", append, ["main", "typeset"])
         self.registerProperty("edit_mode", False, ["main"])
         self.registerProperty("edit_charpos", 0, ["main"])
         self.registerProperty("edit_firstchar", 0, ["main"])
         self.registerProperty("line_style", line_style, ["main"])
+        self.registerProperty("active", prepend, ["main"])
+        self.registerProperty("center", center, ["main"])
         self._typeset_text = None
-        self.center = center
-        self.text_changed = False
 
     def formatText(self):
         return str(self.text)
 
     # ensure lines have correct width
     def typeset(self):
-        if self.text_changed:
-            self.clear("main")
-            self.text_changed = False
-        else:
-            self.element.redraw("main")
-        if self.wrapper is None:
-            self._typeset_text = [self.formatText()]
-            self.height = 1
-        else:
-            self._typeset_text = self.wrapper.wrap(self.formatText())
-            self.height = max(len(self._typeset_text),1)
-        if len(self._typeset_text) == 0:
-            self._typeset_text = [""]
+        if el := self.element('typeset'):
+            if self.wrapper is None:
+                self._typeset_text = [self.formatText()]
+                self.height = 1
+            else:
+                self._typeset_text = self.wrapper.wrap(self.formatText())
+                self.height = max(len(self._typeset_text),1)
+            if len(self._typeset_text) == 0:
+                self._typeset_text = [""]
 
     async def draw(self):
-        await super().draw()
+        if el := self.element("main"):
 
-        if e := self.element("main"):
-            with e:
+            # check what highlight it is
+            highlight = lambda x: x
+            if self.active:
+                highlight = lambda x: term.bold(x)
 
-                # check what highlight it is
-                highlight = lambda x: x
-                if term.cursor.on_element == self:
-                    highlight = lambda x: term.bold(x)
+            # print lines
+            for i, t in enumerate(self._typeset_text if self._typeset_text else self.text):
+                t = Sequence(highlight(t), term)
+                t_len = t.length()
+                t = self.prepend+term.normal+self.line_style+t+term.normal+self.append
+                if self.center:
+                    el.printAt(((self.wrapper.width-1)//2 - t_len//2 - 1, 1), " "+t+" ")
+                else:
+                    el.printAt((0, i), t)
 
-                # print lines
-                for i, t in enumerate(self._typeset_text if self._typeset_text else self.text):
-                    t = Sequence(highlight(t), term)
-                    t_len = t.length()
-                    t = self.prepend+term.normal+self.line_style+t+term.normal+self.append
-                    if self.center:
-                        self.printAt(((self.wrapper.width-1)//2 - t_len//2 - 1, 1), " "+t+" ")
-                    else:
-                        self.printAt((0, i), t)
-
-                if self.edit_mode:
-                    prepend = Sequence(self.prepend, term)
-                    prepend_len = prepend.length()
-                    term.cursor.pos = self.pos + (prepend_len, 0) + self._get_pos_in_line()
+            if self.edit_mode:
+                prepend = Sequence(self.prepend, term)
+                prepend_len = prepend.length()
+                term.cursor.pos = self.pos + (prepend_len, 0) + self._get_pos_in_line()
 
     def _get_pos_in_line(self):
         total_chars, t_len = 0, 0
@@ -155,17 +149,17 @@ class Line(UIElement):
         return await super().onKeyPress(val)
 
     async def _updateText(self, raw_text):
-        if self.text != raw_text:
-            self.text_changed = True
-        self.text = raw_text
         if self.edit_mode:
-            self.edit_charpos = min(self.edit_charpos, len(self.text))
-        await self.onContentChange()
+            new_edit_charpos = min(self.edit_charpos, len(raw_text))
+            if new_edit_charpos != self.edit_charpos:
+                self.edit_charpos = new_edit_charpos
+        if self.text != raw_text:
+            self.text = raw_text
 
     async def onEnter(self):
+        self.active = True
         await super().onEnter()
-        await self.redraw("main")
     async def onLeave(self):
+        self.active = False
         await super().onLeave()
-        await self.redraw("main")
 

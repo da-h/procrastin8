@@ -61,7 +61,7 @@ class TaskVisualizer(UIElement):
         self.children.remove(elem)
         if elem in self.windows:
             self.windows.remove(elem)
-        await self.draw()
+        # await self.draw()
         if term.cursor.isOnElement(elem):
             await term.cursor.moveTo(self.windows[0])
 
@@ -74,20 +74,17 @@ class TaskVisualizer(UIElement):
     # ---------------
 
     async def draw(self):
+
         if not self.inited:
             self.inited = True
             await self.init_modelview()
 
         with term.location():
-            for elem in self.windows:
-                await elem.draw()
-
-            if e := self.element("marked"):
-                with e:
-                    for i, elem in enumerate(self.marked):
-                        self.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True)
-                        str_num = str(i+1)
-                        self.printAt(elem.pos - self.pos + (Settings.get('appearance.column_width')-Settings.get('appearance.window_padding')*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
+            if el := self.element("marked"):
+                for i, elem in enumerate(self.marked):
+                    el.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True)
+                    str_num = str(i+1)
+                    el.printAt(elem.pos - self.pos + (Settings.get('appearance.column_width')-Settings.get('appearance.window_padding')*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
 
     # Model view methods
     # ------------------
@@ -111,7 +108,7 @@ class TaskVisualizer(UIElement):
             if win_title in current_lines_per_window:
                 win.current_line = current_lines_per_window[win_title]
 
-        await self.draw()
+        # await self.draw()
         if len(self.windows) < self.current_window:
             self.current_window = len(self.windows) - 1
             self.window[self.current_window].current_line = 0
@@ -191,7 +188,8 @@ class TaskVisualizer(UIElement):
 
         # Pack windows if space is not sufficient
         if term.width < win_pos:
-            await self.draw()
+            # await self.draw()
+            await self.mark_dirty()
             max_columns = term.width // (Settings.get('appearance.column_width') + Settings.get('appearance.window_margin'))
             wins_to_stack = len(self.windows) - max_columns
             win_stacks = [[i] for i in range(len(self.windows))]
@@ -261,7 +259,7 @@ class TaskVisualizer(UIElement):
                         new_window_order.append(self.windows[win_i])
                 self.windows = new_window_order
 
-            await self.draw()
+            await self.mark_dirty()
 
     async def onKeyPress(self, val):
         element = term.cursor.on_element
