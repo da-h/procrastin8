@@ -26,8 +26,12 @@ def main():
         filter = sys.argv[-1]
     else:
         filter = ".*"
-    # model = TodotxtModel(todofile, donefile)
-    model = JiraModel(Settings.get("jira.instance"), Settings.get("jira.username"), Settings.get("jira.api_token"), Settings.get("jira.jql"))
+
+
+    if todofile == "jira":
+        model = JiraModel(Settings.get("jira.instance"), Settings.get("jira.username"), Settings.get("jira.api_token"), Settings.get("jira.jql"))
+    else:
+        model = TodotxtModel(todofile, donefile)
     dash = Dashboard(model, filter)
 
     loop = asyncio.get_event_loop()
