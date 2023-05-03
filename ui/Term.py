@@ -142,10 +142,18 @@ class Terminal(BlessedTerminal):
     def _print(self, pos, seq):
         if self.height <= pos[1]:
             return
+        if self.width <= pos[0]:
+            return
         if pos[0] < 0:
             pos = (self.width - pos[0], pos[1])
         if pos[1] < 0:
             pos = (pos[0], self.height - pos[1])
+
+        # Truncate the sequence if it would appear outside the terminal window
+        seq_length = len(seq) if isinstance(seq, str) else seq.length()
+        if pos[0] + seq_length > self.width:
+            seq = seq[:self.width - pos[0]]
+
         self.print_buffer.append((pos, seq))
 
     def print_flush(self):
