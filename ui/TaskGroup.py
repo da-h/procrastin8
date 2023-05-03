@@ -24,8 +24,10 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
 
         self.hide_taskbullet = True
         self.line_style = term.cyan
-        self.registerProperty("active", False, ["highlightborder", "grouptitle", "main"])
+        # self.layer = self.parent.layer + 1
+        self.registerProperty("active", False, ["highlightborder", "grouptitle"])
         self.registerProperty("overwrite_height", 0, "highlightborder")
+        self.layer = self.parent.layer + 1
 
     def typeset(self):
         super().typeset()
@@ -40,28 +42,21 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
 
     async def draw(self):
 
-        if e := self.element("highlightborder"):
-            with e:
-                if self.active:
-                    total_height = self.total_height() - 1 if self.overwrite_height == 0 else self.overwrite_height
-                    self.printAt((-Settings.get('appearance.window_padding'),0), term.blue_bold("┏"*1))
-                    self.printAt((len(self.prepend) + self.wrapper.width + Settings.get('appearance.window_padding') - 1 + len(self.append),0), term.blue_bold("┓"*1))
-                    for i in range(1, total_height):
-                        self.printAt((-Settings.get('appearance.window_padding'),i), term.blue_bold("┃"*1))
-                        self.printAt((len(self.prepend) + self.wrapper.width + Settings.get('appearance.window_padding') - 1 + len(self.append),i), term.blue_bold("┃"*1))
-                    self.printAt((-Settings.get('appearance.window_padding'),total_height), term.blue_bold("┗"*1))
-                    self.printAt((len(self.prepend) + self.wrapper.width + Settings.get('appearance.window_padding') - 1 + len(self.append),total_height), term.blue_bold("┛"*1))
+        if el := self.element("highlightborder"):
+            if self.active:
+                total_height = self.total_height() - 1 if self.overwrite_height == 0 else self.overwrite_height
+                el.printAt((-Settings.get('appearance.window_padding'),0), term.blue_bold("┏"*1))
+                el.printAt((len(self.prepend) + self.wrapper.width + Settings.get('appearance.window_padding') - 1 + len(self.append),0), term.blue_bold("┓"*1))
+                for i in range(1, total_height):
+                    el.printAt((-Settings.get('appearance.window_padding'),i), term.blue_bold("┃"*1))
+                    el.printAt((len(self.prepend) + self.wrapper.width + Settings.get('appearance.window_padding') - 1 + len(self.append),i), term.blue_bold("┃"*1))
+                el.printAt((-Settings.get('appearance.window_padding'),total_height), term.blue_bold("┗"*1))
+                el.printAt((len(self.prepend) + self.wrapper.width + Settings.get('appearance.window_padding') - 1 + len(self.append),total_height), term.blue_bold("┛"*1))
 
-        if e := self.element("grouptitle"):
-            with e:
-                if Settings.get('tasks.todo_style') == 1:
-                    await super().draw()
-                    return
-                if Settings.get('tasks.todo_style') == 2:
-                    self.printAt((0,0),          " "*self.wrapper.width)
-                    self.printAt((0,1), term.dim+"─"*self.wrapper.width+term.normal)
-                    await super().draw()
-                    return
+        if el := self.element("grouptitle"):
+            if Settings.get('tasks.todo_style') == 2:
+                el.printAt((0,0),          " "*self.wrapper.width)
+                el.printAt((0,1), term.dim+"─"*self.wrapper.width+term.normal)
 
         await super().draw()
 
@@ -70,11 +65,9 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
 
     async def onFocus(self):
         self.active = True
-        await self.onContentChange()
         return await super().onFocus()
     async def onLeave(self):
         self.active = False
-        await self.onContentChange()
         return await super().onLeave()
     async def onKeyPress(self, val):
         if not self.edit_mode:

@@ -12,7 +12,7 @@ from settings import Settings
 
 term = get_term()
 
-def main():
+async def main(queue):
 
     # init
     if len(sys.argv) == 1:
@@ -27,20 +27,19 @@ def main():
     else:
         filter = ".*"
 
-
     if todofile == "jira":
         model = JiraModel(Settings.get("jira.instance"), Settings.get("jira.username"), Settings.get("jira.api_token"), Settings.get("jira.jql"))
     else:
         model = TodotxtModel(todofile, donefile)
+
     dash = Dashboard(model, filter)
+    await dash.loop(queue)
 
-    loop = asyncio.get_event_loop()
 
+if __name__ == "__main__":
     queue = Queue()
     t = threading.Thread(target=term.threaded_inkey, args=[queue])
     t.start()
-    loop.run_until_complete(dash.loop(queue))
-
-if __name__ == "__main__":
-    main()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main(queue))
 

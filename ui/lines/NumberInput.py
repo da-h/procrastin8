@@ -17,14 +17,12 @@ class NumberInput(UIElement):
         pass
 
     async def draw(self):
-        if e := self.element("main"):
-            with e:
-                await super().draw()
-                # check what highlight it is
-                is_active = term.cursor.on_element == self
-                self.printAt((0, 0), f"{self.value}")
-                if self.editing:
-                    self.printAt((len(str(self.value)), 0), term.blink("_"))
+        if el := self.element("main"):
+            # check what highlight it is
+            is_active = term.cursor.on_element == self
+            el.printAt((0, 0), f"{self.value}")
+            if self.editing:
+                el.printAt((len(str(self.value)), 0), term.blink("_"))
 
     async def onKeyPress(self, val):
         if self.editing:

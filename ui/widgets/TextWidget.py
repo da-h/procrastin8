@@ -10,5 +10,5 @@ class TextWidget(UIElement):
         self.width = len(self.text)
 
     async def draw(self, **draw_args):
-        await super().draw()
-        self.printAt((0,0), term.dim + self.text + term.normal)
+        if el := self.element("main"):
+            el.printAt((0,0), term.dim + self.text + term.normal)

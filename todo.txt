@@ -1,5 +1,8 @@
+2023-05-03 rel_pos and pos should be registered variables +code
 2023-05-01 use registerProperty in all classes to reduce number of redraws +code
 2023-05-01 improve TextWrapper creation +code
+2023-05-03 decide on concrete roles of UIElement functions. how should super be called? +code
+2023-05-03 same applies for the draw function. is it called directly, or should the whole tree be checked? subtree seems more efficient. but how do we make cross-connections like DebugWindow possible? +code
 tag/subtag/list suggestions +editmode
 presets +TaskVisualizer
 choose projects / contexts +TaskVisualizer

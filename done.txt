@@ -78,3 +78,5 @@ x escape undos edit +undo
 x 2023-04-30 2023-04-30 add layers to term / uielement +ui ++layers
 x 2023-04-30 2023-04-30 by default draw on same layer as parent +ui ++layers
 x 2023-04-30 2023-04-30 adapt settings to use one layer up +ui ++layers
+x 2023-05-03 2023-05-03 rewrite UIElement to make all drawing operations to be handled by the TerminalBridge class +code
+x 2023-05-03 2023-05-03 rewrite TerminalBridge to allow multiple instances with multiple names +code

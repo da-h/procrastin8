@@ -34,9 +34,8 @@ class TaskLine(Line):
         await super().draw()
 
         if e := self.element("suggestion"):
-            with e:
-                if self.suggestion_popup.visible:
-                    await self.suggestion_popup.draw()
+            if self.suggestion_popup.visible:
+                await self.suggestion_popup.draw()
 
 
 

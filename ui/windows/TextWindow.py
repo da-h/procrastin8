@@ -26,7 +26,6 @@ class TextWindow(Window):
         self.overfull_mode = overfull_mode
         self.current_line = 0
         self.empty_lines = 0
-        self.allow_cursor_on_title = False
         self.registerProperty("scroll_pos", 0, ["content", "border"])
         self.registerProperty("content_height", 0, ["window"])
         self.registerProperty("height", self.height, ["content"])
@@ -42,29 +41,28 @@ class TextWindow(Window):
             height = el.height
             el.typeset()
             if el.height != height:
-                self.element.remove("content")
+                self.clear("content")
                 self._el_changed = []
                 break
 
         # calculate dynamic height
         # & position lines
         # redraw_content = False
-        if e := self.element("content"):
-            with e:
-                redraw_content = True
-                content_height = 0
-                self.line_cum_heights = []
-                for line in self.lines:
-                    line.clear()
-                    line.rel_pos = np.array((self.padding[3] + Settings.get('appearance.window_padding'), content_height - self.scroll_pos + self.padding[0]))
-                    line.typeset()
-                    line.max_height = max(self.max_inner_height - content_height + self.scroll_pos, 0)
-                    if line.rel_pos[1] < self.padding[1]:
-                        line.max_height = 0
-                    content_height += line.height
-                    self.line_cum_heights.append(content_height)
-                self.content_height = content_height
-                self.max_scroll = max(self.content_height - self.max_inner_height, 0)
+        if el := self.element("content"):
+            redraw_content = True
+            content_height = 0
+            self.line_cum_heights = []
+            for line in self.lines:
+                line.clear()
+                line.rel_pos = np.array((self.padding[3] + Settings.get('appearance.window_padding'), content_height - self.scroll_pos + self.padding[0]))
+                line.typeset()
+                line.max_height = max(self.max_inner_height - content_height + self.scroll_pos, 0)
+                if line.rel_pos[1] < self.padding[1]:
+                    line.max_height = 0
+                content_height += line.height
+                self.line_cum_heights.append(content_height)
+            self.content_height = content_height
+            self.max_scroll = max(self.content_height - self.max_inner_height, 0)
 
         # draw window
         draw_args = {}
@@ -78,14 +76,14 @@ class TextWindow(Window):
         await super().draw(**draw_args)
 
         # draw scroll bar
-        if e := self.element.drawn_recently["border"]:
+        if el := self.element("border"):
             if self.content_height > self.max_inner_height:
                 max_scroll = self.content_height - self.max_inner_height
-                self.printAt((self.width-Settings.get('appearance.window_padding'),int(self.scroll_pos/max_scroll*(self.max_inner_height-1))), term.yellow("┃") if self.active else "┃")
+                el.printAt((self.width-Settings.get('appearance.window_padding'),int(self.scroll_pos/max_scroll*(self.max_inner_height-1))), term.yellow("┃") if self.active else "┃")
 
         # draw text
-        for line in self.lines:
-            await line.draw()
+        # for line in self.lines:
+        #     await line.draw()
 
     async def onKeyPress(self, val):
         element = term.cursor.on_element
@@ -138,10 +136,10 @@ class TextWindow(Window):
         self.empty_lines += 1
         self.add_line("")
 
-    async def onContentChange(self, child_src, el_changed):
-        if isinstance(child_src, Line):
-            self._el_changed.append(child_src)
-        await super().onContentChange(child_src, el_changed)
+    # async def onContentChange(self, child_src, el_changed):
+    #     if isinstance(child_src, Line):
+    #         self._el_changed.append(child_src)
+    #     await super().onContentChange(child_src, el_changed)
     async def onSizeChange(self, child_src, el_changed):
         self._size_changed.append(child_src)
         await super().onSizeChange(child_src, el_changed)
@@ -194,5 +192,5 @@ class TextWindow(Window):
         else:
             self.scroll_pos = self.max_scroll + pos + 1
 
-        await self.onContentChange()
+        # await self.onContentChange()
 

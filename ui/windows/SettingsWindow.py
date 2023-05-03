@@ -20,7 +20,7 @@ class SettingsWindow(TextWindow):
         width = 50
         super().__init__((term.width // 2 - width//2, term.height // 2 - sum(len(category) + 3 for category in Settings.default_settings().values())), width=width, title="Settings", parent=parent)
         self.current_line = 0
-        self.layer = 2
+        self.layer = self.parent.layer + 1
 
         # Dynamically create UIElements for each setting in Settings.default_settings
         max_len = max(len(key) for category in Settings.default_settings().values() for key in category.keys())

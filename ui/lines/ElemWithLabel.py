@@ -25,17 +25,16 @@ class ElemWithLabel(UIElement):
 
 
     async def draw(self):
-        if e := self.element("main"):
-            with e:
-                await super().draw()
+        if el := self.element("main"):
 
-                # check what highlight it is
-                highlight = lambda x: term.ljust(x,width=self.wrapper.width)
-                if self in term.cursor.elements_under_cursor:
-                    highlight = lambda x: term.bold_green(term.ljust(x, width=self.wrapper.width))
+            # check what highlight it is
+            highlight = lambda x: term.ljust(x,width=self.wrapper.width)
+            if self in term.cursor.elements_under_cursor:
+                highlight = lambda x: term.bold_green(term.ljust(x, width=self.wrapper.width))
 
-                self.printAt((0,0), highlight(self.label))
-                # await term.log(Sequence(self.label, term).length())
-                self.elem.rel_pos = (Sequence(self.label, term).length() + 3,0)
-                await self.elem.draw()
+            el.printAt((0,0), highlight(self.label))
+
+            # await term.log(Sequence(self.label, term).length())
+            self.elem.rel_pos = (Sequence(self.label, term).length() + 3,0)
+            await self.elem.draw()
 

@@ -32,20 +32,22 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
         await super().draw()
 
         # title
-        if (e := self.element.drawn_recently["border"]) or (e2 := self.title.element("main")):
+        if (el := self.element("bordertitle")):
+            # self.clear("border")
             if isinstance(self.title, TaskLine):
                 self.title.typeset()
                 self.title.rel_pos = (2,0)
                 self.title.overwrite_height = self.height - 1
-                await self.title.draw()
 
 
-    async def onContentChange(self, child_src=None, el_changed=None):
-        if el_changed == self.title:
-            self.element.redraw("border")
-        if isinstance(child_src, TaskGroup):
-            child_src.element.redraw("grouptitle")
-        await super().onContentChange(child_src, el_changed)
+    # async def onContentChange(self, child_src=None, el_changed=None):
+    #     if el_changed == self.title:
+    #         self.clear("bordertitle")
+    #         self.clear("border")
+    #     if isinstance(child_src, TaskGroup):
+    #         child_src.clear("grouptitle")
+    #         self.clear("border")
+    #     await super().onContentChange(child_src, el_changed)
 
 
     async def onKeyPress(self, val):
@@ -68,4 +70,5 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
 
     async def onLeave(self):
         self.title.line_style = term.bold_white
+        self.title.clear()
         await super().onLeave()

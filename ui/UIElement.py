@@ -1,61 +1,42 @@
 import numpy as np
 from blessed.sequences import Sequence
 from ui import get_term
+import asyncio
 
 term = get_term()
 
 
 class UIElementTerminalBridge(object):
 
-    def __init__(self):
-        self.history = []
-        self.elements = {} # low-level drawing units
-        self.drawn_recently = {} # determines if this has been redrawn recently
-        self.allow_redraw = {}
+    def __init__(self, uiel, element_label):
+        self.uiel = uiel
+        self.subelements = [] # low-level drawing units
+        self.label = element_label
+        self.dirty = True
+        self.always_dirty = False
 
-    @property
-    def name(self):
-        if len(self.history):
-            return self.history[-1]
-        return "main"
+    def printAt(self, rel_pos, *args, ignore_padding=False):
+        if not self.uiel.visible:
+            return
+        seq = Sequence(*args, term)
+        pos = self.uiel.pos + rel_pos + (0 if ignore_padding else (self.uiel.padding[0],self.uiel.padding[2]))
 
-    def __call__(self, name):
-        if name not in self.allow_redraw:
-            if name in self.elements:
-                self.drawn_recently[name] = False
-                return False
-        else:
-            del self.allow_redraw[name]
-        self.drawn_recently[name] = True
-        self.elements[name] = []
-        self.history.append(name)
-        return self
-    def __enter__(self):
-        return self
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        del self.history[-1]
+        if self.uiel.max_height == 0:
+            return
+        if self.uiel.max_height > 0 and (rel_pos[1] if ignore_padding else rel_pos[1] + self.uiel.padding[0] + self.uiel.padding[2]) >= self.uiel.max_height:
+            return
 
-    # tell terminal what to print
-    # (it remembers all calls under the name of the with-statement)
-    def printAt(self, pos, seq, layer=0):
-        if self.name not in self.elements:
-            self.elements[self.name] = []
-        self.elements[self.name].append(((pos[0],pos[1]), seq))
-        term.printAt(pos, seq, layer)
+        # tell terminal what to print
+        # (it remembers all calls under the name of the with-statement)
+        self.subelements.append(((pos[0],pos[1]), seq))
+        term.printAt(pos, seq, self.uiel.layer)
 
     # tell terminal what element to delete
-    def remove(self, element, layer=0):
-        if element not in self.elements:
-            return
-        for pos, seq in self.elements[element]:
-            term.removeAt(pos, seq, layer=layer)
-        del self.elements[element]
-    def removeAll(self, layer=0):
-        for e in list(self.elements.keys()):
-            self.remove(e, layer=layer)
-
-    def redraw(self, element):
-        self.allow_redraw[element] = True
+    def clear(self):
+        for pos, seq in self.subelements:
+            term.removeAt(pos, seq, layer=self.uiel.layer)
+        self.subelements = []
+        self.dirty = True
 
 
 class UIElement(object):
@@ -70,23 +51,23 @@ class UIElement(object):
         self.padding = padding
         self.max_height = max_height
         self._rel_pos = np.array(rel_pos) if rel_pos else np.array((0,0))
-        self.pos_changed = False
         self.layer = parent.layer if layer is None and parent is not None else 0
+        self.dirty = True
 
         self.children = [] # true uielements
-        self.element = UIElementTerminalBridge() # remembers all printed low-level drawing units
 
+        self._elements = {}
         self._prop_elem_connections = {}
         self._prop_vals = {}
         self.__initialized = True
 
-    def registerProperty(self, name, value, elements):
-        if isinstance(elements, str):
-            elements = [elements]
+    def registerProperty(self, name, value, element_labels):
+        if isinstance(element_labels, str):
+            element_labels = [element_labels]
         if name in self._prop_vals:
-            self._prop_elem_connections[name] += elements
+            self._prop_elem_connections[name] += element_labels
         else:
-            self._prop_elem_connections[name] = elements
+            self._prop_elem_connections[name] = element_labels
         self._prop_vals[name] = value
 
     def __getattr__(self, name):
@@ -99,15 +80,25 @@ class UIElement(object):
         if self.__initialized and name in self._prop_vals.keys():
             if self._prop_vals[name] == value:
                 return
-            els = self._prop_elem_connections[name]
-            if len(els) == 0:
-                self.element.removeAll(layer=self.layer)
-            else:
-                for el in els:
-                    self.element.remove(el, layer=self.layer)
+            labels = self._prop_elem_connections[name]
+            for label in labels:
+                self.element(label, getalways=True).clear()
             self._prop_vals[name] = value
+            asyncio.create_task(self.mark_dirty((self, name, value)))
             return
         object.__setattr__(self, name, value)
+
+    async def mark_dirty(self, reason=None, layer=None):
+        if layer is None:
+            layer = self.layer
+        self.dirty = True
+        if self.parent is not None:
+            if not self.parent.dirty:
+                if self.parent.layer < layer:
+                    self.parent.clear()
+                await self.parent.mark_dirty(reason, layer)
+        else:
+            await self.dispatch_draw(reason)
 
     @property
     def pos(self):
@@ -120,47 +111,51 @@ class UIElement(object):
         return self._rel_pos
     @rel_pos.setter
     def rel_pos(self, a):
-        if (a[0], a[1]) != (self._rel_pos[0], self._rel_pos[1]):
-            self.pos_changed = True
+        if a[0] != self._rel_pos[0] and a[1] != self._rel_pos[1]:
+            if self.__initialized:
+                self.clear()
+                asyncio.create_task(self.mark_dirty((self, "rel_pos")))
         self._rel_pos = np.array(a)
 
-    async def redraw(self, element=None):
-        if element:
-            self.element.redraw(element)
-        if self.parent:
-            await self.parent.redraw()
+    def element(self, element_label, getalways=False):
+        if element_label in self._elements:
+            if not getalways:
+                if not self._elements[element_label].dirty:
+                    return False
+                self._elements[element_label].dirty = False
+            return self._elements[element_label]
+        element = UIElementTerminalBridge(self, element_label)
+        self._elements[element_label] = element
+        return element
+
+    async def _draw(self):
+        if (not self.dirty and not self.always_dirty) or not self.visible:
+            return
+        self.__initialized = True
+
+        await self.draw()
+        self.dirty = False
+
+        for child in self.children:
+            await child._draw()
 
     async def draw(self):
-        if self.pos_changed:
-            self.clear()
-            self.pos_changed = False
+        pass
 
-    def clear(self, elements=[]):
-        if isinstance(elements, str):
-            elements = [elements]
-        if len(elements) == 0:
-            self.element.removeAll(layer=self.layer)
-            for c in self.children:
-                c.clear()
-        for e in elements:
-            self.element.remove(e, layer=self.layer)
+    def clear(self, element_labels=[]):
+        if isinstance(element_labels, str):
+            element_labels = [element_labels]
+        if len(element_labels) == 0:
+            element_labels = self._elements.keys()
+        for label in element_labels:
+            self.element(label, getalways=True).clear()
+        self.dirty = True
+        for c in self.children:
+            c.clear()
 
     async def close(self):
         if self.parent:
             await self.parent.onElementClosed(self)
-
-    def printAt(self, rel_pos, *args, ignore_padding=False):
-        if not self.visible:
-            return
-        seq = Sequence(*args,term)
-        pos = self.pos + rel_pos + (0 if ignore_padding else (self.padding[0],self.padding[2]))
-
-        if self.max_height == 0:
-            return
-        if self.max_height > 0 and (rel_pos[1] if ignore_padding else rel_pos[1] + self.padding[0] + self.padding[2]) >= self.max_height:
-            return
-
-        self.element.printAt(pos, seq, self.layer)
 
     def get_parents(self):
         parents = []
@@ -201,18 +196,17 @@ class UIElement(object):
             await self.parent.onSizeChange(self, el_changed + [self])
 
     async def onContentChange(self, child_src=None, el_changed=None):
+        await self.mark_dirty((self, "onContentChange"))
         if el_changed is None:
             el_changed = self
         if self.parent:
             await self.parent.onContentChange(self, el_changed)
 
     async def onEnter(self):
-        # await term.log("enter"+str(self))
         if self.parent and self.parent not in term.cursor.elements_under_cursor_before:
             await self.parent.onEnter()
 
     async def onLeave(self):
-        # await term.log("leave"+str(self))
         if self.parent and self.parent not in term.cursor.elements_under_cursor_after:
             await self.parent.onLeave()
 
