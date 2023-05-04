@@ -70,6 +70,13 @@ class UIElement(object):
             self._prop_elem_connections[name] = element_labels
         self._prop_vals[name] = value
 
+    def chainProperty(self, src_element_label, element_labels):
+        if isinstance(element_labels, str):
+            element_labels = [element_labels]
+        for name in self._prop_vals:
+            if src_element_label in self._prop_elem_connections[name]:
+                self._prop_elem_connections[name] += element_labels
+
     def __getattr__(self, name):
         if name in self._prop_vals.keys():
             return self._prop_vals[name]
