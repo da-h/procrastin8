@@ -111,12 +111,7 @@ class TaskLine(Line):
             return
         else:
             if val == "x":
-                self.task["complete"] = not self.task["complete"]
-                if Settings.get('dates.autoadd_completiondate') and self.task["creation-date"]:
-                    self.task["completion-date"] = datetime.now().strftime("%Y-%m-%d")
-                if self.task["completion-date"] and not self.task["complete"]:
-                    self.task["completion-date"] = None
-                self.task.save()
+                self.task.toggle_complete()
                 await self.onContentChange()
                 return
             elif val == "i" or val == "e":
