@@ -1,5 +1,6 @@
 import re
 from datetime import date
+from settings import Settings
 
 rdate = "\d{4}-\d{2}-\d{2}"
 completion = "x"
@@ -100,6 +101,22 @@ class Task(dict):
 
     def save(self):
         self.model.save()
+
+    def toggle_complete(self):
+        if "actions" in self:
+            if self["complete"] and "undone" in self["actions"]:
+                self["actions"]["undone"]()
+            elif not self["complete"] and "done" in self["actions"]:
+                self["actions"]["done"]()
+
+        self["complete"] = not self["complete"]
+        if Settings.get('dates.autoadd_completiondate') and self["creation-date"]:
+            self["completion-date"] = datetime.now().strftime("%Y-%m-%d")
+        if self["completion-date"] and not self["complete"]:
+            self["completion-date"] = None
+
+        if not "actions" in self:
+            self.save()
 
 
     @classmethod

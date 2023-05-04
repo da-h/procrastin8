@@ -1,6 +1,6 @@
 from jira import JIRA
-from typing import List, Union
-from model.basemodel import Task
+from typing import List as ListType, Union
+from model.basemodel import Task, List
 from model.todotxt import TodotxtModel
 
 class JiraModel:
@@ -37,9 +37,32 @@ class JiraModel:
             if epic:
                 epic_name = epic.fields.summary
 
-            raw_text = f"{story_name} @{epic_name}"
-            task = Task.from_rawtext(self, raw_text, line_no=None)
-            self.todo.append(task)
+            card = List(story_name)
+
+            if issue.fields.subtasks:
+                done_transition = [t for t in self.jira_client.transitions(issue.fields.subtasks[0]) if t['name'].lower() == "done"][0]
+                todo_transition = [t for t in self.jira_client.transitions(issue.fields.subtasks[0]) if t['name'].lower() == "to do"][0]
+
+            for subtask in issue.fields.subtasks:
+                task = Task(self, {
+                    "complete": subtask.fields.status.name.lower() == "done",
+                    "priority": "M_",
+                    "completion-date": None,
+                    "creation-date": None,
+                    # "raw_text_complete": t,
+                    "raw_text": None,
+                    "raw_full_text": None,
+                    "text": [subtask.fields.summary],
+                    "tags": [],
+                    "subtags": [],
+                    "lists": [card],
+                    "modifier": [],
+                    "actions": {
+                        "done": lambda: self.jira_client.transition_issue(subtask, done_transition['id']),
+                        "undone": lambda: self.jira_client.transition_issue(subtask, todo_transition['id']),
+                    }
+                })
+                self.todo.append(task)
 
             # Set the Task attributes
             # task = Task("", "")
@@ -53,7 +76,7 @@ class JiraModel:
             # self.todo.append(task)
 
 
-    def query(self, filter: Union[str, List[Task]] = "", sortBy: List[str] = []) -> List[Task]:
+    def query(self, filter: Union[str, ListType[Task]] = "", sortBy: ListType[str] = []) -> ListType[Task]:
         return self.todo
         # Reuse the query function from the Model class
         return TodotxtModel.query(self, filter, sortBy)
