@@ -33,7 +33,6 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
 
         # title
         if (el := self.element("bordertitle")):
-            # self.clear("border")
             if isinstance(self.title, TaskLine):
                 self.title.typeset()
                 self.title.rel_pos = (2,0)
