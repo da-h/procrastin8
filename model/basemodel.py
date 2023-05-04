@@ -1,6 +1,9 @@
 import re
 from datetime import date
 from settings import Settings
+import asyncio
+from ui.Term import get_term
+term = get_term()
 
 rdate = "\d{4}-\d{2}-\d{2}"
 completion = "x"
@@ -104,10 +107,10 @@ class Task(dict):
 
     def toggle_complete(self):
         if "actions" in self:
-            if self["complete"] and "undone" in self["actions"]:
-                self["actions"]["undone"]()
-            elif not self["complete"] and "done" in self["actions"]:
-                self["actions"]["done"]()
+            if self["complete"] and "todo_param" in self["actions"]:
+                self.model.jira_client.transition_issue(*self["actions"]["todo_param"])
+            elif not self["complete"] and "done_param" in self["actions"]:
+                self.model.jira_client.transition_issue(*self["actions"]["done_param"])
 
         self["complete"] = not self["complete"]
         if Settings.get('dates.autoadd_completiondate') and self["creation-date"]:

@@ -58,8 +58,12 @@ class JiraModel:
                     "lists": [card],
                     "modifier": [],
                     "actions": {
-                        "done": lambda: self.jira_client.transition_issue(subtask, done_transition['id']),
-                        "undone": lambda: self.jira_client.transition_issue(subtask, todo_transition['id']),
+                        # note: subtask.key is more consistent that subtask
+                        # note: subtask.key is more consistent that subtask
+                        "done_param": (subtask.key, done_transition['id']),
+                        "todo_param": (subtask.key, todo_transition['id']),
+                        # "done": lambda: self.jira_client.transition_issue(subtask.key, done_transition['id']),
+                        # "undone": lambda: self.jira_client.transition_issue(subtask.key, todo_transition['id']),
                     }
                 })
                 self.todo.append(task)
