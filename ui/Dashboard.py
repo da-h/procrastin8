@@ -22,6 +22,10 @@ class Dashboard(UIElement):
         self.width = term.width
         self.model = model
         self.continue_loop = True
+        self._draw_task = None
+        self._pending_draw_requests = []
+        self._is_draw_in_progress = False
+
 
         self.settingswin = SettingsWindow(Settings.get('appearance.column_width'), parent=self)
         self.settingswin.visible = False
@@ -60,10 +64,52 @@ class Dashboard(UIElement):
         term.main_window = self
 
 
-    async def dispatch_draw(self, reason=("Dashboard", )):
+    async def _dispatch_draw(self, reason=("Dashboard", )):
         # await term.log(reason)
         await self._draw()
         await term.draw()
+
+    async def dispatch_draw(self, reason=("Dashboard", )):
+        await self._dispatch_draw()
+    # async def dispatch_draw(self, reason=("Dashboard", )):
+    #    # If there is already a pending draw task, cancel it
+    #     if self._draw_task is not None and not self._draw_task.done():
+    #         self._draw_task.cancel()
+    #
+    #     # Schedule a new draw task
+    #     self._draw_task = asyncio.create_task(self._dispatch_draw_after_delay())
+    #
+    # async def _dispatch_draw_after_delay(self):
+    #     # Wait for a short period of time (20ms)
+    #     await asyncio.sleep(0.002)
+    #
+    #     # Call the actual draw method here
+    #     await self._dispatch_draw()
+    #
+    # async def dispatch_draw(self, reason=("Dashboard", )):
+    #     # If a draw operation is already in progress, add this request to the pending list
+    #     if self._is_draw_in_progress:
+    #         self._pending_draw_requests.append(self._dispatch_draw)
+    #     else:
+    #         self._is_draw_in_progress = True
+    #         # Schedule a new draw task
+    #         self._draw_task = asyncio.create_task(self._dispatch_draw_after_delay())
+    #
+    # async def _dispatch_draw_after_delay(self):
+    #     # Wait for a short period of time (20ms)
+    #     await asyncio.sleep(0.02)
+    #
+    #     # Call the actual draw method here
+    #     await self._dispatch_draw()
+    #
+    #     # Check if there are any pending draw requests
+    #     if self._pending_draw_requests:
+    #         # Clear the pending list and schedule a new draw task to process them
+    #         pending_requests = self._pending_draw_requests
+    #         self._pending_draw_requests = []
+    #         await self._dispatch_draw()
+    #     self._is_draw_in_progress = False
+
 
     async def loop(self, queue):
         with term.fullscreen():
