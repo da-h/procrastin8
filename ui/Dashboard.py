@@ -22,6 +22,10 @@ class Dashboard(UIElement):
         self.width = term.width
         self.model = model
         self.continue_loop = True
+        self._is_draw_in_progress = False
+        self._draw_semaphore = asyncio.Semaphore(1)
+        self._more_draws_event = asyncio.Event()
+        self._draw_task = None
 
         self.settingswin = SettingsWindow(Settings.get('appearance.column_width'), parent=self)
         self.settingswin.visible = False
@@ -31,15 +35,7 @@ class Dashboard(UIElement):
         self.debugwindow = DebugWindow(parent=self, height=10)
         self.height = term.height - self.pos[1]
         self.task_visualizer = TaskVisualizer((0, self.widgetbar.height), self.height - self.debugwindow.height, model, filter, parent=self)
-        # self.win = TaskWindow((10,20), 45, title="blub", parent=self)
-        # # self.win = TextWindow((10,20), 45, title="blub", parent=self)
-        # self.win.add_line("l1")
-        # self.win.add_line("l2")
-        # self.win.add_line("l3")
-        # self.win.max_height = 100
 
-        # signal: resize
-        # - ensures that this function is not called on every resize-event
         self.resize_timer = None
         async def resize_finished():
             await asyncio.sleep(0.1)
@@ -56,14 +52,34 @@ class Dashboard(UIElement):
         loop = asyncio.get_event_loop()
         loop.add_signal_handler(signal.SIGWINCH, lambda: asyncio.ensure_future(on_resize()))
 
-        # registers itself as main window
         term.main_window = self
 
 
-    async def dispatch_draw(self, reason=("Dashboard", )):
-        # await term.log(reason)
+    async def _dispatch_draw(self, reason=("Dashboard", )):
         await self._draw()
         await term.draw()
+
+
+
+    async def dispatch_draw(self, reason=("Dashboard", )):
+        if self._draw_semaphore.locked():
+            # If a draw is in progress, just set the event
+            self._more_draws_event.set()
+        else:
+            # Start the draw task if it's not already running
+            self._draw_task = await asyncio.create_task(self._draw_after_delay())
+
+    async def _draw_after_delay(self):
+        while True:
+            async with self._draw_semaphore:
+                self._more_draws_event.clear()
+                await self._dispatch_draw()
+
+            await asyncio.sleep(0.01)  # Throttling
+
+            # If no more draws, exit the loop
+            if not self._more_draws_event.is_set():
+                break
 
     async def loop(self, queue):
         with term.fullscreen():
@@ -74,41 +90,19 @@ class Dashboard(UIElement):
                 key = await queue.get()
                 if key and term.cursor.on_element:
                     await term.cursor.on_element.onKeyPress(key)
-                    # await self.dispatch_draw()
-
-    # async def onContentChange(self, child_src=None, el_changed=None):
-    #     if child_src == self.settingswin:
-    #         await self.task_visualizer.reinit_modelview()
-    #         await term.cursor.moveTo(self.settingswin)
-    #         self.clear()
-    #         # await self.dispatch_draw()
-    #
-    #     await super().onContentChange(child_src, el_changed)
-    #     # await self.dispatch_draw()
 
     async def onFocus(self):
         await term.cursor.moveTo(self.children[-1])
-    # async def onFocus(self):
-    #     await term.cursor.moveTo(self.win)
 
     async def onKeyPress(self, val):
-
-        # =============== #
-        # general actions #
-        # =============== #
-
-        # q to exit
         if val == "r":
             import numpy as np
             self.win.rel_pos = np.random.randint(0,50,(2,))
 
-
-        # q to exit
         if val == "q":
             term.cursor.show()
             self.continue_loop = False
 
-        # u to undo
         elif val == "u":
             self.model.undo_manager.undo()
             await self.task_visualizer.reinit_modelview()
@@ -116,7 +110,6 @@ class Dashboard(UIElement):
             self.model.undo_manager.redo()
             await self.task_visualizer.reinit_modelview()
 
-        # s to open settings window
         elif val == "s":
             await self.toggle_settings()
 
@@ -128,8 +121,5 @@ class Dashboard(UIElement):
         else:
             self.settingswin.clear()
             await term.cursor.moveTo(self)
-            # await self.settingswin.draw()
-            # await self.dispatch_draw()
         self.clear()
-        # await self.dispatch_draw()
 
