@@ -1,5 +1,5 @@
 import re
-from datetime import date
+from datetime import date, datetime
 from settings import Settings
 import asyncio
 from ui.Term import get_term
