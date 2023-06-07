@@ -1,3 +1,6 @@
+2023-06-07 should not remove text if other text is overwritten +code
+2023-06-07 registerProperty->clear should also be called when the child has been changed in some way, not just the property where the child is saved to +code
+2023-06-07 window border is not green anymore +code
 2023-05-03 rel_pos and pos should be registered variables +code
 2023-05-01 use registerProperty in all classes to reduce number of redraws +code
 2023-05-01 improve TextWrapper creation +code
