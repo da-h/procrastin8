@@ -18,6 +18,7 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
         # self.title = TaskLine(Task.from_rawtext(self.parent.model, title), prepend=" ", append=" ", wrapper=self.wrapper, parent=self)
         self.title.hide_taskbullet = True
         self.title.line_style = term.bold_white
+        self.registerProperty("title", self.title, ["bordertitle"])
 
 
     def make_subgroup(self, *args, **kwargs):
@@ -66,8 +67,11 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
                 self.title.line_style = term.bold_white
         await super().onKeyPress(val)
 
+    async def onEnter(self):
+        self.clear("bordertitle")
+        await super().onEnter()
 
     async def onLeave(self):
         self.title.line_style = term.bold_white
-        self.title.clear()
+        self.clear("bordertitle")
         await super().onLeave()
