@@ -57,7 +57,7 @@ class Window(UIElement):
         el.printAt((0,height-1), color+" " + " " * (width-2) + "│", ignore_padding=True)
 
         # set title
-        if title is not None:
+        if title is not None and isinstance(title, str):
             el.printAt((1+0,0), color+" %s " % term.bold(term.white(title)), ignore_padding=True)
 
     async def onEnter(self):
