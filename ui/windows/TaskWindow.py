@@ -48,14 +48,12 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
     #         child_src.clear("grouptitle")
     #         self.clear("border")
     #     await super().onContentChange(child_src, el_changed)
-
-
     async def onKeyPress(self, val):
         element = term.cursor.on_element
 
         if val.code == term.KEY_UP or val == 'k':
             if self.current_line == -1:
-                await super(TextWindow, self).onKeyPress(val)
+                await super().onKeyPress(val)
                 return
             elif self.current_line == 0:
                 await term.cursor.moveTo(self.title)
@@ -65,13 +63,27 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
         if val.code == term.KEY_DOWN or val == 'j':
             if self.current_line == -1:
                 self.title.line_style = term.bold_white
+        if self.parent is not None:
+            await self.parent.onKeyPress(val)
+        else:
+            print("Key press event not propagated: No parent element.")
         await super().onKeyPress(val)
 
     async def onEnter(self):
         self.clear("bordertitle")
+        if self.parent is not None:
+            await self.parent.onEnter()
+        else:
+            print("Enter event not propagated: No parent element.")
         await super().onEnter()
 
     async def onLeave(self):
         self.title.line_style = term.bold_white
         self.clear("bordertitle")
+        if self.parent is not None:
+            await self.parent.onLeave()
+        else:
+            print("Leave event not propagated: No parent element.")
         await super().onLeave()
+        await super().onLeave()
+
