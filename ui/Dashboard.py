@@ -131,11 +131,12 @@ class Dashboard(UIElement):
     #
     #     await super().onContentChange(child_src, el_changed)
     #     # await self.dispatch_draw()
-
     async def onFocus(self):
+        if self.parent is not None:
+            await self.parent.onFocus()
+        else:
+            print("Focus event not propagated: No parent element.")
         await term.cursor.moveTo(self.children[-1])
-    # async def onFocus(self):
-    #     await term.cursor.moveTo(self.win)
 
     async def onKeyPress(self, val):
 
@@ -165,6 +166,11 @@ class Dashboard(UIElement):
         # s to open settings window
         elif val == "s":
             await self.toggle_settings()
+
+        if self.parent is not None:
+            await self.parent.onKeyPress(val)
+        else:
+            print("Key press event not propagated: No parent element.")
 
     async def toggle_settings(self):
         self.settingswin.visible = not self.settingswin.visible
