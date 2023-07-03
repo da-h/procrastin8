@@ -62,13 +62,23 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
 
     def make_subgroup(self, *args, **kwargs):
         return TaskGroup(*args, **kwargs)
-
+    
     async def onFocus(self):
         self.active = True
+        if self.parent is not None:
+            await self.parent.onFocus()
+        else:
+            print("Focus event not propagated: No parent element.")
         return await super().onFocus()
+
     async def onLeave(self):
         self.active = False
+        if self.parent is not None:
+            await self.parent.onLeave()
+        else:
+            print("Leave event not propagated: No parent element.")
         return await super().onLeave()
+
     async def onKeyPress(self, val):
         if not self.edit_mode:
             if val == 'i' or val == 'e':
@@ -80,6 +90,10 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
 
                 self.task = Task.from_rawtext(self.model, self.raw_text)
                 return
+        if self.parent is not None:
+            await self.parent.onKeyPress(val)
+        else:
+            print("Key press event not propagated: No parent element.")
         await super().onKeyPress(val)
 
     def _update_common_tags(self):
@@ -94,3 +108,4 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
             self.common_lists = self.common_lists.intersection(task["lists"])
             self.common_tags = self.common_tags.intersection(task["tags"])
             self.common_subtags = self.common_subtags.intersection(task["subtags"])
+
