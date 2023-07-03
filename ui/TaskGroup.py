@@ -68,6 +68,8 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
         return await super().onFocus()
     async def onLeave(self):
         self.active = False
+        if self.parent and self.parent.title == self:
+            await self.parent.mark_dirty()
         return await super().onLeave()
     async def onKeyPress(self, val):
         if not self.edit_mode:
