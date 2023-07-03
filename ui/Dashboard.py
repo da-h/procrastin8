@@ -31,6 +31,7 @@ class Dashboard(UIElement):
         self.settingswin.visible = False
         self.widgetbar = WidgetBar(parent=self)
         self.timewarriorwidget = TimeWarriorWidget(parent=self.widgetbar)
+        self.widgetbar.widgets_left.append(self.timewarriorwidget)
         self.debugwindow = DebugWindow(parent=self, height=10)
         self.debugwindow.visible = False
         self.height = term.height - self.pos[1]
@@ -76,10 +77,11 @@ class Dashboard(UIElement):
         await term.cursor.moveTo(self.children[-1])
 
     async def onKeyPress(self, val):
-
         if val == "r":
-            import numpy as np
-            self.win.rel_pos = np.random.randint(0,50,(2,))
+            # Check if self.win is defined before executing the following code
+            if hasattr(self, 'win'):
+                import numpy as np
+                self.win.rel_pos = np.random.randint(0,50,(2,))
 
         if val == "q":
             term.cursor.show()
@@ -94,8 +96,8 @@ class Dashboard(UIElement):
 
         elif val == "s":
             await self.toggle_settings()
-
         elif val == "0":
+            # Toggle the visibility of debugwindow when '0' is pressed
             self.debugwindow.visible = not self.debugwindow.visible
 
     async def toggle_settings(self):
