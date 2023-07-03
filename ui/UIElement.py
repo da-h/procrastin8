@@ -51,7 +51,7 @@ class UIElement(object):
         self.padding = padding
         self.max_height = max_height
         self._rel_pos = np.array(rel_pos) if rel_pos else np.array((0,0))
-        self.layer = parent.layer if layer is None and parent is not None else 0
+        self.layer = parent.layer + 1 if layer is None and parent is not None else 0
         self.dirty = True
 
         self.children = [] # true uielements
@@ -101,7 +101,7 @@ class UIElement(object):
         self.dirty = True
         if self.parent is not None:
             if not self.parent.dirty:
-                if self.parent.layer < layer:
+                if self.parent.layer <= layer:
                     self.parent.clear()
                 await self.parent.mark_dirty(reason, layer)
         else:
