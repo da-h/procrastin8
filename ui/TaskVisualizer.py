@@ -296,7 +296,6 @@ class TaskVisualizer(UIElement):
             self.clear("marked")
             self.model.save_order(marked_tasks)
             await self.reinit_modelview()
-
         # space to mark task
         elif val == ' ':
             def mark(elem):
@@ -309,7 +308,12 @@ class TaskVisualizer(UIElement):
                     self.marked.remove(elem)
                 else:
                     self.marked.append(elem)
+            print("Before marking task")
             mark(element)
+            print("After marking task")
+            print("Before clearing marked layer")
+            self.clear("marked")
+            print("After clearing marked layer")
             self.clear("marked")
 
         # LEFT/RIGHT to move between windows
@@ -514,7 +518,7 @@ class TaskVisualizer(UIElement):
                         for t in new_common_lists.difference(element.common_lists):
                             task["text"].append(t)
 
-                        # save new state for easier accessparent=self
+                        # save new state for easier access
                         task["lists"] = list(lists.difference(element.common_lists).union(new_common_lists))
                         task["tags"] = list(tags.difference(element.common_tags).union(new_common_tags))
                         task["subtags"] = list(subtags.difference(element.common_subtags).union(new_common_subtags))
@@ -573,5 +577,4 @@ class TaskVisualizer(UIElement):
                     element.task.model.save()
                     return
         return await super().onKeyPress(val)
-
 
