@@ -175,12 +175,17 @@ class UIElement(object):
 
     # ------ #
     # Events #
-    # ------ #
     async def onKeyPress(self, val):
         if self.parent is not None:
             await self.parent.onKeyPress(val)
+        else:
+            print("Key press event not propagated: No parent element.")
 
     async def onFocus(self):
+        if self.parent is not None:
+            await self.parent.onFocus()
+        else:
+            print("Focus event not propagated: No parent element.")
         await self.onChildFocused()
 
     async def onChildFocused(self, child_src=None, el_focused=None):
@@ -208,10 +213,11 @@ class UIElement(object):
             el_changed = self
         if self.parent:
             await self.parent.onContentChange(self, el_changed)
-
     async def onEnter(self):
         if self.parent and self.parent not in term.cursor.elements_under_cursor_before:
             await self.parent.onEnter()
+        else:
+            print("Enter event not propagated: No parent element.")
 
     async def onLeave(self):
         if self.parent and self.parent not in term.cursor.elements_under_cursor_after:
@@ -220,3 +226,4 @@ class UIElement(object):
     async def onElementClosed(self, elem):
         if self.parent is not None:
             await self.parent.onElementClosed(elem)
+
