@@ -308,9 +308,8 @@ class TaskVisualizer(UIElement):
                     self.marked.remove(elem)
                 else:
                     self.marked.append(elem)
-            print("Before marking task")
             mark(element)
-            print("After marking task")
+            self.clear("marked")
             print("Before clearing marked layer")
             self.clear("marked")
             print("After clearing marked layer")
