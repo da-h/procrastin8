@@ -180,17 +180,15 @@ class TextWindow(Window):
         # down
         # if focus_on.rel_pos[1] > max_inner_height:# - focus_on.height:
         #     await self.scroll(self.scroll_pos + focus_on.rel_pos[1] - element.rel_pos[1] + focus_on.height - 1)
-
     async def scroll(self, pos):
-        # self.clear("content")
-        for l in self.lines:
-            l.clear()
-        # self.clear("window")
-        # self.clear("border")
         if pos >= 0:
             self.scroll_pos = pos
         else:
             self.scroll_pos = self.max_scroll + pos + 1
 
+        # Ensure the scroll position is valid before clearing lines
+        if 0 <= self.scroll_pos <= self.max_scroll:
+            for l in self.lines:
+                l.clear()
         # await self.onContentChange()
 
