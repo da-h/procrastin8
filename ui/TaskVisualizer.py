@@ -189,7 +189,7 @@ class TaskVisualizer(UIElement):
         # Pack windows if space is not sufficient
         if term.width < win_pos:
             # await self.draw()
-            await self.mark_dirty()
+            await self.mark_dirty("init_model_view=repack_windows")
             max_columns = term.width // (Settings.get('appearance.column_width') + Settings.get('appearance.window_margin'))
             wins_to_stack = len(self.windows) - max_columns
             win_stacks = [[i] for i in range(len(self.windows))]
@@ -259,7 +259,7 @@ class TaskVisualizer(UIElement):
                         new_window_order.append(self.windows[win_i])
                 self.windows = new_window_order
 
-            await self.mark_dirty()
+            await self.mark_dirty("init_model_view=done")
 
     async def onKeyPress(self, val):
         element = term.cursor.on_element

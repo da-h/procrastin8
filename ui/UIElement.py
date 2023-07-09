@@ -91,7 +91,7 @@ class UIElement(object):
             for label in labels:
                 self.element(label, getalways=True).clear()
             self._prop_vals[name] = value
-            asyncio.create_task(self.mark_dirty((self, name, value)))
+            asyncio.create_task(self.mark_dirty(f"{name}={value}"))
             return
         object.__setattr__(self, name, value)
 
@@ -99,7 +99,8 @@ class UIElement(object):
         if layer is None:
             layer = self.layer
         self.dirty = True
-        if self.parent is not None:
+        await term.log("mark_dirty", self, reason)
+        if self.parent is not None:# and self.valid_reason():
             if not self.parent.dirty:
                 if self.parent.layer <= layer:
                     self.parent.clear()
@@ -121,7 +122,7 @@ class UIElement(object):
         if a[0] != self._rel_pos[0] and a[1] != self._rel_pos[1]:
             if self.__initialized:
                 self.clear()
-                asyncio.create_task(self.mark_dirty((self, "rel_pos")))
+                asyncio.create_task(self.mark_dirty("rel_pos"))
         self._rel_pos = np.array(a)
 
     def element(self, element_label, getalways=False):
@@ -177,46 +178,55 @@ class UIElement(object):
     # Events #
     # ------ #
     async def onKeyPress(self, val):
+        await term.log("action", "onKeyPress", self)
         if self.parent is not None:
             await self.parent.onKeyPress(val)
 
     async def onFocus(self):
+        await term.log("action", "onFocus", self)
         await self.onChildFocused()
 
     async def onChildFocused(self, child_src=None, el_focused=None):
+        await term.log("action", "onChildFocused", self)
         if el_focused is None:
             el_focused = self
         if self.parent:
             await self.parent.onChildFocused(self, el_focused)
 
     async def onUnfocus(self):
+        await term.log("action", "onUnfocus", self)
         await self.onChildUnfocused()
 
     async def onChildUnfocused(self, child_src=None, el_unfocused=None):
+        await term.log("action", "onChildUnfocused", self)
         if el_unfocused is None:
             el_unfocused = self
         if self.parent:
             await self.parent.onChildUnfocused(self, el_unfocused)
 
     async def onSizeChange(self, child_src=None, el_changed=[]):
+        await term.log("action", "onSizeChange", self)
         if self.parent:
             await self.parent.onSizeChange(self, el_changed + [self])
 
     async def onContentChange(self, child_src=None, el_changed=None):
-        await self.mark_dirty((self, "onContentChange"))
+        await term.log("action", "onContentChange", self)
         if el_changed is None:
             el_changed = self
         if self.parent:
             await self.parent.onContentChange(self, el_changed)
 
     async def onEnter(self):
+        await term.log("action", "onEnter", self)
         if self.parent and self.parent not in term.cursor.elements_under_cursor_before:
             await self.parent.onEnter()
 
     async def onLeave(self):
+        await term.log("action", "onLeave", self)
         if self.parent and self.parent not in term.cursor.elements_under_cursor_after:
             await self.parent.onLeave()
 
     async def onElementClosed(self, elem):
+        await term.log("action", "onElementClosed", self)
         if self.parent is not None:
             await self.parent.onElementClosed(elem)
