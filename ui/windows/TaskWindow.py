@@ -40,16 +40,6 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
                 self.title.overwrite_height = self.height - 1
 
 
-    # async def onContentChange(self, orig_src, child_src=None):
-    #     if el_changed == self.title:
-    #         self.clear("bordertitle")
-    #         self.clear("border")
-    #     if isinstance(child_src, TaskGroup):
-    #         child_src.clear("grouptitle")
-    #         self.clear("border")
-    #     await super().onContentChange(orig_src, child_src)
-
-
     async def onKeyPress(self, val, orig_src=None, child_src=None):
         element = term.cursor.on_element
 
