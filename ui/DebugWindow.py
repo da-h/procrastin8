@@ -13,7 +13,7 @@ class DebugWindow(UIElement):
     def __init__(self, height=0, parent=None):
         pos = (0, term.height - height)
         super().__init__(pos, parent=parent)
-        self.height = height
+        self.height = height + 3
         self.width = term.width
         self.status = ""
         self.redraw_info = True
