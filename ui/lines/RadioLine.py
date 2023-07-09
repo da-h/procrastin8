@@ -27,7 +27,7 @@ class RadioLine(UIElement):
                 choice_text += " "
             el.printAt((0,0), choice_text)
 
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         if val.code == term.KEY_LEFT:
             self.option = (self.option - 1) % len(self.choices)
             await self.onContentChange(self)
@@ -40,4 +40,4 @@ class RadioLine(UIElement):
             self.clear()
             await self.draw()
             return
-        return await super().onKeyPress(val)
+        return await super().onKeyPress(val, orig_src=orig_src)

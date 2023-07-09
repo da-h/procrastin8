@@ -15,10 +15,10 @@ class Prompt(TextWindow):
         self.add_line("Lorem")
         self.add_line("Ipsum")
 
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
 
         if val == "s":
             await self.close()
             return
 
-        return await super().onKeyPress(val)
+        return await super().onKeyPress(val, orig_src=orig_src)

@@ -14,7 +14,7 @@ class SuggestionPopup(UIElement):
                 style = term.bold_black_on_white if i == self.selected else term.black_on_white
                 el.printAt((0, i), f"{style}{suggestion}{term.normal}")
 
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         if val.code == term.KEY_TAB:
             self.selected = max(0, self.selected - 1)
             return True

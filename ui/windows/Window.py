@@ -60,9 +60,9 @@ class Window(UIElement):
         if title is not None and isinstance(title, str):
             el.printAt((1+0,0), color+" %s " % term.bold(term.white(title)), ignore_padding=True)
 
-    async def onEnter(self):
+    async def onEnter(self, orig_src=None, child_src=None):
         self.active = True
-        await super().onEnter()
-    async def onLeave(self):
+        await super().onEnter(orig_src=orig_src)
+    async def onLeave(self, orig_src=None, child_src=None):
         self.active = False
-        await super().onLeave()
+        await super().onLeave(orig_src=orig_src)

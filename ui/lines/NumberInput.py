@@ -24,7 +24,7 @@ class NumberInput(UIElement):
             if self.editing:
                 el.printAt((len(str(self.value)), 0), term.blink("_"))
 
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         if self.editing:
             if val.code == term.KEY_ENTER:
                 self.editing = False
@@ -50,4 +50,4 @@ class NumberInput(UIElement):
                 self.clear()
                 await self.draw()
                 return
-        return await super().onKeyPress(val)
+        return await super().onKeyPress(val, orig_src=orig_src)

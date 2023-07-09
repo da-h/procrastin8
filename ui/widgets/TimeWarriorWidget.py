@@ -73,7 +73,7 @@ class TimeWarriorWidget(Line):
                 await self._updateText(stdout)
                 await self.onContentChange()
 
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         if self.edit_mode:
             if val.code == term.KEY_ESCAPE:
                 await self._updateText(self.saved_text, call_onContentChange=False)
@@ -121,7 +121,7 @@ class TimeWarriorWidget(Line):
                 await self._updateText("")
                 await run("timew delete @1")
                 return
-        return await super().onKeyPress(val)
+        return await super().onKeyPress(val, orig_src=orig_src)
 
     async def set_editmode(self, mode: bool, charpos: int=0, firstchar: int=0):
         self.timer = ""
@@ -136,21 +136,23 @@ class TimeWarriorWidget(Line):
             self.periodic_check = asyncio.create_task(self._update_tasks(2))
         await super().set_editmode(mode, charpos, firstchar)
 
-    async def onFocus(self):
-        self.active = True
-        self.line_style = term.yellow
-        if not self.edit_mode:
-            self.prepend = term.orange("›")+term.normal+" "
-            if self.timer:
-                self.append = term.orange+term.dim+" (%s)" % self.timer
-            await self.onContentChange()
-        await super().onFocus()
+    async def onFocus(self, orig_src=None, child_src=None):
+        if child_src is None:
+            self.active = True
+            self.line_style = term.yellow
+            if not self.edit_mode:
+                self.prepend = term.orange("›")+term.normal+" "
+                if self.timer:
+                    self.append = term.orange+term.dim+" (%s)" % self.timer
+                await self.onContentChange()
+        await super().onFocus(orig_src=orig_src)
 
-    async def onUnfocus(self):
-        self.active = False
-        self.line_style = term.blue+term.dim
-        self.prepend = "  "
-        self._clear_timer()
-        self.clear() # removing what has been appended needs a complete refresh
-        await self.onContentChange()
-        await super().onFocus()
+    async def onUnfocus(self, orig_src=None, child_src=None):
+        if child_src is None:
+            self.active = False
+            self.line_style = term.blue+term.dim
+            self.prepend = "  "
+            self._clear_timer()
+            self.clear() # removing what has been appended needs a complete refresh
+            await self.onContentChange()
+        await super().onFocus(orig_src=orig_src)

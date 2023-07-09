@@ -85,7 +85,7 @@ class TextWindow(Window):
         # for line in self.lines:
         #     await line.draw()
 
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         element = term.cursor.on_element
         max_height = (self.max_height if self.max_height >= 1 else self.parent.height if self.parent else term.height)
         if val.code == term.KEY_UP or val == 'k':
@@ -112,7 +112,7 @@ class TextWindow(Window):
             if self.content_lines[-1].rel_pos[1] > self.max_inner_height:
                 await self.scroll(self.scroll_pos + 1)
         else:
-            await super().onKeyPress(val)
+            await super().onKeyPress(val, orig_src=orig_src)
 
     def add_line(self, text, prepend=""):
         if isinstance(text, str):
@@ -136,50 +136,54 @@ class TextWindow(Window):
         self.empty_lines += 1
         self.add_line("")
 
-    # async def onContentChange(self, child_src, el_changed):
+    # async def onContentChange(self, orig_src, child_src):
     #     if isinstance(child_src, Line):
     #         self._el_changed.append(child_src)
-    #     await super().onContentChange(child_src, el_changed)
-    async def onSizeChange(self, child_src, el_changed):
+    #     await super().onContentChange(orig_src, child_src)
+    async def onSizeChange(self, orig_src, child_src):
         self._size_changed.append(child_src)
-        await super().onSizeChange(child_src, el_changed)
+        await super().onSizeChange(orig_src)
 
-    async def onFocus(self):
-        if len(self.content_lines):
-            self.current_line = max(min(len(self.content_lines)-1, self.current_line),0)
-            # self.current_line = len(self.content_lines)//2
-            await term.cursor.moveTo(self.content_lines[self.current_line])
+    async def onFocus(self, orig_src=None, child_src=None):
 
-    async def onChildFocused(self, child_src=None, el_focused=None):
-        try:
-            current_line = self.lines.index(child_src)
-            current_content_line = self.content_lines.index(child_src)
-            if current_line < 0 or current_content_line < 0:
-                return
-        except ValueError:
-            return
+        if child_src is None:
+            if len(self.content_lines):
+                self.current_line = max(min(len(self.content_lines)-1, self.current_line),0)
+                # self.current_line = len(self.content_lines)//2
+                await term.cursor.moveTo(self.content_lines[self.current_line])
+            await super().onFocus(orig_src=orig_src)
 
-        self.current_line = current_content_line
-
-        # no need to scroll in case window is big enough
-        if self.max_scroll == 0:
-            return
-
-        if current_line == len(self.lines) - 1:
-            await self.scroll(-1)
         else:
-            await self.scroll(int(round(current_line / len(self.lines) * self.max_scroll)))
 
-        # await term.log(self.scroll_pos, self.max_scroll, len(self.lines) - self.height)
-        # await term.log("content",current_content_line, "line", current_line)
+            try:
+                current_line = self.lines.index(child_src)
+                current_content_line = self.content_lines.index(child_src)
+                if current_line < 0 or current_content_line < 0:
+                    return
+            except ValueError:
+                return
 
-        # up
-        # if focus_on.rel_pos[1] < self.padding[1]:
-        #     await self.scroll(max(self.scroll_pos + focus_on.rel_pos[1] - self.padding[1], 0))
+            self.current_line = current_content_line
 
-        # down
-        # if focus_on.rel_pos[1] > max_inner_height:# - focus_on.height:
-        #     await self.scroll(self.scroll_pos + focus_on.rel_pos[1] - element.rel_pos[1] + focus_on.height - 1)
+            # no need to scroll in case window is big enough
+            if self.max_scroll == 0:
+                return
+
+            if current_line == len(self.lines) - 1:
+                await self.scroll(-1)
+            else:
+                await self.scroll(int(round(current_line / len(self.lines) * self.max_scroll)))
+
+            # await term.log(self.scroll_pos, self.max_scroll, len(self.lines) - self.height)
+            # await term.log("content",current_content_line, "line", current_line)
+
+            # up
+            # if focus_on.rel_pos[1] < self.padding[1]:
+            #     await self.scroll(max(self.scroll_pos + focus_on.rel_pos[1] - self.padding[1], 0))
+
+            # down
+            # if focus_on.rel_pos[1] > max_inner_height:# - focus_on.height:
+            #     await self.scroll(self.scroll_pos + focus_on.rel_pos[1] - element.rel_pos[1] + focus_on.height - 1)
 
     async def scroll(self, pos):
         for l in self.lines:

@@ -100,13 +100,13 @@ class TaskLine(Line):
         self.line_style = default
         return " ".join([str(s) for s in S])+term.normal
 
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         if self.edit_mode:
             if self.suggestion_popup.visible:
                 if await self.suggestion_popup.onKeyPress(val):
                     return
 
-            await super().onKeyPress(val)
+            await super().onKeyPress(val, orig_src=orig_src)
             return
         else:
             if val == "x":
@@ -126,7 +126,7 @@ class TaskLine(Line):
             elif val == "A":
                 await self.set_editmode(True, charpos=len(self.task["raw_text"]) - 1, firstchar=2)
                 return
-        await UIElement.onKeyPress(self, val)
+        await UIElement.onKeyPress(self, val, orig_src=orig_src)
 
     async def _updateText(self, raw_text):
         text_optionals = self.task.__str__(print_description=False)
@@ -139,7 +139,6 @@ class TaskLine(Line):
         #     words = raw_text[:self.edit_charpos+1].split(' ')
         #     current_word = words[-1] if len(words) > 0 else None
         #     await self.update_suggestion_popup(current_word)
-        await self.onContentChange()
 
     async def set_editmode(self, mode, charpos: int=0, firstchar: int=2):
         self.previous_task = copy(self.task) if mode else None

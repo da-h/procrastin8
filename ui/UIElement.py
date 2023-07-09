@@ -177,56 +177,59 @@ class UIElement(object):
     # ------ #
     # Events #
     # ------ #
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         await term.log("action", "onKeyPress", self)
+        if orig_src is None:
+            orig_src = self
         if self.parent is not None:
-            await self.parent.onKeyPress(val)
+            await self.parent.onKeyPress(val, orig_src=orig_src, child_src=self)
 
-    async def onFocus(self):
+    async def onFocus(self, orig_src=None, child_src=None):
         await term.log("action", "onFocus", self)
-        await self.onChildFocused()
-
-    async def onChildFocused(self, child_src=None, el_focused=None):
-        await term.log("action", "onChildFocused", self)
-        if el_focused is None:
-            el_focused = self
-        if self.parent:
-            await self.parent.onChildFocused(self, el_focused)
-
-    async def onUnfocus(self):
-        await term.log("action", "onUnfocus", self)
-        await self.onChildUnfocused()
-
-    async def onChildUnfocused(self, child_src=None, el_unfocused=None):
-        await term.log("action", "onChildUnfocused", self)
-        if el_unfocused is None:
-            el_unfocused = self
-        if self.parent:
-            await self.parent.onChildUnfocused(self, el_unfocused)
-
-    async def onSizeChange(self, child_src=None, el_changed=[]):
-        await term.log("action", "onSizeChange", self)
-        if self.parent:
-            await self.parent.onSizeChange(self, el_changed + [self])
-
-    async def onContentChange(self, child_src=None, el_changed=None):
-        await term.log("action", "onContentChange", self)
-        if el_changed is None:
-            el_changed = self
-        if self.parent:
-            await self.parent.onContentChange(self, el_changed)
-
-    async def onEnter(self):
-        await term.log("action", "onEnter", self)
-        if self.parent and self.parent not in term.cursor.elements_under_cursor_before:
-            await self.parent.onEnter()
-
-    async def onLeave(self):
-        await term.log("action", "onLeave", self)
-        if self.parent and self.parent not in term.cursor.elements_under_cursor_after:
-            await self.parent.onLeave()
-
-    async def onElementClosed(self, elem):
-        await term.log("action", "onElementClosed", self)
+        if orig_src is None:
+            orig_src = self
         if self.parent is not None:
-            await self.parent.onElementClosed(elem)
+            await self.parent.onFocus(orig_src=orig_src, child_src=self)
+
+    async def onUnfocus(self, orig_src=None, child_src=None):
+        await term.log("action", "onUnfocus", self)
+        if orig_src is None:
+            orig_src = self
+        if self.parent is not None:
+            await self.parent.onUnfocus(orig_src=orig_src, child_src=self)
+
+    async def onSizeChange(self, orig_src=None, child_src=None):
+        await term.log("action", "onSizeChange", self)
+        if orig_src is None:
+            orig_src = self
+        if self.parent is not None:
+            await self.parent.onSizeChange(orig_src=orig_src, child_src=self)
+
+    async def onContentChange(self, orig_src=None, child_src=None):
+        await term.log("action", "onContentChange", self)
+        await self.mark_dirty("onContentChange")
+        if orig_src is None:
+            orig_src = self
+        if self.parent is not None:
+            await self.parent.onContentChange(orig_src=orig_src, child_src=self)
+
+    async def onEnter(self, orig_src=None, child_src=None):
+        await term.log("action", "onEnter", self)
+        if orig_src is None:
+            orig_src = self
+        if self.parent and self.parent not in term.cursor.elements_under_cursor_before:
+            await self.parent.onEnter(orig_src=orig_src, child_src=self)
+
+    async def onLeave(self, orig_src=None, child_src=None):
+        await term.log("action", "onLeave", self)
+        if orig_src is None:
+            orig_src = self
+        if self.parent and self.parent not in term.cursor.elements_under_cursor_after:
+            await self.parent.onLeave(orig_src=orig_src, child_src=self)
+
+    async def onElementClosed(self, orig_src=None, child_src=None):
+        await term.log("action", "onElementClosed", self)
+        if orig_src is None:
+            orig_src = self
+        if self.parent is not None:
+            await self.parent.onElementClosed(orig_src=orig_src, child_src=self)

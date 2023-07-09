@@ -35,10 +35,10 @@ class WidgetBar(UIElement):
         for w in self.widgets_right:
             await w.draw()
 
-    async def onContentChange(self, child_src, el_changed):
-        if el_changed in self.widgets_left:
+    async def onContentChange(self, orig_src, child_src):
+        if orig_src in self.widgets_left:
             self.clear("widgets_left")
-        if el_changed in self.widgets_right:
+        if orig_src in self.widgets_right:
             self.clear("widgets_right")
-        await super().onContentChange(child_src, el_changed)
+        await super().onContentChange(orig_src, child_src)
 

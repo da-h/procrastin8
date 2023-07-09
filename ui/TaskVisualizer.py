@@ -53,22 +53,24 @@ class TaskVisualizer(UIElement):
     # Event handlers
     # --------------
 
-    async def onFocus(self):
-        if len(self.windows):
-            await term.cursor.moveTo(self.windows[0])
+    async def onFocus(self, orig_src=None, child_src=None):
+        if child_src is None:
+            if len(self.windows):
+                await term.cursor.moveTo(self.windows[0])
+        await super().onFocus(orig_src=orig_src)
 
-    async def onElementClosed(self, elem):
-        self.children.remove(elem)
-        if elem in self.windows:
-            self.windows.remove(elem)
+    async def onElementClosed(self, orig_src=None, child_src=None):
+        self.children.remove(child_src)
+        if child_src in self.windows:
+            self.windows.remove(child_src)
         # await self.draw()
-        if term.cursor.isOnElement(elem):
+        if term.cursor.isOnElement(child_src):
             await term.cursor.moveTo(self.windows[0])
 
-    async def onContentChange(self, child_src=None, el_changed=None):
+    async def onContentChange(self, orig_src, child_src=None):
         if isinstance(child_src, TaskWindow):
             self.clear("marked")
-        await super().onContentChange(child_src, el_changed)
+        await super().onContentChange(child_src, orig_src)
 
     # Drawing methods
     # ---------------
@@ -261,7 +263,7 @@ class TaskVisualizer(UIElement):
 
             await self.mark_dirty("init_model_view=done")
 
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         element = term.cursor.on_element
 
         # X to Archive done tasks

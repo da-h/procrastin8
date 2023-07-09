@@ -83,9 +83,8 @@ class Line(UIElement):
             term.cursor.show()
         else:
             term.cursor.hide()
-        await self.onContentChange()
 
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         if self.edit_mode:
             if val.code == term.KEY_RIGHT:
                 self.edit_charpos = min(self.edit_charpos + 1, len(self.text))
@@ -146,7 +145,7 @@ class Line(UIElement):
                 await self._updateText(self.text[:self.edit_charpos] + str(val) + self.text[self.edit_charpos:])
                 self.edit_charpos += len(val)
                 return
-        return await super().onKeyPress(val)
+        return await super().onKeyPress(val, orig_src=orig_src)
 
     async def _updateText(self, raw_text):
         if self.edit_mode:
@@ -156,10 +155,10 @@ class Line(UIElement):
         if self.text != raw_text:
             self.text = raw_text
 
-    async def onEnter(self):
+    async def onEnter(self, orig_src=None, child_src=None):
         self.active = True
-        await super().onEnter()
-    async def onLeave(self):
+        await super().onEnter(orig_src=orig_src)
+    async def onLeave(self, orig_src=None, child_src=None):
         self.active = False
-        await super().onLeave()
+        await super().onLeave(orig_src=orig_src)
 

@@ -16,12 +16,18 @@ class ElemWithLabel(UIElement):
     def typeset(self):
         pass
 
-    async def onFocus(self):
-        await term.cursor.moveTo(self.elem)
-    async def onEnter(self):
-        self.clear()
-    async def onLeave(self):
-        self.clear()
+    async def onFocus(self, orig_src=None, child_src=None):
+        if child_src is None:
+            await term.cursor.moveTo(self.elem)
+        await super().onFocus(orig_src=orig_src)
+    async def onEnter(self, orig_src=None, child_src=None):
+        if child_src is None:
+            self.clear()
+        await super().onEnter(orig_src=orig_src)
+    async def onLeave(self, orig_src=None, child_src=None):
+        if child_src is None:
+            self.clear()
+        await super().onLeave(orig_src=orig_src)
 
 
     async def draw(self):

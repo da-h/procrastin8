@@ -91,10 +91,12 @@ class Dashboard(UIElement):
                 if key and term.cursor.on_element:
                     await term.cursor.on_element.onKeyPress(key)
 
-    async def onFocus(self):
-        await term.cursor.moveTo(self.children[-1])
+    async def onFocus(self, orig_src=None, child_src=None):
+        if child_src is None:
+            await term.cursor.moveTo(self.children[-1])
+        await super().onFocus()
 
-    async def onKeyPress(self, val):
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         if val == "r":
             import numpy as np
             self.win.rel_pos = np.random.randint(0,50,(2,))

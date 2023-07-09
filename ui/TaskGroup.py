@@ -63,17 +63,19 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
     def make_subgroup(self, *args, **kwargs):
         return TaskGroup(*args, **kwargs)
 
-    async def onFocus(self):
-        self.active = True
-        if self.parent and self.parent.title == self:
-            await self.parent.mark_dirty("onEnter")
-        return await super().onFocus()
-    async def onLeave(self):
-        self.active = False
-        if self.parent and self.parent.title == self:
-            await self.parent.mark_dirty("onLeave")
-        return await super().onLeave()
-    async def onKeyPress(self, val):
+    async def onFocus(self, orig_src=None, child_src=None):
+        if child_src is None:
+            self.active = True
+            if self.parent and self.parent.title == self:
+                await self.parent.mark_dirty("onEnter")
+        return await super().onFocus(orig_src=orig_src)
+    async def onLeave(self, orig_src=None, child_src=None):
+        if child_src is None:
+            self.active = False
+            if self.parent and self.parent.title == self:
+                await self.parent.mark_dirty("onLeave")
+        return await super().onLeave(orig_src=orig_src)
+    async def onKeyPress(self, val, orig_src=None, child_src=None):
         if not self.edit_mode:
             if val == 'i' or val == 'e':
                 await self.set_editmode(True, firstchar=0)
@@ -84,7 +86,7 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
 
                 self.task = Task.from_rawtext(self.model, self.raw_text)
                 return
-        await super().onKeyPress(val)
+        await super().onKeyPress(val, orig_src=orig_src)
 
     def _update_common_tags(self):
         all_tasks = self.get_all_tasks()
