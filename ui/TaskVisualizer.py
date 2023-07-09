@@ -84,9 +84,9 @@ class TaskVisualizer(UIElement):
         with term.location():
             if el := self.element("marked"):
                 for i, elem in enumerate(self.marked):
-                    el.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True)
+                    el.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True, layer=self.layer+2)
                     str_num = str(i+1)
-                    el.printAt(elem.pos - self.pos + (Settings.get('appearance.column_width')-Settings.get('appearance.window_padding')*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True)
+                    el.printAt(elem.pos - self.pos + (Settings.get('appearance.column_width')-Settings.get('appearance.window_padding')*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True, layer=self.layer+2)
 
     # Model view methods
     # ------------------
@@ -121,6 +121,7 @@ class TaskVisualizer(UIElement):
 
         window.current_line += line_offset
         await term.cursor.moveTo(window)
+        await self.mark_dirty("reinit_modelview")
 
     async def init_modelview(self):
         win_pos = 0
@@ -271,12 +272,14 @@ class TaskVisualizer(UIElement):
             self.model.archive()
             await self.reinit_modelview()
             await term.cursor.moveTo(self.windows[0])
+            return
 
         # Ctrl+r to save order of current view
         elif self.sortmode != SortMode.FILE and val == term.KEY_CTRL['r']:
             tasks = list(chain.from_iterable([win.get_all_tasks() for win in self.windows]))
             self.model.save_order(tasks)
             await self.reinit_modelview()
+            return
 
         # Ctrl+r to move marked children to the top
         elif self.sortmode == SortMode.FILE and val == term.KEY_CTRL['r']:
@@ -289,6 +292,7 @@ class TaskVisualizer(UIElement):
             self.clear("marked")
             self.model.save_order(tasks)
             await self.reinit_modelview()
+            return
 
         elif val == term.KEY_CTRL['o']:
             marked_tasks = [m.task for m in self.marked]
@@ -298,6 +302,7 @@ class TaskVisualizer(UIElement):
             self.clear("marked")
             self.model.save_order(marked_tasks)
             await self.reinit_modelview()
+            return
 
         # space to mark task
         elif val == ' ':
@@ -313,6 +318,8 @@ class TaskVisualizer(UIElement):
                     self.marked.append(elem)
             mark(element)
             self.clear("marked")
+            await self.mark_dirty()
+            return
 
         # LEFT/RIGHT to move between windows
         # UP/DOWN (window catches this event unless first/last task is under cursor) to move to next/previous task 

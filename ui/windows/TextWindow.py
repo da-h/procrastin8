@@ -188,3 +188,5 @@ class TextWindow(Window):
             self.scroll_pos = pos
         else:
             self.scroll_pos = self.max_scroll + pos + 1
+
+        await self.onContentChange()

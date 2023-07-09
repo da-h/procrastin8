@@ -15,7 +15,7 @@ class UIElementTerminalBridge(object):
         self.dirty = True
         self.always_dirty = False
 
-    def printAt(self, rel_pos, *args, ignore_padding=False):
+    def printAt(self, rel_pos, *args, ignore_padding=False, layer=None):
         if not self.uiel.visible:
             return
         seq = Sequence(*args, term)
@@ -29,7 +29,7 @@ class UIElementTerminalBridge(object):
         # tell terminal what to print
         # (it remembers all calls under the name of the with-statement)
         self.subelements.append(((pos[0],pos[1]), seq))
-        term.printAt(pos, seq, self.uiel.layer)
+        term.printAt(pos, seq, self.uiel.layer if layer is None else layer)
 
     # tell terminal what element to delete
     def clear(self):
