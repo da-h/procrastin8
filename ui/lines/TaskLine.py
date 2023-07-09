@@ -132,9 +132,9 @@ class TaskLine(Line):
         text_optionals = self.task.__str__(print_description=False)
         leading_spaces = len(raw_text) - len(raw_text.lstrip())
         raw_text = (f"{text_optionals} " if text_optionals else "") + raw_text
-        if self.text != raw_text:
-            self.text_changed = True
         self.task.update( Task.from_rawtext(self.task.model, raw_text, leading_spaces=leading_spaces ) )
+        if self.text != raw_text:
+            self.typeset()
         # if self.edit_mode:
         #     words = raw_text[:self.edit_charpos+1].split(' ')
         #     current_word = words[-1] if len(words) > 0 else None
