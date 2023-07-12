@@ -1,3 +1,7 @@
+x 2023-07-12 2023-07-12 mark -> escape +asyncbugs
+x 2023-07-12 2023-07-12 scroll indicator +asyncbugs
+x 2023-07-12 2023-07-12 slow updates +asyncbugs
+x 2023-07-12 2023-07-12 fix update right after startup +asyncbugs
 2023-06-07 should not remove text if other text is overwritten +code
 2023-06-07 registerProperty->clear should also be called when the child has been changed in some way, not just the property where the child is saved to +code
 2023-06-07 window border is not green anymore +code

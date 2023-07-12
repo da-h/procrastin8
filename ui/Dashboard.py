@@ -75,7 +75,7 @@ class Dashboard(UIElement):
                 self._more_draws_event.clear()
                 await self._dispatch_draw()
 
-            await asyncio.sleep(0.01)  # Throttling
+            await asyncio.sleep(0.001)  # Throttling
 
             # If no more draws, exit the loop
             if not self._more_draws_event.is_set():
