@@ -85,26 +85,27 @@ class UIElement(object):
         return False
     def __setattr__(self, name, value):
         if self.__initialized and name in self._prop_vals.keys():
+            prev_value = self._prop_vals[name]
             if self._prop_vals[name] == value:
                 return
             labels = self._prop_elem_connections[name]
             for label in labels:
                 self.element(label, getalways=True).clear()
             self._prop_vals[name] = value
-            asyncio.create_task(self.mark_dirty(f"{name}={value}"))
+            asyncio.create_task(self.mark_dirty("onValueChange", reason_details={"key":name, "value": value, "prev_value": prev_value, "element": self}))
             return
         object.__setattr__(self, name, value)
 
-    async def mark_dirty(self, reason=None, layer=None):
+    async def mark_dirty(self, reason=None, layer=None, reason_details={}):
         if layer is None:
             layer = self.layer
         self.dirty = True
-        await term.log("mark_dirty", self, reason)
+        await term.log("mark_dirty", self, reason, reason_details)
         if self.parent is not None:# and self.valid_reason():
             if not self.parent.dirty:
                 if self.parent.layer <= layer:
                     self.parent.clear()
-                await self.parent.mark_dirty(reason, layer)
+                await self.parent.mark_dirty(reason, layer, reason_details=reason_details)
         else:
             await self.dispatch_draw(reason)
 
