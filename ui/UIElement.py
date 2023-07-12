@@ -2,7 +2,7 @@ import numpy as np
 from blessed.sequences import Sequence
 from ui import get_term
 import asyncio
-
+from collections import defaultdict
 term = get_term()
 
 
@@ -59,15 +59,17 @@ class UIElement(object):
         self._elements = {}
         self._prop_elem_connections = {}
         self._prop_vals = {}
+        self._prop_instant_draw = defaultdict(lambda: True)
         self.__initialized = True
 
-    def registerProperty(self, name, value, element_labels):
+    def registerProperty(self, name, value, element_labels, instant_draw=True):
         if isinstance(element_labels, str):
             element_labels = [element_labels]
         if name in self._prop_vals:
             self._prop_elem_connections[name] += element_labels
         else:
             self._prop_elem_connections[name] = element_labels
+        self._prop_instant_draw[name] = instant_draw
         self._prop_vals[name] = value
 
     def chainProperty(self, src_element_label, element_labels):
@@ -92,15 +94,26 @@ class UIElement(object):
             for label in labels:
                 self.element(label, getalways=True).clear()
             self._prop_vals[name] = value
-            asyncio.create_task(self.mark_dirty("onValueChange", reason_details={"key":name, "value": value, "prev_value": prev_value, "element": self}))
+            asyncio.create_task(self.mark_dirty("onValueChange", reason_details={"key":name, "value": value, "prev_value": prev_value, "element": self, "instant_draw": self._prop_instant_draw[name]}))
             return
         object.__setattr__(self, name, value)
+
+    def instant_dirty_redraw(self, reason=None, layer=None, reason_details={}):
+        if reason == "onValueChange" and (reason_details["key"] not in ["rel_pos", "height"] and not self._prop_instant_draw[reason_details["key"]]):
+            return True
+        return False
 
     async def mark_dirty(self, reason=None, layer=None, reason_details={}):
         if layer is None:
             layer = self.layer
         self.dirty = True
         await term.log("mark_dirty", self, reason, reason_details)
+        if self.instant_dirty_redraw(reason=reason, layer=layer, reason_details=reason_details):
+            await term.log("instant_dirty_redraw", self, reason, reason_details)
+            await self._draw()
+            await term.draw(skip_clear=True)
+            return
+
         if self.parent is not None:# and self.valid_reason():
             if not self.parent.dirty:
                 if self.parent.layer <= layer:

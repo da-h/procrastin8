@@ -26,7 +26,7 @@ class TextWindow(Window):
         self.overfull_mode = overfull_mode
         self.current_line = 0
         self.empty_lines = 0
-        self.registerProperty("scroll_pos", 0, ["content", "border"])
+        self.registerProperty("scroll_pos", 0, ["content", "border"], instant_draw=False)
         self.registerProperty("content_height", 0, ["window"])
         self.registerProperty("height", self.height, ["content"])
         self._el_changed = []

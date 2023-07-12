@@ -166,12 +166,13 @@ class Terminal(BlessedTerminal):
         self.buffered_print = [{} for _ in range(len(self.buffered_print))]
         self.buffered_delete = [{} for _ in range(len(self.buffered_delete))]
 
-    async def draw(self):
+    async def draw(self, skip_clear=False):
         for layer in range(len(self.buffered_delete)):
 
             # Remove what is not requested again
-            for pos, length in self.buffered_delete[layer].items():
-                self._print(pos, " " * length)
+            if not skip_clear:
+                for pos, length in self.buffered_delete[layer].items():
+                    self._print(pos, " " * length)
 
             # Print all new sequences
             for pos, seq_list in self.buffered_print[layer].items():
