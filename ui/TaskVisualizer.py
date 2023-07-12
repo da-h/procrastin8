@@ -84,9 +84,12 @@ class TaskVisualizer(UIElement):
         with term.location():
             if el := self.element("marked"):
                 for i, elem in enumerate(self.marked):
-                    el.printAt(elem.pos - self.pos + (-1,0), term.yellow("┃"), ignore_padding=True, layer=self.layer+2)
+                    pos = elem.pos - self.pos
+                    if pos[1] <= 0 or pos[1] > self.height:
+                        continue
+                    el.printAt(pos + (-1,0), term.blue("┃"), ignore_padding=True, layer=self.layer+2)
                     str_num = str(i+1)
-                    el.printAt(elem.pos - self.pos + (Settings.get('appearance.column_width')-Settings.get('appearance.window_padding')*2-len(str_num)-1,0), term.bold_yellow(str_num), ignore_padding=True, layer=self.layer+2)
+                    el.printAt(pos + (Settings.get('appearance.column_width')-Settings.get('appearance.window_padding')*2-len(str_num)-1,0), term.bold_blue(str_num), ignore_padding=True, layer=self.layer+2)
 
     # Model view methods
     # ------------------
