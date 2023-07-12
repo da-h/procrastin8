@@ -67,10 +67,6 @@ class TaskVisualizer(UIElement):
         if term.cursor.isOnElement(child_src):
             await term.cursor.moveTo(self.windows[0])
 
-    async def onContentChange(self, orig_src, child_src=None):
-        if isinstance(child_src, TaskWindow):
-            self.clear("marked")
-        await super().onContentChange(child_src, orig_src)
 
     # Drawing methods
     # ---------------

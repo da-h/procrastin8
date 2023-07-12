@@ -206,14 +206,6 @@ class UIElement(object):
         if self.parent is not None:
             await self.parent.onSizeChange(orig_src=orig_src, child_src=self)
 
-    async def onContentChange(self, orig_src=None, child_src=None):
-        await term.log("action", "onContentChange", self)
-        await self.mark_dirty("onContentChange")
-        if orig_src is None:
-            orig_src = self
-        if self.parent is not None:
-            await self.parent.onContentChange(orig_src=orig_src, child_src=self)
-
     async def onEnter(self, orig_src=None, child_src=None):
         await term.log("action", "onEnter", self)
         if orig_src is None:

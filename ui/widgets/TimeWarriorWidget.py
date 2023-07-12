@@ -71,15 +71,13 @@ class TimeWarriorWidget(Line):
             # if the current tasks changed, set the new text
             if stdout != self.text and not self.edit_mode or last_append != self.append:
                 await self._updateText(stdout)
-                await self.onContentChange()
 
     async def onKeyPress(self, val, orig_src=None, child_src=None):
         if self.edit_mode:
             if val.code == term.KEY_ESCAPE:
-                await self._updateText(self.saved_text, call_onContentChange=False)
+                await self._updateText(self.saved_text)
                 await self.set_editmode(False)
                 await term.cursor.moveTo(self.parent.parent)
-                await self.onContentChange()
                 return
             elif val.code == term.KEY_ENTER:
                 cmd = self.text + " "
@@ -144,7 +142,6 @@ class TimeWarriorWidget(Line):
                 self.prepend = term.orange("›")+term.normal+" "
                 if self.timer:
                     self.append = term.orange+term.dim+" (%s)" % self.timer
-                await self.onContentChange()
         await super().onFocus(orig_src=orig_src)
 
     async def onUnfocus(self, orig_src=None, child_src=None):
@@ -154,5 +151,4 @@ class TimeWarriorWidget(Line):
             self.prepend = "  "
             self._clear_timer()
             self.clear() # removing what has been appended needs a complete refresh
-            await self.onContentChange()
         await super().onFocus(orig_src=orig_src)

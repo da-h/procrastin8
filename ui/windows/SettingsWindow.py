@@ -44,10 +44,3 @@ class SettingsWindow(TextWindow):
                 self.lines.append(line)
                 self.content_lines.append(line)
             self.lines.append(Line("", parent=self))
-
-    async def onContentChange(self, orig_src, child_src):
-        if child_src.type == bool:
-            Settings.set(child_src.key, child_src.elem.choices[child_src.elem.option] == "True")
-        else:
-            Settings.set(child_src.key, child_src.elem.value)
-        await super().onContentChange(self, orig_src)

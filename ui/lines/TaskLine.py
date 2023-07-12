@@ -111,7 +111,7 @@ class TaskLine(Line):
         else:
             if val == "x":
                 self.task.toggle_complete()
-                await self.onContentChange()
+                await self.mark_dirty("completed")
                 return
             elif val == "i" or val == "e":
                 await self.set_editmode(True)

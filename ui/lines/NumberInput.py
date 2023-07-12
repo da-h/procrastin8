@@ -29,7 +29,6 @@ class NumberInput(UIElement):
             if val.code == term.KEY_ENTER:
                 self.editing = False
                 self.initial_value = self.value
-                await self.onContentChange(self)
             elif val.code == term.KEY_ESCAPE:
                 self.editing = False
                 self.value = self.initial_value

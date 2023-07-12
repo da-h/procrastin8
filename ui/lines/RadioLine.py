@@ -30,13 +30,11 @@ class RadioLine(UIElement):
     async def onKeyPress(self, val, orig_src=None, child_src=None):
         if val.code == term.KEY_LEFT:
             self.option = (self.option - 1) % len(self.choices)
-            await self.onContentChange(self)
             self.clear()
             await self.draw()
             return
         elif val.code == term.KEY_RIGHT:
             self.option = (self.option + 1) % len(self.choices)
-            await self.onContentChange(self)
             self.clear()
             await self.draw()
             return
