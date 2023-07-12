@@ -26,7 +26,7 @@ class TextWindow(Window):
         self.overfull_mode = overfull_mode
         self.current_line = 0
         self.empty_lines = 0
-        self.registerProperty("scroll_pos", 0, ["content", "border"], instant_draw=False)
+        self.registerProperty("scroll_pos", 0, ["content", "border", "scroll_indicator"], instant_draw=False)
         self.registerProperty("content_height", 0, ["window"])
         self.registerProperty("height", self.height, ["content"])
         self._el_changed = []
@@ -76,7 +76,7 @@ class TextWindow(Window):
         await super().draw(**draw_args)
 
         # draw scroll bar
-        if el := self.element("border"):
+        if el := self.element("scroll_indicator"):
             if self.content_height > self.max_inner_height:
                 max_scroll = self.content_height - self.max_inner_height
                 el.printAt((self.width-Settings.get('appearance.window_padding'),int(self.scroll_pos/max_scroll*(self.max_inner_height-1))), term.yellow("┃") if self.active else "┃")
