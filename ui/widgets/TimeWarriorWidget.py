@@ -151,4 +151,4 @@ class TimeWarriorWidget(Line):
             self.prepend = "  "
             self._clear_timer()
             self.clear() # removing what has been appended needs a complete refresh
-        await super().onFocus(orig_src=orig_src)
+        await super().onUnfocus(orig_src=orig_src)
