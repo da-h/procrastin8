@@ -94,8 +94,9 @@ class Terminal(BlessedTerminal):
             self.dim = self.bright_black
 
     async def log(self, *msg):
-        with self.log_file.open("a") as l:
-            l.write(" - ".join([str(m) for m in msg]) + "\n")
+        if self.log_file is not None:
+            with self.log_file.open("a") as l:
+                l.write(" - ".join([str(m) for m in msg]) + "\n")
         self._log_msgs = self._log_msgs[-99:] + [" ".join([str(m) for m in msg])]
 
     # listen for keypresses (to be run in a seperate thread)
