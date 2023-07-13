@@ -7,8 +7,8 @@ class Window(UIElement):
 
     def __init__(self, rel_pos, width=1, height=1, title="", parent=None, max_height=-1, padding=(1,1,1,1)):
         super().__init__(rel_pos=rel_pos, parent=parent, padding=padding, max_height=max_height)
-        self.registerProperty("width", width, ["border"])
-        self.registerProperty("height", height, ["border"])
+        self.registerProperty("width", width, ["border"], instant_draw=False)
+        self.registerProperty("height", height, ["border"], instant_draw=False)
         self.registerProperty("title", title, ["border"])
         self.registerProperty("active", False, ["border"])
         self.draw_style = "basic"
