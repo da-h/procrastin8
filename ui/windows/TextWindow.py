@@ -50,6 +50,8 @@ class TextWindow(Window):
         # & position lines
         # redraw_content = False
         if el := self.element("content"):
+            self.title.clear()
+
             redraw_content = True
             content_height = 0
             self.line_cum_heights = []
@@ -57,9 +59,10 @@ class TextWindow(Window):
                 line.clear()
                 line.rel_pos = np.array((self.padding[3] + Settings.get('appearance.window_padding'), content_height - self.scroll_pos + self.padding[0]))
                 line.typeset()
-                line.max_height = max(self.max_inner_height - content_height + self.scroll_pos, 0)
                 if line.rel_pos[1] < self.padding[1]:
                     line.max_height = 0
+                else:
+                    line.max_height = max(self.max_inner_height - content_height + self.scroll_pos, 0)
                 content_height += line.height
                 self.line_cum_heights.append(content_height)
             self.content_height = content_height
