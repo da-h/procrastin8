@@ -53,7 +53,6 @@ class Dashboard(UIElement):
         loop.add_signal_handler(signal.SIGWINCH, lambda: asyncio.ensure_future(on_resize()))
 
         term.main_window = self
-        term.silent_draw = True # we start drawing after full initialization
 
 
     async def _dispatch_draw(self, reason=("Dashboard", )):
@@ -87,7 +86,6 @@ class Dashboard(UIElement):
             print(term.home + term.clear)
             await self.dispatch_draw()
             await term.cursor.moveTo(self)
-            term.silent_draw = False # we start drawing after full initialization
             while self.continue_loop:
                 key = await queue.get()
                 if key and term.cursor.on_element:
