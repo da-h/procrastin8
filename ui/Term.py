@@ -1,8 +1,6 @@
 from blessed import Terminal as BlessedTerminal
 import numpy as np
-from copy import copy
-from time import sleep
-import asyncio
+from pathlib import Path
 
 
 class Cursor:
@@ -87,11 +85,15 @@ class Terminal(BlessedTerminal):
         self.continue_loop = True
         self._log_msgs = []
 
+        self.log_file = Path("/tmp/procrastin8.log")
+        if self.log_file.exists():
+            self.log_file.unlink()
+
         if not self.dim:
             self.dim = self.bright_black
 
     async def log(self, *msg):
-        with open("/tmp/procrastin8.log", "a") as l:
+        with self.log_file.open("a") as l:
             l.write(" - ".join([str(m) for m in msg]) + "\n")
         self._log_msgs = self._log_msgs[-99:] + [" ".join([str(m) for m in msg])]
 
