@@ -64,13 +64,12 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
         return TaskGroup(*args, **kwargs)
 
     async def onFocus(self, orig_src=None, child_src=None):
-        if child_src is None:
-            self.active = True
+        self.active = True
         return await super().onFocus(orig_src=orig_src)
-    async def onLeave(self, orig_src=None, child_src=None):
-        if child_src is None:
-            self.active = False
-        return await super().onLeave(orig_src=orig_src)
+    async def onUnfocus(self, orig_src=None, child_src=None):
+        self.active = False
+        return await super().onUnfocus(orig_src=orig_src)
+
     async def onKeyPress(self, val, orig_src=None, child_src=None):
         if not self.edit_mode:
             if val == 'i' or val == 'e':
