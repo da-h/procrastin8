@@ -142,6 +142,7 @@ class TaskLine(Line):
         raw_text = (f"{text_optionals} " if text_optionals else "") + raw_text
         self.task.update( Task.from_rawtext(self.task.model, raw_text, leading_spaces=leading_spaces ) )
         if self.text != raw_text:
+            self.clear("typeset")
             self.typeset()
         # if self.edit_mode:
         #     words = raw_text[:self.edit_charpos+1].split(' ')

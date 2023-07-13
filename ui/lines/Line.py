@@ -12,8 +12,8 @@ class Line(UIElement):
         super().__init__(rel_pos=rel_pos, parent=parent)
         if text is not None:
             self.registerProperty("text", text, ["main", "typeset"])
-        self.height = 1
         self.wrapper = wrapper if wrapper is not None else parent.wrapper if parent is not None and hasattr(parent, 'wrapper') else parent
+        self.registerProperty("height", 1, ["main", "typeset"], instant_draw=False)
         self.registerProperty("prepend", prepend, ["main", "typeset"])
         self.registerProperty("append", append, ["main", "typeset"])
         self.registerProperty("edit_mode", False, ["main"])
@@ -22,7 +22,7 @@ class Line(UIElement):
         self.registerProperty("line_style", line_style, ["main", "typeset"])
         self.registerProperty("active", prepend, ["main"])
         self.registerProperty("center", center, ["main"])
-        self._typeset_text = None
+        self.registerProperty("_typeset_text", None, ["main", "typeset"])
 
     def formatText(self):
         return str(self.text)
