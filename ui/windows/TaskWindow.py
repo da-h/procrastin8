@@ -63,10 +63,10 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
         await super().onKeyPress(val, orig_src=orig_src)
 
     async def onEnter(self, orig_src=None, child_src=None):
-        self.clear("bordertitle")
+        self.border_color = term.yellow
         await super().onEnter(orig_src=orig_src)
 
     async def onLeave(self, orig_src=None, child_src=None):
         self.title.line_style = term.bold_white
-        self.clear("bordertitle")
+        self.border_color = term.yellow+term.dim
         await super().onLeave(orig_src=orig_src)
