@@ -547,6 +547,7 @@ class TaskVisualizer(UIElement):
                     element.task = element.previous_task
                     element.previous_task = None
                     await element.set_editmode(False)
+                    await element.mark_dirty()
                     if "unsaved" in element.task:
                         element.task.model.remove_task(element.task)
                         window = self.windows[self.current_window]
