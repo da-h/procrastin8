@@ -48,9 +48,6 @@ class UIElement(object):
             parent.children.append(self)
         self.visible = True
         self.parent = parent
-        self.padding = padding
-        self.max_height = max_height
-        self._rel_pos = np.array(rel_pos) if rel_pos else np.array((0,0))
         self.layer = parent.layer + 1 if layer is None and parent is not None else 0
         self.dirty = True
 
@@ -61,6 +58,10 @@ class UIElement(object):
         self._prop_vals = {}
         self._prop_instant_draw = defaultdict(lambda: True)
         self.__initialized = True
+
+        self.registerProperty("padding", padding, [], instant_draw=False)
+        self.registerProperty("max_height", max_height, [], instant_draw=False)
+        self.registerProperty("rel_pos", np.array(rel_pos) if rel_pos else np.array((0,0)), [], instant_draw=False)
 
     def registerProperty(self, name, value, element_labels, instant_draw=True):
         if isinstance(element_labels, str):
@@ -88,7 +89,10 @@ class UIElement(object):
     def __setattr__(self, name, value):
         if self.__initialized and name in self._prop_vals.keys():
             prev_value = self._prop_vals[name]
-            if self._prop_vals[name] == value:
+            if isinstance(value, np.ndarray) or isinstance(self._prop_vals[name], np.ndarray):
+                if np.array_equal(self._prop_vals[name], value):
+                    return
+            elif self._prop_vals[name] == value:
                 return
             labels = self._prop_elem_connections[name]
             for label in labels:
@@ -99,7 +103,7 @@ class UIElement(object):
         object.__setattr__(self, name, value)
 
     def instant_dirty_redraw(self, reason=None, layer=None, reason_details={}):
-        if reason == "onValueChange" and (reason_details["key"] not in ["rel_pos", "height"] and not self._prop_instant_draw[reason_details["key"]]):
+        if reason == "onValueChange" and (not self._prop_instant_draw[reason_details["key"]]):
             return True
         return False
 
@@ -127,17 +131,6 @@ class UIElement(object):
         if self.parent:
             return self.parent.pos + self.rel_pos
         return self.rel_pos
-
-    @property
-    def rel_pos(self):
-        return self._rel_pos
-    @rel_pos.setter
-    def rel_pos(self, a):
-        if a[0] != self._rel_pos[0] and a[1] != self._rel_pos[1]:
-            if self.__initialized:
-                self.clear()
-                asyncio.create_task(self.mark_dirty("rel_pos"))
-        self._rel_pos = np.array(a)
 
     def element(self, element_label, getalways=False):
         if element_label in self._elements:
