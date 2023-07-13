@@ -103,7 +103,7 @@ class UIElement(object):
         object.__setattr__(self, name, value)
 
     def instant_dirty_redraw(self, reason=None, layer=None, reason_details={}):
-        if reason == "onValueChange" and (not self._prop_instant_draw[reason_details["key"]]):
+        if reason == "onValueChange" and (self._prop_instant_draw[reason_details["key"]]):
             return True
         return False
 
@@ -113,7 +113,6 @@ class UIElement(object):
         self.dirty = True
         await term.log("mark_dirty", self, reason, reason_details)
         if self.instant_dirty_redraw(reason=reason, layer=layer, reason_details=reason_details):
-            await term.log("instant_dirty_redraw", self, reason, reason_details)
             await self._draw()
             await term.draw(skip_clear=True)
             return
