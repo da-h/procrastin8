@@ -25,6 +25,13 @@ class TaskLine(Line):
         self.suggestion_popup = SuggestionPopup(["one","two","three"], parent=self)
         self.suggestion_popup.visible = False
 
+        if self.task["complete"]:
+            self.line_style = term.dim if Settings.get('tasks.dim_complete') else ""
+        else:
+            self.line_style = term.normal
+
+
+
     @property
     def text(self):
         return self.task["raw_text"]
@@ -55,8 +62,6 @@ class TaskLine(Line):
     def formatText(self):
         S = []
         default = self.line_style
-        if self.task["complete"]:
-            default = (term.dim if Settings.get('tasks.dim_complete') else "")
 
         if self.task["priority"] == "A":
             S.append(term.red(self.task["priority"])+default)
@@ -97,7 +102,6 @@ class TaskLine(Line):
                 S.append(term.green(tstr)+default)
             else:
                 S.append(tstr)
-        self.line_style = default
         return " ".join([str(s) for s in S])+term.normal
 
     async def onKeyPress(self, val, orig_src=None, child_src=None):
@@ -111,7 +115,11 @@ class TaskLine(Line):
         else:
             if val == "x":
                 self.task.toggle_complete()
-                await self.mark_dirty("completed")
+                if self.task["complete"]:
+                    self.line_style = term.dim if Settings.get('tasks.dim_complete') else ""
+                else:
+                    self.line_style = term.normal
+                self.typeset()
                 return
             elif val == "i" or val == "e":
                 await self.set_editmode(True)
