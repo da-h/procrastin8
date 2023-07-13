@@ -19,7 +19,7 @@ class Line(UIElement):
         self.registerProperty("edit_mode", False, ["main"])
         self.registerProperty("edit_charpos", 0, ["main"])
         self.registerProperty("edit_firstchar", 0, ["main"])
-        self.registerProperty("line_style", line_style, ["main"])
+        self.registerProperty("line_style", line_style, ["main", "typeset"])
         self.registerProperty("active", prepend, ["main"])
         self.registerProperty("center", center, ["main"])
         self._typeset_text = None
