@@ -23,6 +23,7 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
         self.addPropertyElements("title", ["bordertitle"])
         self.addPropertyElements("border_color", ["bordertitle"])
         self.addPropertyElements("draw_style", ["bordertitle"], instant_draw=False)
+        self.border_color = term.normal+term.yellow+term.dim
 
 
 
@@ -63,10 +64,10 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
         await super().onKeyPress(val, orig_src=orig_src)
 
     async def onEnter(self, orig_src=None, child_src=None):
-        self.border_color = term.yellow
+        self.border_color = term.normal+term.yellow
         await super().onEnter(orig_src=orig_src)
 
     async def onLeave(self, orig_src=None, child_src=None):
         self.title.line_style = term.bold_white
-        self.border_color = term.yellow+term.dim
+        self.border_color = term.normal+term.yellow+term.dim
         await super().onLeave(orig_src=orig_src)
