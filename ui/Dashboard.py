@@ -99,7 +99,7 @@ class Dashboard(UIElement):
     async def onKeyPress(self, val, orig_src=None, child_src=None):
         if val == "r":
             import numpy as np
-            self.win.rel_pos = np.random.randint(0,50,(2,))
+            self.task_visualizer.windows[0].rel_pos = np.random.randint(0,50,(2,))
 
         if val == "q":
             term.cursor.show()
