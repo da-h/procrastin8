@@ -41,14 +41,13 @@ class TaskVisualizer(UIElement):
         self.marked = []
         self.inited = False
 
-        self.windows = []
-        self.tasks = []
-        self.task_groups = []
-        self.subtask_groups = []
-
-        self.current_window = 0
-        self.stackmode = StackMode.KEEP_ORDER
-        self.sortmode = SortMode.FILE
+        self.registerProperty("windows", [], [], instant_draw=False)
+        self.registerProperty("tasks", [], [], instant_draw=False)
+        self.registerProperty("task_groups", [], [], instant_draw=False)
+        self.registerProperty("subtask_groups", [], [], instant_draw=False)
+        self.registerProperty("current_window", 0, [], instant_draw=False)
+        self.registerProperty("stackmode", StackMode.KEEP_ORDER, [], instant_draw=False)
+        self.registerProperty("sortmode", SortMode.FILE, [], instant_draw=False)
 
     # Event handlers
     # --------------
