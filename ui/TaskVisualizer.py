@@ -82,7 +82,8 @@ class TaskVisualizer(UIElement):
                     pos = elem.pos - self.pos
                     if pos[1] <= 0 or pos[1] > self.height:
                         continue
-                    el.printAt(pos + (-1,0), term.blue("┃"), ignore_padding=True, layer=self.layer+2)
+                    for j in range(elem.height):
+                        el.printAt(pos + (-1,j), term.normal+term.blue("┃"), ignore_padding=True, layer=self.layer+2)
                     str_num = str(i+1)
                     el.printAt(pos + (Settings.get('appearance.column_width')-Settings.get('appearance.window_padding')*2-len(str_num)-1,0), term.bold_blue(str_num), ignore_padding=True, layer=self.layer+2)
 
