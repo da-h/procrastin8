@@ -1,13 +1,4 @@
-2023-07-13 reducing window height does not clear correctly +visualbugs
-2023-06-07 window border is not green anymore (only first window has correct colors) +visualbugs
-2023-07-13 line marks should span line height +visualbugs
-2023-07-13 first line mark has different color +visualbugs
-2023-07-13 new task should jump to task, not visual group +bugs
-2023-07-13 new task creates new task group instead of adding to current one +bugs
-2023-07-13 merging task groups does not happen anymore, editing also splits task groups +bugs
-2023-07-13 deletion after edit does not work +bugs
-2023-07-13 del key does not update +bugs
-2023-07-13 implement faster text input +performance
+2023-07-13 startup should jump to first group task not to group title +bugs
 presets +TaskVisualizer
 choose projects / contexts +TaskVisualizer
 and/or filters +TaskVisualizer

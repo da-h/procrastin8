@@ -87,3 +87,16 @@ x 2023-07-12 2023-07-12 fix update right after startup +asyncbugs
 x 2023-07-13 2023-06-07 registerProperty->clear should also be called when the child has been changed in some way, not just the property where the child is saved to +code
 x 2023-07-13 2023-05-03 rel_pos and pos should be registered variables +code
 x 2023-07-13 2023-05-01 use registerProperty in all classes to reduce number of redraws +code
+x 2023-07-13 2023-07-13 reducing window height does not clear correctly +visualbugs
+x 2023-07-13 2023-07-13 line_width does not update  +visualbugs
+x 2023-07-13 2023-07-13 text input is buggy +visualbugs
+x 2023-07-13 2023-06-07 window border is not green anymore (only first window has correct colors) +visualbugs
+x 2023-07-13 2023-07-13 line marks should span line height +visualbugs
+x 2023-07-13 2023-07-13 first line mark has different color +visualbugs
+x 2023-07-13 2023-07-13 escape does not reset task +bugs
+x 2023-07-13 2023-07-13 new task should jump to task, not visual group +bugs
+x 2023-07-13 2023-07-13 new task creates new task group instead of adding to current one +bugs
+x 2023-07-13 2023-07-13 merging task groups does not happen anymore +bugs
+x 2023-07-13 2023-07-13 deletion after edit does not work +bugs
+x 2023-07-13 2023-07-13 del key does not update +bugs
+x 2023-07-13 2023-07-13 implement faster text input +performance
