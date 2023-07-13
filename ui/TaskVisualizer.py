@@ -140,7 +140,7 @@ class TaskVisualizer(UIElement):
 
         for l in self.model.query(filter=self.filter, sortBy=sort_by):
             # New listname window
-            if l["lists"] and listtag not in l["lists"]:
+            if l["lists"] and str(listtag) not in [str(t) for t in l["lists"]]:
                 listtag = l["lists"][0]
                 new_window = True
 
@@ -156,7 +156,7 @@ class TaskVisualizer(UIElement):
                 subtask_group = None
 
             # Tag-line
-            if l["tags"] and tag not in l["tags"]:
+            if l["tags"] and str(tag) not in [str(t) for t in l["tags"]]:
                 if len(win.lines) > 0 and Settings.get('tasks.todo_style') == 1:
                     win.add_emptyline()
                 tag = l["tags"][0]
@@ -171,7 +171,7 @@ class TaskVisualizer(UIElement):
                 subtask_group = None
 
             # Subtag-line
-            if l["subtags"] and subtag not in l["subtags"]:
+            if l["subtags"] and str(subtag) not in [str(t) for t in l["subtags"]]:
                 subtag = l["subtags"][0] if l["subtags"] else None
                 subtask_group = task_group.add_taskgroup(term.dim + subtag.name, prepend=term.blue("· "), model=self.model)
                 self.subtask_groups.append(subtask_group)
