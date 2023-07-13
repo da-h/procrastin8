@@ -33,7 +33,7 @@ class Dashboard(UIElement):
         self.timewarriorwidget = TimeWarriorWidget(parent=self.widgetbar)
         self.widgetbar.widgets_left.append(self.timewarriorwidget)
         self.debugwindow = DebugWindow(parent=self, height=10)
-        self.height = term.height - self.pos[1]
+        self.debugwindow.visible = False
         self.task_visualizer = TaskVisualizer((0, self.widgetbar.height), self.height - self.debugwindow.height, model, filter, parent=self)
 
         self.resize_timer = None
@@ -99,21 +99,20 @@ class Dashboard(UIElement):
         await super().onFocus()
 
     async def onKeyPress(self, val, orig_src=None, child_src=None):
-        if val == "r":
+        if val == "0":
+            self.debugwindow.visible = not self.debugwindow.visible
+        elif val == "r":
             import numpy as np
             self.win.rel_pos = np.random.randint(0,50,(2,))
-
-        if val == "q":
+        elif val == "q":
             term.cursor.show()
             self.continue_loop = False
-
         elif val == "u":
             self.model.undo_manager.undo()
             await self.task_visualizer.reinit_modelview()
         elif val == "R":
             self.model.undo_manager.redo()
             await self.task_visualizer.reinit_modelview()
-
         elif val == "s":
             await self.toggle_settings()
 
@@ -126,4 +125,3 @@ class Dashboard(UIElement):
             self.settingswin.clear()
             await term.cursor.moveTo(self)
         self.clear()
-
