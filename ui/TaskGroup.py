@@ -25,8 +25,8 @@ class TaskGroup(AbstractTaskGroup, TaskLine):
         self.hide_taskbullet = True
         self.line_style = term.cyan
         # self.layer = self.parent.layer + 1
-        self.registerProperty("active", False, ["highlightborder", "grouptitle"])
         self.registerProperty("overwrite_height", 0, "highlightborder")
+        self.addPropertyElements("active", ["highlightborder", "grouptitle"], instant_draw=False)
         self.layer = self.parent.layer + 1
 
     def typeset(self):

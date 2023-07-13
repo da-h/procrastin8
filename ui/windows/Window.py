@@ -9,10 +9,10 @@ class Window(UIElement):
         super().__init__(rel_pos=rel_pos, parent=parent, padding=padding, max_height=max_height)
         self.registerProperty("width", width, ["border"], instant_draw=False)
         self.registerProperty("height", height, ["border"], instant_draw=False)
-        self.registerProperty("max_height", max_height, ["clearbg", "border"], instant_draw=False)
         self.registerProperty("title", title, ["border"])
         self.registerProperty("active", False, ["border"])
         self.draw_style = "basic"
+        self.addPropertyElements("max_height", ["clearbg", "border"])
 
     async def draw(self, **draw_args):
         if self.layer > 0:

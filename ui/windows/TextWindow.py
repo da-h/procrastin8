@@ -27,9 +27,9 @@ class TextWindow(Window):
         self.current_line = 0
         self.empty_lines = 0
         self.content_height = 0
-        self.registerProperty("scroll_pos", 0, ["content", "border", "scroll_indicator"], instant_draw=False)
-        self.registerProperty("height", self.height, ["content"], instant_draw=False)
-        self.registerProperty("max_height", self.max_height, ["content"], instant_draw=False)
+        self.registerProperty("scroll_pos", 0, ["content", "bordertitle", "border", "scroll_indicator"], instant_draw=False)
+        self.addPropertyElements("height", ["content"])
+        self.addPropertyElements("max_height", ["content"])
         self._el_changed = []
         self._size_changed = []
 

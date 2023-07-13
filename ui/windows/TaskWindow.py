@@ -15,10 +15,15 @@ class TaskWindow(TextWindow, AbstractTaskGroup):
 
         self.title = TaskGroup(self.parent.model, title, prepend=" ", append=" ", wrapper=self.wrapper, parent=self)
         self.title.tasklines = self.tasklines
-        # self.title = TaskLine(Task.from_rawtext(self.parent.model, title), prepend=" ", append=" ", wrapper=self.wrapper, parent=self)
         self.title.hide_taskbullet = True
         self.title.line_style = term.bold_white
-        self.registerProperty("title", self.title, ["bordertitle"])
+        self.addPropertyElements("title", ["bordertitle"])
+        self.addPropertyElements("width", ["bordertitle"], instant_draw=False)
+        self.addPropertyElements("height", ["bordertitle"], instant_draw=False)
+        self.addPropertyElements("title", ["bordertitle"])
+        self.addPropertyElements("border_color", ["bordertitle"])
+        self.addPropertyElements("draw_style", ["bordertitle"], instant_draw=False)
+
 
 
     def make_subgroup(self, *args, **kwargs):

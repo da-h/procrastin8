@@ -63,13 +63,20 @@ class UIElement(object):
         self.registerProperty("max_height", max_height, [], instant_draw=False)
         self.registerProperty("rel_pos", np.array(rel_pos) if rel_pos else np.array((0,0)), [], instant_draw=False)
 
+    def addPropertyElements(self, name, element_labels, instant_draw=None):
+        if name not in self._prop_vals:
+            raise ValueError("Property does not exist. Use registerProperty first.")
+        self._prop_elem_connections[name] += element_labels
+        if instant_draw != None:
+            self._prop_instant_draw[name] = instant_draw
+
     def registerProperty(self, name, value, element_labels, instant_draw=True):
+        if name in self._prop_vals:
+            raise ValueError("Already registered properties may not be overwritten. Use updateProperty elements instead.")
+
         if isinstance(element_labels, str):
             element_labels = [element_labels]
-        if name in self._prop_vals:
-            self._prop_elem_connections[name] += element_labels
-        else:
-            self._prop_elem_connections[name] = element_labels
+        self._prop_elem_connections[name] = element_labels
         self._prop_instant_draw[name] = instant_draw
         self._prop_vals[name] = value
 
