@@ -10,8 +10,8 @@ class Window(UIElement):
         self.registerProperty("width", width, ["border"], instant_draw=False)
         self.registerProperty("height", height, ["border"], instant_draw=False)
         self.registerProperty("title", title, ["border"])
-        self.registerProperty("active", False, ["border"])
-        self.draw_style = "basic"
+        self.registerProperty("border_color", term.dim, ["border"])
+        self.registerProperty("draw_style", "basic", ["border"], instant_draw=False)
         self.addPropertyElements("max_height", ["clearbg", "border"])
 
     async def draw(self, **draw_args):
@@ -22,9 +22,9 @@ class Window(UIElement):
 
         if el := self.element("border"):
             if self.draw_style == "basic":
-                self.draw_border(el, self.pos, (self.width, self.height), self.title, color=term.yellow if self.active else term.dim, **draw_args)
+                self.draw_border(el, self.pos, (self.width, self.height), self.title, color=self.border_color, **draw_args)
             elif self.draw_style == "basic-left-edge":
-                self.draw_border2(el, self.pos, (self.width, self.height), self.title, color=term.normal if self.active else term.dim, **draw_args)
+                self.draw_border2(el, self.pos, (self.width, self.height), self.title, color=self.border_color, **draw_args)
 
     async def close(self):
         await super().close()
@@ -45,7 +45,7 @@ class Window(UIElement):
         if title is not None and isinstance(title, str):
             el.printAt((1+0,0), color+" %s " % term.bold(term.white(title)), ignore_padding=True)
 
-    def draw_border2(self, pos, dim, title=None, color=term.normal):
+    def draw_border2(self, el, pos, dim, title=None, color=term.normal):
         pos = np.array(pos)
         dim = np.array(dim)
         width, height = dim
@@ -60,10 +60,3 @@ class Window(UIElement):
         # set title
         if title is not None and isinstance(title, str):
             el.printAt((1+0,0), color+" %s " % term.bold(term.white(title)), ignore_padding=True)
-
-    async def onEnter(self, orig_src=None, child_src=None):
-        self.active = True
-        await super().onEnter(orig_src=orig_src)
-    async def onLeave(self, orig_src=None, child_src=None):
-        self.active = False
-        await super().onLeave(orig_src=orig_src)
