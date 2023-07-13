@@ -31,14 +31,20 @@ class TaskLine(Line):
 
 
     async def draw(self):
-        await super().draw()
+        for line in self._typeset_text:
+            await super().draw(line)
+            if self.task["complete"]:
+                self.line_style = term.dim if Settings.get('tasks.dim_complete') else ""
+            else:
+                self.line_style = self.line_style
 
         if e := self.element("suggestion"):
             if self.suggestion_popup.visible:
                 await self.suggestion_popup.draw()
 
-
-
+        if e := self.element("suggestion"):
+            if self.suggestion_popup.visible:
+                await self.suggestion_popup.draw()
 
     # ensure lines have correct width
     def typeset(self):
