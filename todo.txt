@@ -1,16 +1,13 @@
-x 2023-07-12 2023-07-12 mark -> escape +asyncbugs
-x 2023-07-12 2023-07-12 scroll indicator +asyncbugs
-x 2023-07-12 2023-07-12 slow updates +asyncbugs
-x 2023-07-12 2023-07-12 fix update right after startup +asyncbugs
-2023-06-07 should not remove text if other text is overwritten +code
-2023-06-07 registerProperty->clear should also be called when the child has been changed in some way, not just the property where the child is saved to +code
-2023-06-07 window border is not green anymore +code
-2023-05-03 rel_pos and pos should be registered variables +code
-2023-05-01 use registerProperty in all classes to reduce number of redraws +code
-2023-05-01 improve TextWrapper creation +code
-2023-05-03 decide on concrete roles of UIElement functions. how should super be called? +code
-2023-05-03 same applies for the draw function. is it called directly, or should the whole tree be checked? subtree seems more efficient. but how do we make cross-connections like DebugWindow possible? +code
-tag/subtag/list suggestions +editmode
+2023-07-13 reducing window height does not clear correctly +visualbugs
+2023-06-07 window border is not green anymore (only first window has correct colors) +visualbugs
+2023-07-13 line marks should span line height +visualbugs
+2023-07-13 first line mark has different color +visualbugs
+2023-07-13 new task should jump to task, not visual group +bugs
+2023-07-13 new task creates new task group instead of adding to current one +bugs
+2023-07-13 merging task groups does not happen anymore, editing also splits task groups +bugs
+2023-07-13 deletion after edit does not work +bugs
+2023-07-13 del key does not update +bugs
+2023-07-13 implement faster text input +performance
 presets +TaskVisualizer
 choose projects / contexts +TaskVisualizer
 and/or filters +TaskVisualizer
@@ -23,13 +20,14 @@ allow resize +TaskVisualizer
 enable edit of priority/date +TaskVisualizer
 prompt to edit raw todo text +TaskVisualizer
 2020-11-10 scroll when too much windows to be shown +TaskVisualizer
-2020-11-09 CTRL+N for completely new task +feature
+tag/subtag/list suggestions +feature
 2021-03-06 make saving async task +feature
 2020-11-11 dependency tasks id:random p:parentid +feature
 2020-11-14 show tasks as dependency chain +feature
 2020-11-11 h:1 hidden +feature
 2020-11-30 split windows if in file-order mode +feature
 2020-11-26 split overlong window if not in reorder-mode  +feature
+2020-11-09 CTRL+N for completely new task +kb
 +kb strg+V toggle visibility modes (show full tasks, show only current task completely, hide non-text everywhere)
 +Archive opens small prompt
 +Archive all windows

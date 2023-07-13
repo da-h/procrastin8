@@ -80,3 +80,10 @@ x 2023-04-30 2023-04-30 by default draw on same layer as parent +ui ++layers
 x 2023-04-30 2023-04-30 adapt settings to use one layer up +ui ++layers
 x 2023-05-03 2023-05-03 rewrite UIElement to make all drawing operations to be handled by the TerminalBridge class +code
 x 2023-05-03 2023-05-03 rewrite TerminalBridge to allow multiple instances with multiple names +code
+x 2023-07-12 2023-07-12 mark -> escape +asyncbugs
+x 2023-07-12 2023-07-12 scroll indicator +asyncbugs
+x 2023-07-12 2023-07-12 slow updates +asyncbugs
+x 2023-07-12 2023-07-12 fix update right after startup +asyncbugs
+x 2023-07-13 2023-06-07 registerProperty->clear should also be called when the child has been changed in some way, not just the property where the child is saved to +code
+x 2023-07-13 2023-05-03 rel_pos and pos should be registered variables +code
+x 2023-07-13 2023-05-01 use registerProperty in all classes to reduce number of redraws +code
