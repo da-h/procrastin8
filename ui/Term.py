@@ -84,6 +84,7 @@ class Terminal(BlessedTerminal):
         self.print_buffer = []
         self.continue_loop = True
         self._log_msgs = []
+        self.silent_draw = False
 
         self.log_file = Path("/tmp/procrastin8.log")
         if self.log_file.exists():
@@ -169,6 +170,10 @@ class Terminal(BlessedTerminal):
         self.buffered_delete = [{} for _ in range(len(self.buffered_delete))]
 
     async def draw(self, skip_clear=False):
+        if self.silent_draw:
+            self.print_flush()
+            return
+
         for layer in range(len(self.buffered_delete)):
 
             # Remove what is not requested again

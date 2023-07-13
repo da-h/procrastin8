@@ -2,7 +2,7 @@
 from datetime import datetime
 from enum import Enum
 from itertools import chain
-import inspect
+import asyncio
 import numpy as np
 
 # Third-party imports
@@ -188,12 +188,14 @@ class TaskVisualizer(UIElement):
             win = TaskWindow((1 + win_pos, 0), Settings.get('appearance.column_width'), listtag.name if listtag else "Todos", parent=self)
             self.windows.append(win)
 
+        # ensure initial drawing is finished
+        # TODO: check for a better solution here
+        await asyncio.sleep(0)
+
         # Pack windows if space is not sufficient
         if term.width < win_pos:
             # await self.draw()
-            await self.mark_dirty("init_model_view=repack_windows")
             max_columns = term.width // (Settings.get('appearance.column_width') + Settings.get('appearance.window_margin'))
-            wins_to_stack = len(self.windows) - max_columns
             win_stacks = [[i] for i in range(len(self.windows))]
 
             # In this mode, we stack smallest windows until the stack-length equals the maximal number of columns
